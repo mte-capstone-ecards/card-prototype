@@ -1,0 +1,25 @@
+.settings
+.vscode
+
+# eclipse specific git ignore
+.metadata/
+RemoteSystemsTempFiles/
+.settings/
+Debug/
+Release
+*.launch
+
+# STM32 git ignore
+*.mxproject
+
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+CMakeUserPresets.json
