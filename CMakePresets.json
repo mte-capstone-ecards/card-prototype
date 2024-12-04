@@ -1,0 +1,127 @@
+{
+    "version": 10,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 20,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "default",
+            "displayName": "Default Config",
+            "description": "Default build using Ninja generator",
+            "generator": "Ninja",
+            "hidden": true
+        },
+        {
+            "name": "wincubeclt_default",
+            "inherits": "default",
+            "description": "Default windows config using the STM32CubeCLT",
+            "toolchainFile": "${sourceDir}/wincubeclt-gcc.cmake",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "hidden": true
+        },
+        {
+            "name": "debug",
+            "description": "Default Debug Config",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "release",
+            "description": "Default Release Config",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "nucleo_f446",
+            "displayName": "Nucleo F446 base config",
+            "cacheVariables": {
+                "BOARD": "F446"
+            },
+            "hidden": true
+        },
+        {
+            "name": "nucleo_g431",
+            "displayName": "Nucleo G431 base config",
+            "cacheVariables": {
+                "BOARD": "G431"
+            },
+            "hidden": true
+        },
+        {
+            "name": "nucleof446_debug",
+            "displayName": "Debug Nucleo F446",
+            "inherits": [
+                "wincubeclt_default",
+                "nucleo_f446",
+                "debug"
+            ],
+            "binaryDir": "${sourceDir}/Debug/F446",
+            "description": "Debug build for Nucleo F446 configuration"
+        },
+        {
+            "name": "nucleof446_release",
+            "displayName": "Release Nucleo F446",
+            "inherits": [
+                "wincubeclt_default",
+                "nucleo_f446",
+                "release"
+            ],
+            "binaryDir": "${sourceDir}/Release/F446",
+            "description": "Release build for Nucleo F446 configuration"
+        },
+        {
+            "name": "nucleog431_debug",
+            "displayName": "Debug Nucleo G431",
+            "inherits": [
+                "wincubeclt_default",
+                "nucleo_g431",
+                "debug"
+            ],
+            "binaryDir": "${sourceDir}/Debug/G431",
+            "description": "Debug build for Nucleo G431 configuration"
+        },
+        {
+            "name": "nucleog431_release",
+            "displayName": "Release Nucleo G431",
+            "inherits": [
+                "wincubeclt_default",
+                "nucleo_g431",
+                "release"
+            ],
+            "binaryDir": "${sourceDir}/Release/G431",
+            "description": "Release build for Nucleo G431 configuration"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Debug Nucleo F446",
+            "displayName": "Debug Nucleo F446",
+            "configurePreset": "nucleof446_debug"
+        },
+        {
+            "name": "Release Nucleo F446",
+            "displayName": "Debug Nucleo F446",
+            "configurePreset": "nucleof446_debug"
+        },
+        {
+            "name": "Debug Nucleo G431",
+            "displayName": "Debug Nucleo G431",
+            "configurePreset": "nucleog431_debug"
+        },
+        {
+            "name": "Release Nucleo G431",
+            "displayName": "Debug Nucleo G431",
+            "configurePreset": "nucleog431_debug"
+        }
+    ]
+}

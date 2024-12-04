@@ -16,20 +16,21 @@ cmake_minimum_required(VERSION 3.20)
 set (PROJECT_NAME             "multi-target-test")
 set (PROJECT_TYPE             "exe")
 
+################## PROJECT SETUP ######################################
+project(${PROJECT_NAME})
+enable_language(ASM)
+
 # Include board files
 add_subdirectory(Board)
 add_subdirectory(App)
 
-################## PROJECT SETUP ######################################
-project(${PROJECT_NAME})
-enable_language(ASM)
+# Sizing
+# add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_SIZE} $<TARGET_FILE:${CMAKE_PROJECT_NAME}>)
 
 add_executable (${PROJECT_NAME}
 	${BOARD_SOURCES}
 	${APP_SOURCES}
 )
-# Sizing
-# add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_SIZE} $<TARGET_FILE:${CMAKE_PROJECT_NAME}>)
 
 target_compile_definitions (${PROJECT_NAME} PRIVATE
 	${BOARD_DEFINES}
