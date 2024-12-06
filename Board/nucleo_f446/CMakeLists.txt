@@ -3,11 +3,11 @@
 message(STATUS "Building F4 Directory")
 
 # MCU Properties #
-set (MCPU                     
+set (MCPU
 	"-mcpu=cortex-M4"
 PARENT_SCOPE)
 
-set (MFPU                     
+set (MFPU
 	"-mfpu=fpv4-sp-d16"
 PARENT_SCOPE)
 
@@ -46,7 +46,7 @@ set (BOARD_SOURCES
 	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c
 	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c
 	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c
-PARENT_SCOPE) 
+PARENT_SCOPE)
 
 set (BOARD_INCLUDES
 	${F4_DIR}/Core/Inc
@@ -60,4 +60,8 @@ set (BOARD_DEFINES
 	USE_HAL_DRIVER
 	BOARD_F4
 	BOARD_NUCLEO
+PARENT_SCOPE)
+
+set (SVD_FILE
+	${CMAKE_SOURCE_DIR}/Board/SVD/G4/STM32G431.svd
 PARENT_SCOPE)

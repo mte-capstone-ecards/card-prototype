@@ -13,12 +13,14 @@
 cmake_minimum_required(VERSION 3.20)
 
 ###################### CONSTANTS ######################################
-set (PROJECT_NAME             "multi-target-test")
+set (PROJECT_NAME             "ecards")
 set (PROJECT_TYPE             "exe")
 
 ################## PROJECT SETUP ######################################
 project(${PROJECT_NAME})
 enable_language(ASM)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Include board files
 add_subdirectory(Board)
@@ -27,9 +29,16 @@ add_subdirectory(App)
 # Sizing
 # add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_SIZE} $<TARGET_FILE:${CMAKE_PROJECT_NAME}>)
 
+
 add_executable (${PROJECT_NAME}
 	${BOARD_SOURCES}
 	${APP_SOURCES}
+)
+
+# Copy SVD to output
+add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND}
+	ARGS -E copy ${SVD_FILE} ${CMAKE_BINARY_DIR}/device.svd
 )
 
 target_compile_definitions (${PROJECT_NAME} PRIVATE
