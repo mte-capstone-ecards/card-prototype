@@ -58,6 +58,14 @@
             "hidden": true
         },
         {
+            "name": "card_rev1_l071",
+            "displayName": "Card Revision 1 base config (L071)",
+            "cacheVariables": {
+                "BOARD": "L071"
+            },
+            "hidden": true
+        },
+        {
             "name": "nucleof446_debug",
             "displayName": "Debug Nucleo F446",
             "inherits": [
@@ -100,6 +108,28 @@
             ],
             "binaryDir": "${sourceDir}/Release/G431",
             "description": "Release build for Nucleo G431 configuration"
+        },
+        {
+            "name": "cardrev1l071_debug",
+            "displayName": "Debug Card Rev1",
+            "inherits": [
+                "wincubeclt_default",
+                "card_rev1_l071",
+                "debug"
+            ],
+            "binaryDir": "${sourceDir}/Debug/L071",
+            "description": "Debug build for Card Rev 1 w/ L071 configuration"
+        },
+        {
+            "name": "cardrev1l071_release",
+            "displayName": "Release Card Rev1",
+            "inherits": [
+                "wincubeclt_default",
+                "card_rev1_l071",
+                "release"
+            ],
+            "binaryDir": "${sourceDir}/Release/L071",
+            "description": "Release build for Card Rev 1 w/ L071 configuration"
         }
     ],
     "buildPresets": [
@@ -110,8 +140,8 @@
         },
         {
             "name": "Release Nucleo F446",
-            "displayName": "Debug Nucleo F446",
-            "configurePreset": "nucleof446_debug"
+            "displayName": "Release Nucleo F446",
+            "configurePreset": "nucleof446_release"
         },
         {
             "name": "Debug Nucleo G431",
@@ -120,8 +150,18 @@
         },
         {
             "name": "Release Nucleo G431",
-            "displayName": "Debug Nucleo G431",
-            "configurePreset": "nucleog431_debug"
+            "displayName": "Release Nucleo G431",
+            "configurePreset": "nucleog431_release"
+        },
+        {
+            "name": "Debug Card Rev 1",
+            "displayName": "Debug Card Rev 1",
+            "configurePreset": "cardrev1l071_debug"
+        },
+        {
+            "name": "Release Card Rev 1",
+            "displayName": "Release Card Rev 1",
+            "configurePreset": "cardrev1l071_release"
         }
     ]
 }
