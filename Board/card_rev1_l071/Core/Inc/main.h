@@ -65,8 +65,6 @@ void Error_Handler(void);
 #define TEST_GPIO_Port GPIOA
 #define TEST2_Pin GPIO_PIN_6
 #define TEST2_GPIO_Port GPIOA
-#define SWO_Pin GPIO_PIN_12
-#define SWO_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

@@ -265,10 +265,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, EINK_SPI_DC_Pin|TEST_Pin|TEST2_Pin|SWO_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, EINK_SPI_DC_Pin|TEST_Pin|TEST2_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : EINK_SPI_DC_Pin TEST_Pin TEST2_Pin SWO_Pin */
-  GPIO_InitStruct.Pin = EINK_SPI_DC_Pin|TEST_Pin|TEST2_Pin|SWO_Pin;
+  /*Configure GPIO pins : EINK_SPI_DC_Pin TEST_Pin TEST2_Pin */
+  GPIO_InitStruct.Pin = EINK_SPI_DC_Pin|TEST_Pin|TEST2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -280,6 +280,27 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 /* USER CODE END 4 */
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM2 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM2) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

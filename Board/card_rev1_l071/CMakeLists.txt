@@ -34,6 +34,7 @@ set (BOARD_SOURCES
 	${L0x1_DIR}/Core/Startup/startup_stm32l071k8ux.s
 	${L0x1_DIR}/Core/Src/main.c
 	${L0x1_DIR}/Core/Src/stm32l0xx_hal_msp.c
+	${L0x1_DIR}/Core/Src/stm32l0xx_hal_timebase_tim.c
 	${L0x1_DIR}/Core/Src/stm32l0xx_it.c
 	${L0x1_DIR}/Core/Src/syscalls.c
 	${L0x1_DIR}/Core/Src/sysmem.c
