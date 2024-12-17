@@ -74,7 +74,7 @@ void HAL_MspInit(void)
   /* System interrupt init*/
 
   /* USER CODE BEGIN MspInit 1 */
-
+  __enable_irq();
   /* USER CODE END MspInit 1 */
 }
 
