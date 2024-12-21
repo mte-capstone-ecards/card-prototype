@@ -39,7 +39,7 @@ void MX_SPI2_Init(void)
   /* USER CODE END SPI2_Init 1 */
   hspi2.Instance = SPI2;
   hspi2.Init.Mode = SPI_MODE_MASTER;
-  hspi2.Init.Direction = SPI_DIRECTION_1LINE;
+  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
   hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
@@ -76,9 +76,10 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**SPI2 GPIO Configuration
     PB13     ------> SPI2_SCK
+    PB14     ------> SPI2_MISO
     PB15     ------> SPI2_MOSI
     */
-    GPIO_InitStruct.Pin = EINK_SPI_SCL_Pin|EINK_SPI_SDA_Pin;
+    GPIO_InitStruct.Pin = EINK_SPI_SCL_Pin|EINK_SPI_MISO_Pin|EINK_SPI_MOSI_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -104,9 +105,10 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 
     /**SPI2 GPIO Configuration
     PB13     ------> SPI2_SCK
+    PB14     ------> SPI2_MISO
     PB15     ------> SPI2_MOSI
     */
-    HAL_GPIO_DeInit(GPIOB, EINK_SPI_SCL_Pin|EINK_SPI_SDA_Pin);
+    HAL_GPIO_DeInit(GPIOB, EINK_SPI_SCL_Pin|EINK_SPI_MISO_Pin|EINK_SPI_MOSI_Pin);
 
   /* USER CODE BEGIN SPI2_MspDeInit 1 */
 
