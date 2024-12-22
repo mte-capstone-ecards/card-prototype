@@ -7,6 +7,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "img.h"
+
 volatile uint8_t x = 0;
 #define NOP() (x++);
 
@@ -73,40 +75,33 @@ void eink_pinInit(void)
 
 void eink_sendByte(uint8_t byte)
 {
-        NOP();
-        NOP();
         eink_pinAssert(PIN_CS);
-        NOP();
-        NOP();
-
         HAL_SPI_Transmit(&hspi2, &byte, 1U, HAL_MAX_DELAY);
-
-        NOP();
-        NOP();
         eink_pinDeassert(PIN_CS);
-        NOP();
-        NOP();
 }
 
 void eink_sendIndexData(uint8_t index, uint8_t *data, uint16_t len)
 {
     eink_pinDeassert(PIN_DC);
-    // eink_pinAssert(PIN_CS);
-
     eink_sendByte(index);
-
-    // eink_pinDeassert(PIN_CS);
     eink_pinAssert(PIN_DC);
-    // eink_pinAssert(PIN_CS);
 
     for (uint16_t i = 0; i < len; i++)
     {
         eink_sendByte(data[i]);
     }
+}
 
-    // HAL_SPI_Transmit(&hspi2, data, len, HAL_MAX_DELAY);
-    // eink_pinDeassert(PIN_CS);
+void eink_sendIndexNull(uint8_t index, uint16_t len)
+{
+    eink_pinDeassert(PIN_DC);
+    eink_sendByte(index);
+    eink_pinAssert(PIN_DC);
 
+    for (uint16_t i = 0; i < len; i++)
+    {
+        eink_sendByte(0x00);
+    }
 }
 
 void eink_softReset()
@@ -155,13 +150,6 @@ typedef struct {
     uint16_t refreshTime;
 } EINK_s;
 
-
-// 370 Display
-#define EINK_SCREEN_SIZE_V 416
-#define EINK_SCREEN_SIZE_H 240
-
-#define EINK_IMAGE_DATA_SIZE (((uint32_t) (EINK_SCREEN_SIZE_V)) * ((uint32_t) (EINK_SCREEN_SIZE_H / 8)))
-
 void eink_powerUp()
 {
     eink_pinInit();
@@ -182,42 +170,15 @@ void eink_powerDown()
     // TODO:
 }
 
-void eink_globalUpdate(uint8_t *dataBW, uint8_t *dataBWR)
+void eink_fullUpdate(EPDBuf buf)
 {
     // Send first frame
-    eink_sendIndexData(0x10, dataBW, EINK_IMAGE_DATA_SIZE);
+    eink_sendIndexData(0x10, (uint8_t *) buf, EINK_IMAGE_DATA_SIZE);
 
-    // Send second frame
-    eink_sendIndexData(0x13, dataBWR, EINK_IMAGE_DATA_SIZE);
+    // Send dummy frame
+    eink_sendIndexNull(0x13, EINK_IMAGE_DATA_SIZE);
 
     eink_DCDCpowerOn();
     eink_displayRefresh();
 
-}
-
-void eink_main()
-{
-
-    // Turn on the display
-    eink_powerUp();
-
-    // Create display data
-    uint8_t dataBW[EINK_IMAGE_DATA_SIZE] = { 0U };
-    uint8_t dataBWR[EINK_IMAGE_DATA_SIZE] = { 0U };
-
-    uint8_t index = 0;
-
-    uint8_t patterns[3] = {0x00, 0xff, 0xf0};
-
-    while(1)
-    {
-        HAL_Delay(5000);
-
-        memset(dataBW,  patterns[index % 3], EINK_IMAGE_DATA_SIZE);
-        memset(dataBWR, 0x00, EINK_IMAGE_DATA_SIZE);
-
-        eink_globalUpdate(dataBW, dataBWR);
-
-        index++;
-    }
 }

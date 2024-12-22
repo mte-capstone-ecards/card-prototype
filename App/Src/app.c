@@ -8,7 +8,7 @@ void app_main(void)
 {
 #if EINK
 	#include "eink.h"
-	eink_main();
+	eink_demo();
 #else
 
 	while (1);
