@@ -7,6 +7,9 @@
 #include <stdbool.h>
 #include <string.h>
 
+volatile uint8_t x = 0;
+#define NOP() (x++);
+
 typedef struct {
     bool input;
     GPIO_PinState initState;
@@ -68,23 +71,42 @@ void eink_pinInit(void)
 /*         EInk Driver Functions         */
 /*****************************************/
 
+void eink_sendByte(uint8_t byte)
+{
+        NOP();
+        NOP();
+        eink_pinAssert(PIN_CS);
+        NOP();
+        NOP();
+
+        HAL_SPI_Transmit(&hspi2, &byte, 1U, HAL_MAX_DELAY);
+
+        NOP();
+        NOP();
+        eink_pinDeassert(PIN_CS);
+        NOP();
+        NOP();
+}
+
 void eink_sendIndexData(uint8_t index, uint8_t *data, uint16_t len)
 {
     eink_pinDeassert(PIN_DC);
-    eink_pinAssert(PIN_CS);
+    // eink_pinAssert(PIN_CS);
 
-    HAL_SPI_Transmit(&hspi2, &index, 1U, HAL_MAX_DELAY);
+    eink_sendByte(index);
 
-    eink_pinDeassert(PIN_CS);
+    // eink_pinDeassert(PIN_CS);
     eink_pinAssert(PIN_DC);
-    eink_pinDeassert(PIN_CS);
+    // eink_pinAssert(PIN_CS);
 
     for (uint16_t i = 0; i < len; i++)
     {
-        HAL_SPI_Transmit(&hspi2, &data[i], 1U, HAL_MAX_DELAY);
+        eink_sendByte(data[i]);
     }
 
-    eink_pinAssert(PIN_CS);
+    // HAL_SPI_Transmit(&hspi2, data, len, HAL_MAX_DELAY);
+    // eink_pinDeassert(PIN_CS);
+
 }
 
 void eink_softReset()
@@ -183,14 +205,19 @@ void eink_main()
     uint8_t dataBW[EINK_IMAGE_DATA_SIZE] = { 0U };
     uint8_t dataBWR[EINK_IMAGE_DATA_SIZE] = { 0U };
 
-    memset(dataBW,  0x00, EINK_IMAGE_DATA_SIZE);
-    memset(dataBWR, 0x00, EINK_IMAGE_DATA_SIZE);
+    uint8_t index = 0;
 
-    eink_globalUpdate(dataBW, dataBWR);
+    uint8_t patterns[3] = {0x00, 0xff, 0xf0};
 
     while(1)
     {
-        HAL_Delay(500);
-        HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
+        HAL_Delay(5000);
+
+        memset(dataBW,  patterns[index % 3], EINK_IMAGE_DATA_SIZE);
+        memset(dataBWR, 0x00, EINK_IMAGE_DATA_SIZE);
+
+        eink_globalUpdate(dataBW, dataBWR);
+
+        index++;
     }
 }
