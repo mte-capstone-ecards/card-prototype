@@ -57,14 +57,24 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define PWR_MONITOR_ADC_Pin GPIO_PIN_1
-#define PWR_MONITOR_ADC_GPIO_Port GPIOA
-#define EINK_SPI_DC_Pin GPIO_PIN_4
-#define EINK_SPI_DC_GPIO_Port GPIOA
-#define TEST_Pin GPIO_PIN_5
-#define TEST_GPIO_Port GPIOA
-#define TEST2_Pin GPIO_PIN_6
-#define TEST2_GPIO_Port GPIOA
+#define HARVEST_ADC_Pin GPIO_PIN_0
+#define HARVEST_ADC_GPIO_Port GPIOA
+#define VDD_ADC_Pin GPIO_PIN_1
+#define VDD_ADC_GPIO_Port GPIOA
+#define EINK_DC_Pin GPIO_PIN_4
+#define EINK_DC_GPIO_Port GPIOA
+#define EINK_SPI_SCL_Pin GPIO_PIN_5
+#define EINK_SPI_SCL_GPIO_Port GPIOA
+#define EINK_SPI_CS_Pin GPIO_PIN_6
+#define EINK_SPI_CS_GPIO_Port GPIOA
+#define EINK_SPI_MOSI_Pin GPIO_PIN_7
+#define EINK_SPI_MOSI_GPIO_Port GPIOA
+#define EINK_BUSY_Pin GPIO_PIN_8
+#define EINK_BUSY_GPIO_Port GPIOA
+#define EINK_RESET_Pin GPIO_PIN_9
+#define EINK_RESET_GPIO_Port GPIOA
+#define USER_LED_Pin GPIO_PIN_5
+#define USER_LED_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

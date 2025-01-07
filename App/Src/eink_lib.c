@@ -36,14 +36,14 @@ void eink_demo()
         uint16_t doubleSize = 2 * gridSize;
         for (uint16_t x = 0; x < EINK_SCREEN_SIZE_H; x++)
         {
-            // if ((x % doubleSize < gridSize) ^ (y % doubleSize < gridSize))
-            //     eink_setPixel(buf, x, y);
-            #include "img.h"
-            if (img[x + y * ROW_BYTES])
+            if ((x % doubleSize < gridSize) ^ (y % doubleSize < gridSize))
                 eink_setPixel(buf, x, y);
+            // if (img[x + y * EINK_SCREEN_SIZE_H])
+            //     eink_setPixel(buf, x, y);
+
         }
 
-        if (y > 20 * gridSize)
+        if (y > 40 * gridSize)
             gridSize++;
     }
 

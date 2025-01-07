@@ -1,6 +1,20 @@
 #pragma once
 
+#include "app.h"
+
+#if EINK
+
+
 #include <stdint.h>
+
+/** SPI Peripheral **/
+#if defined(BOARD_G4)
+# define EINK_SPI hspi2
+#elif defined(BOARD_L0)
+# define EINK_SPI hspi1
+#else
+# error "No SPI peripheral defined for eink"
+#endif
 
 /* 3.70 Inch EPD */
 #define EINK_SCREEN_SIZE_V 416
@@ -21,3 +35,5 @@ void eink_clearBuf(EPDBuf buf);
 void eink_setPixel(EPDBuf buf, uint16_t x, uint16_t y);
 void eink_setRow(EPDBuf buf, uint16_t y, uint8_t val);
 void eink_demo(void);
+
+#endif

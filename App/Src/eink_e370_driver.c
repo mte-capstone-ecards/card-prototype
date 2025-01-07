@@ -1,6 +1,8 @@
 
+#include "app.h"
 #include "eink.h"
 
+#if EINK
 #include <main.h>
 #include <spi.h>
 
@@ -76,7 +78,7 @@ void eink_pinInit(void)
 void eink_sendByte(uint8_t byte)
 {
         eink_pinAssert(PIN_CS);
-        HAL_SPI_Transmit(&hspi2, &byte, 1U, HAL_MAX_DELAY);
+        HAL_SPI_Transmit(&EINK_SPI, &byte, 1U, HAL_MAX_DELAY);
         eink_pinDeassert(PIN_CS);
 }
 
@@ -182,3 +184,4 @@ void eink_fullUpdate(EPDBuf buf)
     eink_displayRefresh();
 
 }
+#endif

@@ -33,8 +33,11 @@ PARENT_SCOPE)
 set (BOARD_SOURCES
 	${L0x1_DIR}/Core/Startup/startup_stm32l071k8ux.s
 	${L0x1_DIR}/Core/Src/main.c
+	${L0x1_DIR}/Core/Src/adc.c
+	${L0x1_DIR}/Core/Src/gpio.c
+	${L0x1_DIR}/Core/Src/spi.c
+	${L0x1_DIR}/Core/Src/usart.c
 	${L0x1_DIR}/Core/Src/stm32l0xx_hal_msp.c
-	${L0x1_DIR}/Core/Src/stm32l0xx_hal_timebase_tim.c
 	${L0x1_DIR}/Core/Src/stm32l0xx_it.c
 	${L0x1_DIR}/Core/Src/syscalls.c
 	${L0x1_DIR}/Core/Src/sysmem.c
@@ -51,6 +54,7 @@ set (BOARD_SOURCES
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_gpio.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c_ex.c
+	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_spi.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr_ex.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc.c
@@ -71,7 +75,7 @@ PARENT_SCOPE)
 set (BOARD_DEFINES
 	STM32L071xx
 	USE_HAL_DRIVER
-	BOARD_L0X1
+	BOARD_L0
 	BOARD_CARD
 PARENT_SCOPE)
 
