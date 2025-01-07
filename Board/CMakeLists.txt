@@ -3,7 +3,7 @@
 if (${BOARD} MATCHES "G431")
 	add_subdirectory(nucleo_g431)
 elseif (${BOARD} MATCHES "F446")
-	add_subdirectory(nucleo_f446)
+	add_subdirectory(devboard_f446)
 elseif (${BOARD} MATCHES "L071")
 	add_subdirectory(card_rev1_l071)
 endif()

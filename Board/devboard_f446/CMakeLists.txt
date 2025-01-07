@@ -34,7 +34,6 @@ set (BOARD_SOURCES
 	${F4_DIR}/Core/Startup/startup_stm32f446retx.s
 	${F4_DIR}/Core/Src/main.c
 	${F4_DIR}/Core/Src/gpio.c
-	${F4_DIR}/Core/Src/usart.c
 	${F4_DIR}/Core/Src/stm32f4xx_hal_msp.c
 	${F4_DIR}/Core/Src/stm32f4xx_it.c
 	${F4_DIR}/Core/Src/syscalls.c
@@ -43,9 +42,9 @@ set (BOARD_SOURCES
 	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c
 	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c
 	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c
-	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c
 	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c
 	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c
+	${F4_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c
 PARENT_SCOPE)
 
 set (BOARD_INCLUDES
