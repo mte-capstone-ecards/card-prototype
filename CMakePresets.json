@@ -45,7 +45,8 @@
             "name": "nucleo_f446",
             "displayName": "Nucleo F446 base config",
             "cacheVariables": {
-                "BOARD": "F446"
+                "BOARD": "F446",
+                "TYPE": "CONTROLLER"
             },
             "hidden": true
         },
@@ -53,7 +54,8 @@
             "name": "nucleo_g431",
             "displayName": "Nucleo G431 base config",
             "cacheVariables": {
-                "BOARD": "G431"
+                "BOARD": "G431",
+                "TYPE": "CARD"
             },
             "hidden": true
         },
@@ -61,7 +63,8 @@
             "name": "card_rev1_l071",
             "displayName": "Card Revision 1 base config (L071)",
             "cacheVariables": {
-                "BOARD": "L071"
+                "BOARD": "L071",
+                "TYPE": "CARD"
             },
             "hidden": true
         },

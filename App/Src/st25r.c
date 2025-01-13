@@ -81,6 +81,9 @@ static void ST25R_directCommand(uint8_t cmd, bool interrupt)
 static void ST25R_powerUpSequence(void)
 {
     // 1. Configure IO regs
+    // uint8_t ioCfgReg1 =
+
+    // ;
 
     // 2. Configure Regulators
 

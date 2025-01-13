@@ -2,7 +2,7 @@
 #include "app.h"
 #include "eink.h"
 
-#if CARD
+#if TYPE_CARD
 #include <main.h>
 #include <spi.h>
 

@@ -2,7 +2,7 @@
 
 #include "app.h"
 
-#if CARD
+#if TYPE_CARD
 
 
 #include <stdint.h>

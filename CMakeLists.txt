@@ -16,6 +16,13 @@ cmake_minimum_required(VERSION 3.20)
 set (PROJECT_NAME             "ecards")
 set (PROJECT_TYPE             "exe")
 
+###################### LIBRARIES ######################################
+set(SELECTED_LIBS
+	RFAL
+)
+
+add_subdirectory(Libs)
+
 ################## PROJECT SETUP ######################################
 project(${PROJECT_NAME})
 enable_language(ASM)
@@ -32,6 +39,7 @@ add_subdirectory(App)
 add_executable (${PROJECT_NAME}
 	${BOARD_SOURCES}
 	${APP_SOURCES}
+	${COMBINED_LIB_SOURCES}
 )
 
 # Copy SVD to output
@@ -42,11 +50,14 @@ add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
 
 target_compile_definitions (${PROJECT_NAME} PRIVATE
 	${BOARD_DEFINES}
+	${COMBINED_LIB_DEFINES}
+	"TYPE_${TYPE}"
 )
 
 target_include_directories (${PROJECT_NAME} PRIVATE
 	${BOARD_INCLUDES}
 	${APP_INCLUDES}
+	${COMBINED_LIB_INCLUDES}
 )
 
 set (CMAKE_EXECUTABLE_SUFFIX ".elf")

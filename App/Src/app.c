@@ -7,9 +7,9 @@
 
 void app_main(void)
 {
-#if CARD
+#if TYPE_CARD
 	eink_demo();
-#elif CONTROLLER
+#elif TYPE_CONTROLLER
 	st25r_main();
 #else
 	while (1)
