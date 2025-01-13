@@ -2,7 +2,7 @@
 
 #include "app.h"
 
-#if EINK
+#if CARD
 
 
 #include <stdint.h>

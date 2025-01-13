@@ -65,6 +65,16 @@ void Error_Handler(void);
 #define USER_INPUT_LEFT_GPIO_Port GPIOC
 #define USER_INPUT_RIGHT_Pin GPIO_PIN_3
 #define USER_INPUT_RIGHT_GPIO_Port GPIOC
+#define ST25_INTR_Pin GPIO_PIN_0
+#define ST25_INTR_GPIO_Port GPIOA
+#define ST25_CS_Pin GPIO_PIN_4
+#define ST25_CS_GPIO_Port GPIOA
+#define ST25_SCK_Pin GPIO_PIN_5
+#define ST25_SCK_GPIO_Port GPIOA
+#define ST25_MISO_Pin GPIO_PIN_6
+#define ST25_MISO_GPIO_Port GPIOA
+#define ST25_MOSI_Pin GPIO_PIN_7
+#define ST25_MOSI_GPIO_Port GPIOA
 #define USER_LED_Pin GPIO_PIN_10
 #define USER_LED_GPIO_Port GPIOB
 

@@ -1,5 +1,4 @@
-# G431 CMake Files
-
+# G431 CMake File
 message(STATUS "Building G4 Directory")
 
 # MCU Properties #

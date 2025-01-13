@@ -2,11 +2,15 @@
 #include "app.h"
 #include "main.h"
 
+#include "eink.h"
+#include "st25r.h"
+
 void app_main(void)
 {
-#if EINK
-	#include "eink.h"
+#if CARD
 	eink_demo();
+#elif CONTROLLER
+	st25r_main();
 #else
 	while (1)
 	{
