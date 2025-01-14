@@ -17,9 +17,26 @@ set (PROJECT_NAME             "ecards")
 set (PROJECT_TYPE             "exe")
 
 ###################### LIBRARIES ######################################
+# Common libraries
 set(SELECTED_LIBS
-	RFAL
+
 )
+
+# Controller Libraries
+if (${TYPE} MATCHES "CONTROLLER")
+	set(SELECTED_LIBS ${SELECTED_LIBS}
+		RFAL
+		ST25R_Common
+	)
+endif()
+
+# Card Libraries
+if (${TYPE} MATCHES "CARD")
+	set(SELECTED_LIBS ${SELECTED_LIBS}
+
+	)
+endif()
+
 
 add_subdirectory(Libs)
 

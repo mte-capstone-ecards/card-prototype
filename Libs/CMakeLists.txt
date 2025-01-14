@@ -11,6 +11,10 @@ foreach (LIB ${SELECTED_LIBS})
         add_subdirectory(RFAL)
     endif()
 
+    if (${LIB} MATCHES "ST25R_Common")
+        add_subdirectory(ST25R_Common)
+    endif()
+
     set(COMBINED_LIB_SOURCES    ${COMBINED_LIB_SOURCES}     ${LIB_SOURCES})
     set(COMBINED_LIB_INCLUDES   ${COMBINED_LIB_INCLUDES}    ${LIB_INCLUDES})
     set(COMBINED_LIB_DEFINES    ${COMBINED_LIB_DEFINES}     ${LIB_DEFINES})

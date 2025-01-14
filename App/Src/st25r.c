@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "st25r3911_interrupt.h"
+
 
 /*****************************************/
 /*                Defines                */
@@ -98,6 +100,8 @@ static void ST25R_powerUpSequence(void)
 /*           Public Functions            */
 /*****************************************/
 
+uint8_t globalCommProtectCnt = 0;
+
 void st25r_main()
 {
     HAL_Delay(1000);
@@ -111,3 +115,10 @@ void st25r_main()
 	}
 }
 
+__weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == ST25_INTR_Pin)
+    {
+        st25r3911Isr();
+    }
+}

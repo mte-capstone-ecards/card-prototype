@@ -21,6 +21,7 @@ set(LIB_SOURCES
 )
 
 # Select the correct ST25R chip
+set(LIB_DEFINES ST25R3911)
 set(LIB_SOURCES ${LIB_SOURCES}
     ${LIB_DIR}/source/st25r3911/rfal_rfst25r3911.c
     ${LIB_DIR}/source/st25r3911/st25r3911_com.c
@@ -37,7 +38,7 @@ set(LIB_INCLUDES
     ${LIB_DIR}/source/st25r3911
 PARENT_SCOPE)
 
-set(LIB_DEFINES
+set(LIB_DEFINES ${LIB_DEFINES}
 
 PARENT_SCOPE)
 

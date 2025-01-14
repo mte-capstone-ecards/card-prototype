@@ -1,0 +1,17 @@
+set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(LIB_SOURCES ${LIB_SOURCES}
+    ${LIB_DIR}/Src/ST25R_timer.c
+    ${LIB_DIR}/Src/ST25R_spi.c
+    ${LIB_DIR}/Src/ST25R_logger.c
+PARENT_SCOPE)
+
+set(LIB_INCLUDES
+    ${LIB_DIR}/Inc
+PARENT_SCOPE)
+
+set(LIB_DEFINES
+
+PARENT_SCOPE)
+
+
