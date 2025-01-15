@@ -15,6 +15,10 @@ foreach (LIB ${SELECTED_LIBS})
         add_subdirectory(ST25R_Common)
     endif()
 
+    if (${LIB} MATCHES "M24LR")
+        add_subdirectory(M24LR)
+    endif()
+
     set(COMBINED_LIB_SOURCES    ${COMBINED_LIB_SOURCES}     ${LIB_SOURCES})
     set(COMBINED_LIB_INCLUDES   ${COMBINED_LIB_INCLUDES}    ${LIB_INCLUDES})
     set(COMBINED_LIB_DEFINES    ${COMBINED_LIB_DEFINES}     ${LIB_DEFINES})

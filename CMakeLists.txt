@@ -33,7 +33,7 @@ endif()
 # Card Libraries
 if (${TYPE} MATCHES "CARD")
 	set(SELECTED_LIBS ${SELECTED_LIBS}
-
+		M24LR
 	)
 endif()
 

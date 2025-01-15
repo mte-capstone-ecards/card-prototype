@@ -34,6 +34,7 @@ set (BOARD_SOURCES
 	${G4_DIR}/Core/Startup/startup_stm32g431rbtx.s
 	${G4_DIR}/Core/Src/main.c
 	${G4_DIR}/Core/Src/spi.c
+	${G4_DIR}/Core/Src/i2c.c
 	${G4_DIR}/Core/Src/gpio.c
 	${G4_DIR}/Core/Src/stm32g4xx_hal_msp.c
 	${G4_DIR}/Core/Src/stm32g4xx_it.c
@@ -46,7 +47,10 @@ set (BOARD_SOURCES
 	${G4_DIR}/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_cortex.c
 	${G4_DIR}/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_cortex.c
 	${G4_DIR}/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc.c
+	${G4_DIR}/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_rcc_ex.c
 	${G4_DIR}/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_gpio.c
+	${G4_DIR}/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_i2c.c
+	${G4_DIR}/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_i2c_ex.c
 	${G4_DIR}/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_spi.c
 	${G4_DIR}/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_dma.c
 PARENT_SCOPE)

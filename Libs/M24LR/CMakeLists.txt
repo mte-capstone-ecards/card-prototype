@@ -1,0 +1,21 @@
+
+
+set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(LIB_SOURCES
+    ${LIB_DIR}/Src/m24lr_driver.c
+)
+
+
+# Forward the lib sources
+set(LIB_SOURCES ${LIB_SOURCES} PARENT_SCOPE)
+
+set(LIB_INCLUDES
+    ${LIB_DIR}/Inc
+PARENT_SCOPE)
+
+set(LIB_DEFINES ${LIB_DEFINES}
+
+PARENT_SCOPE)
+
+

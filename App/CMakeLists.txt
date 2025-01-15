@@ -16,6 +16,7 @@ if (${TYPE} MATCHES "CONTROLLER")
 	)
 elseif (${TYPE} MATCHES "CARD")
 	set (APP_SOURCES ${APP_SOURCES}
+		${APP_DIR}/Src/m24lr.c
 	)
 endif()
 

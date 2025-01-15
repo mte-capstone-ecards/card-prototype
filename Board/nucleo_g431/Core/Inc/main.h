@@ -69,8 +69,8 @@ void Error_Handler(void);
 #define EINK_DC_GPIO_Port GPIOC
 #define EINK_SPI_CS_Pin GPIO_PIN_3
 #define EINK_SPI_CS_GPIO_Port GPIOC
-#define USER_LED_Pin GPIO_PIN_5
-#define USER_LED_GPIO_Port GPIOA
+#define M24LR_BUSY_Pin GPIO_PIN_6
+#define M24LR_BUSY_GPIO_Port GPIOA
 #define EINK_SPI_SCL_Pin GPIO_PIN_13
 #define EINK_SPI_SCL_GPIO_Port GPIOB
 #define EINK_SPI_MISO_Pin GPIO_PIN_14
@@ -89,6 +89,12 @@ void Error_Handler(void);
 #define T_SWCLK_GPIO_Port GPIOA
 #define T_SWO_Pin GPIO_PIN_3
 #define T_SWO_GPIO_Port GPIOB
+#define USER_LED_Pin GPIO_PIN_4
+#define USER_LED_GPIO_Port GPIOB
+#define M24LR_SCL_Pin GPIO_PIN_8
+#define M24LR_SCL_GPIO_Port GPIOB
+#define M24LR_SDA_Pin GPIO_PIN_9
+#define M24LR_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

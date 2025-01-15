@@ -1,5 +1,9 @@
 #pragma once
 
+#include "app.h"
+
+#if TYPE_CONTROLLER
+
 #include <stdint.h>
 
 // Commands
@@ -14,3 +18,5 @@ typedef struct {
 
 void ST25R_main(void);
 void ST25R_task(void *);
+
+#endif

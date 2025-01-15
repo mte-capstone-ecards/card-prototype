@@ -4,6 +4,7 @@
 
 #include "eink.h"
 #include "st25r.h"
+#include "m24lr_driver.h"
 
 #if OS_FREERTOS
 # include "cmsis_os.h"
@@ -12,6 +13,8 @@
 void app_main(void)
 {
 #if BOARD_G4
+	HAL_Delay(1000);
+
 	while (1)
 	{
 		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
@@ -70,7 +73,7 @@ void App_HeartbeatTask(void *args)
 
 	for (;;)
 	{
-		// HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
+		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
 
 		if (osMessageQueueGetCount(nfcCommandQueueHandle) == 0)
 		{
