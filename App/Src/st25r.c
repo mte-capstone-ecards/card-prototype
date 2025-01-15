@@ -240,6 +240,11 @@ void ST25R_task(void *arg)
                 {
                     case RFAL_ERR_NONE:                                                    /* Data exchange successful  */
                         memset(&st25r.nextCommand, 0U, sizeof(ST25R_command));  // Clear the previous command
+                        if (st25r.rfRxBuf[1] == 0xbe)
+                            HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_SET);
+                        if (st25r.rfRxBuf[1] == 0xde)
+                            HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
+
                         st25r.state = ST25R_STATE_DATAEXCHANGE_START;        /* Trigger new exchange with device */
                         break;
 
