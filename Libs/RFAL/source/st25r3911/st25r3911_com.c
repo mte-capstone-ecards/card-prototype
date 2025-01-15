@@ -91,76 +91,48 @@ static inline void st25r3911CheckFieldSetLED(uint8_t value)
 * GLOBAL FUNCTIONS
 ******************************************************************************
 */
+#include "spi.h"
 void st25r3911ReadRegister(uint8_t reg, uint8_t* value)
-{ 
-#ifdef ST25R_COM_SINGLETXRX
-    uint8_t* buf = comBuf;
-#else  /* ST25R_COM_SINGLETXRX */
-    uint8_t  buf[2];
-#endif  /* ST25R_COM_SINGLETXRX */
-  
+{
+
     platformProtectST25RComm();
-    platformSpiSelect();
-  
-    buf[0] = (reg | ST25R3911_READ_MODE);
-    buf[1] = 0x00;
-  
-    platformSpiTxRx(buf, buf, 2);
-  
+
+    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_RESET);
+
+    // Write pattern
+    uint8_t pattern = ST25R3911_READ_MODE | reg;
+    HAL_SPI_Transmit(&ST25R_SPI, &pattern, 1U, HAL_MAX_DELAY);
+
+    // Read the data
+    uint8_t data;
+    HAL_SPI_Receive(&ST25R_SPI, &data, 1U, HAL_MAX_DELAY);
+
     if(value != NULL)
     {
-      *value = buf[1];
+        *value = data;
     }
-    
-    platformSpiDeselect();
+
+    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_SET);
+
     platformUnprotectST25RComm();
-
-    return;
 }
-
 
 void st25r3911ReadMultipleRegisters(uint8_t reg, uint8_t* values, uint8_t length)
 {
-#if !defined(ST25R_COM_SINGLETXRX)
-    const uint8_t cmd = (reg | ST25R3911_READ_MODE);
-#endif  /* !ST25R_COM_SINGLETXRX */
-  
     if (length > 0U)
     {
-        platformProtectST25RComm();
-        platformSpiSelect();
-  
-#ifdef ST25R_COM_SINGLETXRX
-  
-        RFAL_MEMSET( comBuf, 0x00, RFAL_MIN( (ST25R3911_CMD_LEN + (uint32_t)length), ST25R3911_BUF_LEN ) );
-        comBuf[0] = (reg | ST25R3911_READ_MODE);
-        
-        platformSpiTxRx(comBuf, comBuf, RFAL_MIN( (ST25R3911_CMD_LEN + length), ST25R3911_BUF_LEN ) );               /* Transceive as a single SPI call                        */
-        RFAL_MEMCPY( values, &comBuf[ST25R3911_CMD_LEN], RFAL_MIN( length, ST25R3911_BUF_LEN - ST25R3911_CMD_LEN ) );  /* Copy from local buf to output buffer and skip cmd byte */
-  
-#else  /* ST25R_COM_SINGLETXRX */
-  
-        if( values != NULL )
+        for (uint8_t i = 0; i < length; i++)
         {
-            RFAL_MEMSET( values, 0x00, length );
+            st25r3911ReadRegister(reg + i, &values[i]);
         }
-        
-        /* Since the result comes one byte later, let's first transmit the adddress with discarding the result */
-        platformSpiTxRx(&cmd, NULL, ST25R3911_CMD_LEN);
-        platformSpiTxRx(NULL, values, length);  
-  
-#endif  /* ST25R_COM_SINGLETXRX */
-
-        platformSpiDeselect();
-        platformUnprotectST25RComm();
     }
-    
+
     return;
 }
 
 void st25r3911ReadTestRegister(uint8_t reg, uint8_t* value)
 {
-  
+
 #ifdef ST25R_COM_SINGLETXRX
     uint8_t* buf = comBuf;
 #else  /* ST25R_COM_SINGLETXRX */
@@ -173,14 +145,15 @@ void st25r3911ReadTestRegister(uint8_t reg, uint8_t* value)
     buf[0] = ST25R3911_CMD_TEST_ACCESS;
     buf[1] = (reg | ST25R3911_READ_MODE);
     buf[2] = 0x00;
-  
-    platformSpiTxRx(buf, buf, 3);
-    
+
+    HAL_SPI_Transmit(&ST25R_SPI, buf, 2U, HAL_MAX_DELAY);
+    HAL_SPI_Receive(&ST25R_SPI, &buf[2], 1U, HAL_MAX_DELAY);
+
     if(value != NULL)
     {
       *value = buf[2];
     }
-    
+
     platformSpiDeselect();
     platformUnprotectST25RComm();
 
@@ -194,16 +167,16 @@ void st25r3911WriteTestRegister(uint8_t reg, uint8_t value)
 #else  /* ST25R_COM_SINGLETXRX */
     uint8_t  buf[3];
 #endif  /* ST25R_COM_SINGLETXRX */
-    
+
     platformProtectST25RComm();
     platformSpiSelect();
 
     buf[0] = ST25R3911_CMD_TEST_ACCESS;
     buf[1] = (reg | ST25R3911_WRITE_MODE);
     buf[2] = value;
-  
-    platformSpiTxRx(buf, NULL, 3);
-  
+
+    HAL_SPI_Transmit(&ST25R_SPI, buf, 3U, HAL_MAX_DELAY);
+
     platformSpiDeselect();
     platformUnprotectST25RComm();
 
@@ -212,27 +185,7 @@ void st25r3911WriteTestRegister(uint8_t reg, uint8_t value)
 
 void st25r3911WriteRegister(uint8_t reg, uint8_t value)
 {
-#ifdef ST25R_COM_SINGLETXRX
-    uint8_t* buf = comBuf;
-#else  /* ST25R_COM_SINGLETXRX */
-    uint8_t buf[2];
-#endif  /* ST25R_COM_SINGLETXRX */
-  
-    if (ST25R3911_REG_OP_CONTROL == reg)
-    {
-        st25r3911CheckFieldSetLED(value);
-    }    
-    
-    platformProtectST25RComm();
-    platformSpiSelect();
-
-    buf[0] = reg | ST25R3911_WRITE_MODE;
-    buf[1] = value;
-    
-    platformSpiTxRx(buf, NULL, 2);
-    
-    platformSpiDeselect();
-    platformUnprotectST25RComm();
+    st25r3911WriteMultipleRegisters(reg, &value, 1U);
 
     return;
 }
@@ -244,7 +197,7 @@ void st25r3911ClrRegisterBits( uint8_t reg, uint8_t clr_mask )
     st25r3911ReadRegister(reg, &tmp);
     tmp &= ~clr_mask;
     st25r3911WriteRegister(reg, tmp);
-    
+
     return;
 }
 
@@ -256,7 +209,7 @@ void st25r3911SetRegisterBits( uint8_t reg, uint8_t set_mask )
     st25r3911ReadRegister(reg, &tmp);
     tmp |= set_mask;
     st25r3911WriteRegister(reg, tmp);
-    
+
     return;
 }
 
@@ -284,58 +237,42 @@ void st25r3911ChangeTestRegisterBits( uint8_t reg, uint8_t valueMask, uint8_t va
 {
     uint8_t    rdVal;
     uint8_t    wrVal;
-    
+
     /* Read current reg value */
     st25r3911ReadTestRegister(reg, &rdVal);
-    
+
     /* Compute new value */
     wrVal  = (rdVal & ~valueMask);
     wrVal |= (value & valueMask);
-    
+
     /* Write new reg value */
     st25r3911WriteTestRegister(reg, wrVal );
-    
+
     return;
 }
 
 void st25r3911WriteMultipleRegisters(uint8_t reg, const uint8_t* values, uint8_t length)
-{ 
-#if !defined(ST25R_COM_SINGLETXRX)
-    const uint8_t cmd = (reg | ST25R3911_WRITE_MODE);
-#endif  /* !ST25R_COM_SINGLETXRX */
+{
 
-    if ((reg <= ST25R3911_REG_OP_CONTROL) && ((reg+length) >= ST25R3911_REG_OP_CONTROL))
-    {
-        st25r3911CheckFieldSetLED(values[ST25R3911_REG_OP_CONTROL-reg]);
-    }
-    
+    platformProtectST25RComm();
+
     if (length > 0U)
     {
-        /* make this operation atomic */
-        platformProtectST25RComm();
-        platformSpiSelect();
-    
-#ifdef ST25R_COM_SINGLETXRX
-      
-        comBuf[0] = (reg | ST25R3911_WRITE_MODE);
-        RFAL_MEMCPY( &comBuf[ST25R3911_CMD_LEN], values, RFAL_MIN( length, ST25R3911_BUF_LEN - ST25R3911_CMD_LEN ) );
+        HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_RESET);
 
-        platformSpiTxRx( comBuf, NULL, RFAL_MIN( (ST25R3911_CMD_LEN + length), ST25R3911_BUF_LEN ) );
-      
-#else  /*ST25R_COM_SINGLETXRX*/    
-    
-        platformSpiTxRx( &cmd, NULL, ST25R3911_CMD_LEN );
-        platformSpiTxRx( values, NULL, length );
-    
-#endif  /*ST25R_COM_SINGLETXRX*/    
-    
-        platformSpiDeselect();
-        platformUnprotectST25RComm();
+        // Write pattern
+        uint8_t pattern = ST25R3911_WRITE_MODE | reg;
+        HAL_SPI_Transmit(&ST25R_SPI, &pattern, 1U, HAL_MAX_DELAY);
+
+        // Write the values
+        HAL_SPI_Transmit(&ST25R_SPI, values, length, HAL_MAX_DELAY);
+
+        HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_SET);
     }
-    
-    return;
-}
 
+    platformUnprotectST25RComm();
+
+}
 
 void st25r3911WriteFifo(const uint8_t* values, uint8_t length)
 {
@@ -347,21 +284,21 @@ void st25r3911WriteFifo(const uint8_t* values, uint8_t length)
     {
         platformProtectST25RComm();
         platformSpiSelect();
-  
+
 #ifdef ST25R_COM_SINGLETXRX
-  
+
         comBuf[0] = ST25R3911_FIFO_LOAD;
         RFAL_MEMCPY( &comBuf[ST25R3911_CMD_LEN], values, RFAL_MIN( length, ST25R3911_BUF_LEN - ST25R3911_CMD_LEN ) );
 
         platformSpiTxRx( comBuf, NULL, RFAL_MIN( (ST25R3911_CMD_LEN + length), ST25R3911_BUF_LEN ) );
-  
+
 #else  /*ST25R_COM_SINGLETXRX*/
-  
-        platformSpiTxRx( &cmd, NULL, ST25R3911_CMD_LEN );
-        platformSpiTxRx( values, NULL, length );
-  
+
+        HAL_SPI_Transmit(&ST25R_SPI, &cmd, 1U, HAL_MAX_DELAY);
+        HAL_SPI_Transmit(&ST25R_SPI, values, length, HAL_MAX_DELAY);
+
 #endif  /*ST25R_COM_SINGLETXRX*/
-  
+
         platformSpiDeselect();
         platformUnprotectST25RComm();
     }
@@ -374,35 +311,35 @@ void st25r3911ReadFifo(uint8_t* buf, uint8_t length)
 #if !defined(ST25R_COM_SINGLETXRX)
     const uint8_t cmd = ST25R3911_FIFO_READ;
 #endif  /* !ST25R_COM_SINGLETXRX */
-    
+
     if(length > 0U)
     {
         platformProtectST25RComm();
         platformSpiSelect();
 
 #ifdef ST25R_COM_SINGLETXRX
-      
+
         RFAL_MEMSET( comBuf, 0x00, RFAL_MIN( (ST25R3911_CMD_LEN + (uint32_t)length), ST25R3911_BUF_LEN ) );
         comBuf[0] = ST25R3911_FIFO_READ;
-      
+
         platformSpiTxRx( comBuf, comBuf, RFAL_MIN( (ST25R3911_CMD_LEN + length), ST25R3911_BUF_LEN ) );          /* Transceive as a single SPI call                        */
         if( buf != NULL )
         {
             RFAL_MEMCPY( buf, &comBuf[ST25R3911_CMD_LEN], RFAL_MIN( length, ST25R3911_BUF_LEN - ST25R3911_CMD_LEN ) ); /* Copy from local buf to output buffer and skip cmd byte */
         }
-  
+
 #else  /*ST25R_COM_SINGLETXRX*/
-  
+
         if( buf != NULL )
         {
             RFAL_MEMSET( buf, 0x00, length );
         }
-        
-        platformSpiTxRx( &cmd, NULL, ST25R3911_CMD_LEN );
-        platformSpiTxRx( NULL, buf, length );
-  
+
+        HAL_SPI_Transmit(&ST25R_SPI, &cmd, 1U, HAL_MAX_DELAY);
+        HAL_SPI_Receive(&ST25R_SPI, buf, length, HAL_MAX_DELAY);
+
 #endif  /*ST25R_COM_SINGLETXRX*/
-      
+
         platformSpiDeselect();
         platformUnprotectST25RComm();
     }
@@ -412,25 +349,15 @@ void st25r3911ReadFifo(uint8_t* buf, uint8_t length)
 
 void st25r3911ExecuteCommand( uint8_t cmd )
 {
-    uint8_t tmpCmd;                                    /* MISRA 17.8 */
-    
-#ifdef PLATFORM_LED_FIELD_PIN
-    if ( (cmd >= ST25R3911_CMD_TRANSMIT_WITH_CRC) && (cmd <= ST25R3911_CMD_RESPONSE_RF_COLLISION_0))
-    {
-        platformLedOff(PLATFORM_LED_FIELD_PORT, PLATFORM_LED_FIELD_PIN);
-    }
-#endif /* PLATFORM_LED_FIELD_PIN */
-    
-    tmpCmd = (cmd | ST25R3911_CMD_MODE);
-
     platformProtectST25RComm();
-    platformSpiSelect();
-    
-    platformSpiTxRx( &tmpCmd, NULL, ST25R3911_CMD_LEN );
-    
-    platformSpiDeselect();
-    platformUnprotectST25RComm();
+    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_RESET);
 
+    // Write pattern
+    uint8_t pattern = ST25R3911_CMD_MODE | cmd;
+    HAL_SPI_Transmit(&ST25R_SPI, &pattern, 1U, HAL_MAX_DELAY);
+
+    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_SET);
+    platformUnprotectST25RComm();
     return;
 }
 
@@ -438,11 +365,12 @@ void st25r3911ExecuteCommand( uint8_t cmd )
 void st25r3911ExecuteCommands(const uint8_t *cmds, uint8_t length)
 {
     platformProtectST25RComm();
-    platformSpiSelect();
-    
-    platformSpiTxRx( cmds, NULL, length );
-    
-    platformSpiDeselect();
+    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_RESET);
+
+    // Write pattern
+    HAL_SPI_Transmit(&ST25R_SPI, cmds, length, HAL_MAX_DELAY);
+
+    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_SET);
     platformUnprotectST25RComm();
 
     return;

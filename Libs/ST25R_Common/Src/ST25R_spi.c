@@ -24,7 +24,7 @@
 
 #include "spi.h"
 
-#define SPI_TIMEOUT   1000
+#define SPI_TIMEOUT   HAL_MAX_DELAY
 
 SPI_HandleTypeDef *pSpi = NULL;
 

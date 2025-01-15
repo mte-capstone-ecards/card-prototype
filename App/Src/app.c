@@ -10,7 +10,7 @@ void app_main(void)
 #if TYPE_CARD
 	eink_demo();
 #elif TYPE_CONTROLLER
-	st25r_main();
+	ST25R_main();
 #else
 	while (1)
 	{

@@ -44,6 +44,12 @@
 # include "stm32f4xx_hal.h"
 #endif
 
+#if defined(BOARD_F4)
+# define ST25R_SPI  hspi1
+#else
+# error "No ST25R SPI defined"
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
@@ -125,7 +131,8 @@
 #define platformSpiDeselect()                         platformGpioSet(ST25R_SS_PORT, ST25R_SS_PIN)  /* SPI SS\CS: Chip|Slave Deselect              */
 #define platformSpiTxRx( txBuf, rxBuf, len )          spiTxRx(txBuf, rxBuf, len)                    /* SPI transceive                              */
 
-#define platformLog(...)                              logUsart(__VA_ARGS__)                         /* Log  method                                 */
+// #define platformLog(...)                              logUsart(__VA_ARGS__)                         /* Log  method                                 */
+#define platformLog(...)
 
 /*
 ******************************************************************************
@@ -157,7 +164,7 @@ extern uint8_t globalCommProtectCnt;                      /* Global Protection C
 #define RFAL_FEATURE_ISO_DEP                   true       /* Enable/Disable RFAL support for ISO-DEP (ISO14443-4)                      */
 #define RFAL_FEATURE_ISO_DEP_POLL              true       /* Enable/Disable RFAL support for Poller mode (PCD) ISO-DEP (ISO14443-4)    */
 #define RFAL_FEATURE_ISO_DEP_LISTEN            false      /* Enable/Disable RFAL support for Listen mode (PICC) ISO-DEP (ISO14443-4)   */
-#define RFAL_FEATURE_NFC_DEP                   false      /* Enable/Disable RFAL support for NFC-DEP (NFCIP1/P2P)                      */
+#define RFAL_FEATURE_NFC_DEP                   true       /* Enable/Disable RFAL support for NFC-DEP (NFCIP1/P2P)                      */
 
 #define RFAL_FEATURE_ISO_DEP_IBLOCK_MAX_LEN    256U       /* ISO-DEP I-Block max length. Please use values as defined by rfalIsoDepFSx */
 #define RFAL_FEATURE_NFC_DEP_BLOCK_MAX_LEN     254U       /* NFC-DEP Block/Payload length. Allowed values: 64, 128, 192, 254           */

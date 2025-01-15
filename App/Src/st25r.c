@@ -6,116 +6,268 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "rfal_nfc.h"
+#include "rfal_analogConfig.h"
+
 #include "st25r3911_interrupt.h"
 
 
 /*****************************************/
-/*                Defines                */
+/*           Defines & Typedefs          */
 /*****************************************/
-#if defined(BOARD_F4)
-# define ST25R_SPI  hspi1
-#else
-# error "No ST25R SPI defined"
-#endif
+typedef enum{
+    ST25R_STATE_INIT                =  0,  /* Initialize state            */
+    ST25R_STATE_TECHDETECT          =  1,  /* Technology Detection state  */
+    ST25R_STATE_COLAVOIDANCE        =  2,  /* Collision Avoidance state   */
+    ST25R_STATE_ACTIVATION          =  3,  /* Activation state            */
+    ST25R_STATE_DATAEXCHANGE_START  =  4,  /* Data Exchange Start state   */
+    ST25R_STATE_DATAEXCHANGE_CHECK  =  5,  /* Data Exchange Check state   */
+    ST25R_STATE_DEACTIVATION        =  9   /* Deactivation state          */
+} ST25R_state;
 
-#define MODE_MASK(val)  (val << 6U)
-#define WRITE_MODE      MODE_MASK(0b00)
-#define READ_MODE       MODE_MASK(0b01)
-#define FIFO_MODE       MODE_MASK(0b10)
-#define CMD_MODE        MODE_MASK(0b11)
+#define ST25R_RF_BUF_LEN   255   /* RF buffer length            */
+
+// Device Definition
+#define ST25R_NUM_DEVICES      10    /* Number of devices supported */
+
+typedef rfalNfcvListenDevice ST25R_Device;
+
+
+// Commands
+#define ST25R_CMD_SYS_INFO_REQ                       { 0x02, 0x2B }          /* NFC-V Get SYstem Information command*/
+#define ST25R_CMD_READ_SINGLE_BLOCK(addr)            { 0x02, 0x20, (addr)}   /* NFC-V Read single block command*/
+#define ST25R_CMD_WRITE_SINGLE_BLOCK(addr, data)     { 0x02, 0x21, (addr), (((data) & 0xFF000000) >> 24), (((data) & 0x00FF0000) >> 16), (((data) & 0x0000FF00) >> 8), (((data) & 0x000000FF) >> 0)}   /* NFC-V Read single block command*/
+
+// static uint8_t nfcSelectedCommand[] = ST25R_CMD_WRITE_SINGLE_BLOCK(0x00, 0xABCD0055);
+static uint8_t nfcSelectedCommand[] = ST25R_CMD_READ_SINGLE_BLOCK(0x00);
+
+/*****************************************/
+/*        Private Data Definitions       */
+/*****************************************/
+
+static struct {
+    ST25R_state state;
+    ReturnCode err;
+
+    ST25R_Device devList[ST25R_NUM_DEVICES];
+    uint8_t devCnt;
+
+    ST25R_Device *activeDev;
+
+    uint8_t rfTxBuf[ST25R_RF_BUF_LEN];
+    uint8_t rfRxBuf[ST25R_RF_BUF_LEN];
+
+    uint16_t rcvLen;
+} st25r;
+
+/*****************************************/
+/*        Public Data Definitions        */
+/*****************************************/
+uint8_t globalCommProtectCnt = 0;
 
 /*****************************************/
 /*           Private Functions           */
 /*****************************************/
 
-static void ST25R_writeBytes(uint8_t addr, uint8_t *data, uint8_t len)
+static bool ST25R_TechDetection( void )
 {
-    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_RESET);
+    rfalNfcvInventoryRes invRes;
 
-    // Write pattern
-    uint8_t pattern = WRITE_MODE | addr;
-    HAL_SPI_Transmit(&ST25R_SPI, &pattern, 1U, HAL_MAX_DELAY);
+    rfalNfcvPollerInitialize();                                                       /* Initialize RFAL for NFC-V */
+    rfalFieldOnAndStartGT();                                                          /* As field is already On only starts GT timer */
 
-    // Write the data
-    HAL_SPI_Transmit(&ST25R_SPI, data, len, HAL_MAX_DELAY);
-
-    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_SET);
+    st25r.err = rfalNfcvPollerCheckPresence( &invRes );                                     /* Poll for NFC-V devices */
+    return st25r.err == RFAL_ERR_NONE;
 }
 
-static uint8_t ST25R_readRegister(uint8_t addr)
+static bool ST25R_CollResolution( void )
 {
-    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_RESET);
+    uint8_t    i;
+    uint8_t    devCnt;
+    ReturnCode err;
 
-    // Write pattern
-    uint8_t pattern = READ_MODE | addr;
-    HAL_SPI_Transmit(&ST25R_SPI, &pattern, 1U, HAL_MAX_DELAY);
+    /*******************************************************************************/
+    /* NFC-V Collision Resolution                                                  */
+    /*******************************************************************************/
+    rfalNfcvListenDevice nfcvDevList[ST25R_NUM_DEVICES];
 
-    // Read the data
-    uint8_t data;
-    HAL_SPI_Receive(&ST25R_SPI, &data, 1U, HAL_MAX_DELAY);
-
-    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_SET);
-
-    return data;
-}
-
-static void ST25R_directCommand(uint8_t cmd, bool interrupt)
-{
-    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_RESET);
-
-    // Write pattern
-    uint8_t pattern = CMD_MODE | cmd;
-    HAL_SPI_Transmit(&ST25R_SPI, &pattern, 1U, HAL_MAX_DELAY);
-
-    HAL_GPIO_WritePin(ST25_CS_GPIO_Port, ST25_CS_Pin, GPIO_PIN_SET);
-
-    if (interrupt)
+    rfalNfcvPollerInitialize();
+    rfalFieldOnAndStartGT();                                                      /* Ensure GT again as other technologies have also been polled */
+    err = rfalNfcvPollerCollisionResolution( RFAL_COMPLIANCE_MODE_NFC, (ST25R_NUM_DEVICES - st25r.devCnt), nfcvDevList, &devCnt );
+    if( (err == RFAL_ERR_NONE) && (devCnt != 0) )
     {
-        // Wait for the IRQ line
-        while( HAL_GPIO_ReadPin(ST25_INTR_GPIO_Port, ST25_INTR_Pin) == GPIO_PIN_RESET );
-
-        // We should clear the IRQ reason for direct command
-        // Direct Command IRQ: Reg 0x18, Bit 7
-
+        for( i=0; i<devCnt; i++ )                                                /* Copy devices found form local Nfcf list into global device list */
+        {
+            st25r.devList[st25r.devCnt] = nfcvDevList[i];
+            st25r.devCnt++;
+        }
     }
+
+    return (st25r.devCnt > 0);
 }
 
-static void ST25R_powerUpSequence(void)
+static bool ST25R_Activation( uint8_t devIt )
 {
-    // 1. Configure IO regs
-    // uint8_t ioCfgReg1 =
+    ReturnCode           err;
+    rfalNfcbSensbRes     sensbRes;
+    uint8_t              sensbResLen;
 
-    // ;
+    if( devIt > st25r.devCnt )
+    {
+        return false;
+    }
 
-    // 2. Configure Regulators
+    rfalNfcvPollerInitialize();
 
-    // 3. Calibrate Antenna
+    /* No specific activation needed for a T5T */
+    platformLog("NFC-V T5T device activated \r\n");                           /* NFC-V T5T device activated */
 
-    // 4. Calibrate modulation depth (If needed)
+    st25r.activeDev = &st25r.devList[devIt];                                                    /* Assign active device to be used further on */
+    return true;
+}
 
-    // 5. We are ready to operate!
+static ReturnCode ST25R_DataExchange( void )
+{
+    rfalTransceiveContext ctx;
+    ReturnCode            err;
+    rfalIsoDepTxRxParam   isoDepTxRx;
+    rfalNfcDepTxRxParam   nfcDepTxRx;
+    uint8_t               *txBuf;
+    uint16_t              txBufLen;
+
+
+    /*******************************************************************************/
+    /* The Data Exchange is divided in two different moments, the trigger/Start of *
+     *  the transfer followed by the check until its completion                    */
+    if( st25r.state == ST25R_STATE_DATAEXCHANGE_START )                      /* Trigger/Start the data exchange */
+    {
+        /* To perform presence check, on this example a Get System Information command is used */
+        txBuf    = nfcSelectedCommand;
+        txBufLen = sizeof(nfcSelectedCommand);
+
+        /*******************************************************************************/
+        /* Trigger a RFAL Transceive using the previous defined frames                 */
+        rfalCreateByteFlagsTxRxContext( ctx, txBuf, txBufLen, st25r.rfRxBuf, sizeof(st25r.rfRxBuf), &st25r.rcvLen, RFAL_TXRX_FLAGS_DEFAULT, rfalConvMsTo1fc(20) );
+        return (((err = rfalStartTransceive( &ctx )) == RFAL_ERR_NONE) ? RFAL_ERR_BUSY : err);     /* Signal RFAL_ERR_BUSY as Data Exchange has been started and is ongoing */
+    }
+    /*******************************************************************************/
+    /* The Data Exchange has been started, wait until completed                    */
+    else if( st25r.state == ST25R_STATE_DATAEXCHANGE_CHECK )
+    {
+        return rfalGetTransceiveStatus();
+    }
+    return RFAL_ERR_REQUEST;
+}
+
+static bool ST25R_Deactivate( void )
+{
+    return true;
+}
+
+static void ST25R_task()
+{
+    rfalAnalogConfigInitialize();                                                     /* Initialize RFAL's Analog Configs */
+    rfalInitialize();
+
+    for (;;)
+    {
+        rfalWorker();
+
+        switch (st25r.state)
+        {
+            case ST25R_STATE_INIT:
+                st25r.activeDev  = NULL;
+                st25r.devCnt     = 0;
+
+                st25r.state = ST25R_STATE_TECHDETECT;
+                break;
+
+            case ST25R_STATE_TECHDETECT:
+
+                if( !ST25R_TechDetection() )                             /* Poll for nearby devices in different technologies */
+                {
+                    st25r.state = ST25R_STATE_DEACTIVATION;                  /* If no device was found, restart loop */
+                    break;
+                }
+
+                st25r.state = ST25R_STATE_COLAVOIDANCE;                      /* One or more devices found, go to Collision Avoidance */
+                break;
+
+            case ST25R_STATE_COLAVOIDANCE:
+
+                if( !ST25R_CollResolution() )                              /* Resolve any eventual collision */
+                {
+                    st25r.state = ST25R_STATE_DEACTIVATION;                  /* If Collision Resolution was unable to retrieve any device, restart loop */
+                    break;
+                }
+
+                st25r.state = ST25R_STATE_ACTIVATION;                        /* Device(s) have been identified, go to Activation */
+                break;
+
+            case ST25R_STATE_ACTIVATION:
+
+                if( !ST25R_Activation( 0 ) )                               /* Any device previous identified can be Activated, on this example will select the firt on the list */
+                {
+                    st25r.state = ST25R_STATE_DEACTIVATION;                  /* If Activation failed, restart loop */
+                    break;
+                }
+
+                st25r.state = ST25R_STATE_DATAEXCHANGE_START;                /* Device has been properly activated, go to Data Exchange */
+                break;
+
+            case ST25R_STATE_DATAEXCHANGE_START:
+            case ST25R_STATE_DATAEXCHANGE_CHECK:
+
+                st25r.err = ST25R_DataExchange();                                /* Perform Data Exchange, in this example a simple transfer will executed in order to do device's presence check */
+                switch( st25r.err )
+                {
+                    case RFAL_ERR_NONE:                                                    /* Data exchange successful  */
+                        platformDelay(300);                                           /* Wait a bit */
+                        st25r.state = ST25R_STATE_DATAEXCHANGE_START;        /* Trigger new exchange with device */
+                        break;
+
+                    case RFAL_ERR_BUSY:                                                    /* Data exchange ongoing  */
+                        st25r.state = ST25R_STATE_DATAEXCHANGE_CHECK;        /* Once triggered/started the Data Exchange only do check until is completed */
+                        break;
+
+                    default:                                                          /* Data exchange not successful, card removed or other transmission error */
+                        st25r.state = ST25R_STATE_DEACTIVATION;              /* Restart loop */
+                        break;
+                }
+                break;
+
+            case ST25R_STATE_DEACTIVATION:
+
+                ST25R_Deactivate();                                        /* If a card has been activated, properly deactivate the device */
+
+                rfalFieldOff();                                                       /* Turn the Field Off powering down any device nearby */
+                platformDelay( 500 );                                                 /* Remain a certain period with field off */
+
+                st25r.state = ST25R_STATE_INIT;                              /* Restart the loop */
+                break;
+
+            default:
+            return;
+        }
+    }
 }
 
 /*****************************************/
 /*           Public Functions            */
 /*****************************************/
-
-uint8_t globalCommProtectCnt = 0;
-
-void st25r_main()
+void ST25R_main(void)
 {
-    HAL_Delay(1000);
+    ST25R_task(); // Should never return
 
-    ST25R_powerUpSequence();
-
-	while (1)
-	{
-		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
-		HAL_Delay(1000);
-	}
+    while(1)
+    {
+        HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
+        HAL_Delay(1000);
+    }
 }
 
-__weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+// INTR Callback function
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == ST25_INTR_Pin)
     {
