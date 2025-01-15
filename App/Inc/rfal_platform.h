@@ -60,6 +60,10 @@
 #include "ST25R_timer.h"
 #include "ST25R_logger.h"
 
+#if OS_FREERTOS
+# include "cmsis_os.h"
+#endif
+
 
 
 /*
@@ -121,7 +125,11 @@
 #define platformTimerCreate( t )                      timerCalculateTimer(t)                        /* Create a timer with the given time (ms)     */
 #define platformTimerIsExpired( timer )               timerIsExpired(timer)                         /* Checks if the given timer is expired        */
 #define platformTimerDestroy( timer )                                                               /* Stop and release the given timer            */
+#if OS_FREERTOS
+#define platformDelay( t )                            osDelay( t )                                /* Performs a delay for the given time (ms)    */
+#else
 #define platformDelay( t )                            HAL_Delay( t )                                /* Performs a delay for the given time (ms)    */
+#endif
 
 #define platformGetSysTick()                          HAL_GetTick()                                 /* Get System Tick ( 1 tick = 1 ms)            */
 

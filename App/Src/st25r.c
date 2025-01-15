@@ -11,6 +11,10 @@
 
 #include "st25r3911_interrupt.h"
 
+#if OS_FREERTOS
+# include "cmsis_os.h"
+#endif
+
 
 /*****************************************/
 /*           Defines & Typedefs          */
@@ -32,14 +36,14 @@ typedef enum{
 
 typedef rfalNfcvListenDevice ST25R_Device;
 
-
-// Commands
-#define ST25R_CMD_SYS_INFO_REQ                       { 0x02, 0x2B }          /* NFC-V Get SYstem Information command*/
-#define ST25R_CMD_READ_SINGLE_BLOCK(addr)            { 0x02, 0x20, (addr)}   /* NFC-V Read single block command*/
-#define ST25R_CMD_WRITE_SINGLE_BLOCK(addr, data)     { 0x02, 0x21, (addr), (((data) & 0xFF000000) >> 24), (((data) & 0x00FF0000) >> 16), (((data) & 0x0000FF00) >> 8), (((data) & 0x000000FF) >> 0)}   /* NFC-V Read single block command*/
-
-// static uint8_t nfcSelectedCommand[] = ST25R_CMD_WRITE_SINGLE_BLOCK(0x00, 0xABCD0055);
-static uint8_t nfcSelectedCommand[] = ST25R_CMD_READ_SINGLE_BLOCK(0x00);
+#if !OS_FREERTOS
+// static uint8_t nfcSelectedCommandPayload[] = ST25R_CMD_WRITE_SINGLE_BLOCK(0x00, 0xABCD0055);
+static uint8_t nfcSelectedCommandPayload[] = ST25R_CMD_READ_SINGLE_BLOCK(0x00);
+static ST25R_command nfcSelectedCommand = {
+    .payload = nfcSelectedCommandPayload,
+    .payloadSize = sizeof(nfcSelectedCommandPayload),
+};
+#endif
 
 /*****************************************/
 /*        Private Data Definitions       */
@@ -53,6 +57,8 @@ static struct {
     uint8_t devCnt;
 
     ST25R_Device *activeDev;
+
+    ST25R_command nextCommand;
 
     uint8_t rfTxBuf[ST25R_RF_BUF_LEN];
     uint8_t rfRxBuf[ST25R_RF_BUF_LEN];
@@ -141,9 +147,14 @@ static ReturnCode ST25R_DataExchange( void )
      *  the transfer followed by the check until its completion                    */
     if( st25r.state == ST25R_STATE_DATAEXCHANGE_START )                      /* Trigger/Start the data exchange */
     {
-        /* To perform presence check, on this example a Get System Information command is used */
-        txBuf    = nfcSelectedCommand;
-        txBufLen = sizeof(nfcSelectedCommand);
+        // Check if the message exists
+        if (st25r.nextCommand.payloadSize == 0U)
+        {
+            return RFAL_ERR_NOMSG;
+        }
+
+        txBuf    = st25r.nextCommand.payload;
+        txBufLen = st25r.nextCommand.payloadSize;
 
         /*******************************************************************************/
         /* Trigger a RFAL Transceive using the previous defined frames                 */
@@ -164,8 +175,13 @@ static bool ST25R_Deactivate( void )
     return true;
 }
 
-static void ST25R_task()
+/*****************************************/
+/*           Public Functions            */
+/*****************************************/
+void ST25R_task(void *arg)
 {
+    (void) arg;
+
     rfalAnalogConfigInitialize();                                                     /* Initialize RFAL's Analog Configs */
     rfalInitialize();
 
@@ -178,6 +194,7 @@ static void ST25R_task()
             case ST25R_STATE_INIT:
                 st25r.activeDev  = NULL;
                 st25r.devCnt     = 0;
+                memset(&st25r.nextCommand, 0U, sizeof(ST25R_command));
 
                 st25r.state = ST25R_STATE_TECHDETECT;
                 break;
@@ -222,12 +239,18 @@ static void ST25R_task()
                 switch( st25r.err )
                 {
                     case RFAL_ERR_NONE:                                                    /* Data exchange successful  */
-                        platformDelay(300);                                           /* Wait a bit */
+                        memset(&st25r.nextCommand, 0U, sizeof(ST25R_command));  // Clear the previous command
                         st25r.state = ST25R_STATE_DATAEXCHANGE_START;        /* Trigger new exchange with device */
                         break;
 
                     case RFAL_ERR_BUSY:                                                    /* Data exchange ongoing  */
                         st25r.state = ST25R_STATE_DATAEXCHANGE_CHECK;        /* Once triggered/started the Data Exchange only do check until is completed */
+                        break;
+
+                    case RFAL_ERR_NOMSG:                                                   /* No message to send. Wait for queue to fill  */
+                        extern osMessageQueueId_t nfcCommandQueueHandle;
+                        osStatus_t status = osMessageQueueGet(nfcCommandQueueHandle, &st25r.nextCommand, NULL, 10);
+                        st25r.state = ST25R_STATE_DATAEXCHANGE_START;        /* Trigger new exchange with device */
                         break;
 
                     default:                                                          /* Data exchange not successful, card removed or other transmission error */
@@ -249,15 +272,17 @@ static void ST25R_task()
             default:
             return;
         }
+
+        if (st25r.state == ST25R_STATE_INIT)
+        {
+            platformDelay(5);
+        }
     }
 }
 
-/*****************************************/
-/*           Public Functions            */
-/*****************************************/
 void ST25R_main(void)
 {
-    ST25R_task(); // Should never return
+    ST25R_task(NULL); // Should never return
 
     while(1)
     {
