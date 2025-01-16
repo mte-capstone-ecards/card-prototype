@@ -4,15 +4,19 @@
 
 #include "eink.h"
 #include "st25r.h"
+
+#if TYPE_CARD
 #include "m24lr_driver.h"
+#endif
 
 #if OS_FREERTOS
 # include "cmsis_os.h"
 #endif
 
-void app_main(void)
+#if OS_BAREMETAL
+
+static void m24lr_i2c_demo()
 {
-#if TYPE_CARD
 	M24lr_i2c_Drv.Init();
 
 	M24LR_StatusTypeDef status = M24lr_i2c_Drv.IsReady(1);
@@ -32,6 +36,25 @@ void app_main(void)
 	M24lr_i2c_ExtDrv.ReadEH_Cfg((M24LR_EH_CFG_VOUT *)&cfg);
 	M24lr_i2c_ExtDrv.WriteEH_Cfg(M24LR_EH_Cfg_6MA);
 	M24lr_i2c_ExtDrv.ReadEH_Cfg((M24LR_EH_CFG_VOUT *)&cfg);
+}
+
+static void sdcard_demo()
+{
+	// Code
+
+
+
+
+
+	// Trap
+	while (1);
+}
+
+void app_main(void)
+{
+#if TYPE_CARD
+	// m24lr_i2c_demo();
+	sdcard_demo();
 #elif TYPE_CONTROLLER
 	ST25R_main();
 #endif
@@ -42,7 +65,8 @@ void app_main(void)
 	}
 }
 
-#if OS_FREERTOS
+#elif OS_FREERTOS
+
 void App_HeartbeatTask(void *args)
 {
 	static uint8_t read0[] = ST25R_CMD_READ_SINGLE_BLOCK(0x00);
@@ -76,9 +100,9 @@ void App_HeartbeatTask(void *args)
 
 
 	extern osMessageQueueId_t nfcCommandQueueHandle;
-	// osMessageQueuePut(nfcCommandQueueHandle, &cmd_read1, 	0, 10);
-	// osMessageQueuePut(nfcCommandQueueHandle, &cmd_write1, 	0, 10);
-	// osMessageQueuePut(nfcCommandQueueHandle, &cmd_read1, 	0, 10);
+	osMessageQueuePut(nfcCommandQueueHandle, &cmd_read1, 	0, 10);
+	osMessageQueuePut(nfcCommandQueueHandle, &cmd_write1, 	0, 10);
+	osMessageQueuePut(nfcCommandQueueHandle, &cmd_read1, 	0, 10);
 
 	for (;;)
 	{
@@ -87,8 +111,8 @@ void App_HeartbeatTask(void *args)
 		if (osMessageQueueGetCount(nfcCommandQueueHandle) == 0)
 		{
 			osMessageQueuePut(nfcCommandQueueHandle, &cmd_read0, 	0, 10);
-			// osMessageQueuePut(nfcCommandQueueHandle, &cmd_write0, 	0, 10);
-			// osMessageQueuePut(nfcCommandQueueHandle, &cmd_read0, 	0, 10);
+			osMessageQueuePut(nfcCommandQueueHandle, &cmd_write0, 	0, 10);
+			osMessageQueuePut(nfcCommandQueueHandle, &cmd_read0, 	0, 10);
 		}
 
 		osDelay(500);

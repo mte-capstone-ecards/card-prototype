@@ -247,7 +247,7 @@ void ST25R_task(void *arg)
                         st25r.state = ST25R_STATE_DATAEXCHANGE_CHECK;        /* Once triggered/started the Data Exchange only do check until is completed */
                         break;
 
-                    case RFAL_ERR_NOMSG:                                                   /* No message to send. Wait for queue to fill  */
+                    case RFAL_ERR_NOMSG:                                                   /* No message to send. Grab a message from the queue  */
                         extern osMessageQueueId_t nfcCommandQueueHandle;
                         osStatus_t status = osMessageQueueGet(nfcCommandQueueHandle, &st25r.nextCommand, NULL, 10);
                         st25r.state = ST25R_STATE_DATAEXCHANGE_START;        /* Trigger new exchange with device */
@@ -277,17 +277,6 @@ void ST25R_task(void *arg)
         {
             platformDelay(5);
         }
-    }
-}
-
-void ST25R_main(void)
-{
-    ST25R_task(NULL); // Should never return
-
-    while(1)
-    {
-        HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
-        HAL_Delay(1000);
     }
 }
 

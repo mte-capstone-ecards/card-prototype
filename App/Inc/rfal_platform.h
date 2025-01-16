@@ -169,10 +169,10 @@ extern uint8_t globalCommProtectCnt;                      /* Global Protection C
 #define RFAL_FEATURE_ST25xV                    false      /* Enable/Disable RFAL support for ST25TV/ST25DV                             */
 #define RFAL_FEATURE_DYNAMIC_ANALOG_CONFIG     false      /* Enable/Disable Analog Configs to be dynamically updated (RAM)             */
 #define RFAL_FEATURE_DPO                       false      /* Enable/Disable RFAL Dynamic Power Output support                          */
-#define RFAL_FEATURE_ISO_DEP                   true       /* Enable/Disable RFAL support for ISO-DEP (ISO14443-4)                      */
-#define RFAL_FEATURE_ISO_DEP_POLL              true       /* Enable/Disable RFAL support for Poller mode (PCD) ISO-DEP (ISO14443-4)    */
+#define RFAL_FEATURE_ISO_DEP                   false      /* Enable/Disable RFAL support for ISO-DEP (ISO14443-4)                      */
+#define RFAL_FEATURE_ISO_DEP_POLL              false      /* Enable/Disable RFAL support for Poller mode (PCD) ISO-DEP (ISO14443-4)    */
 #define RFAL_FEATURE_ISO_DEP_LISTEN            false      /* Enable/Disable RFAL support for Listen mode (PICC) ISO-DEP (ISO14443-4)   */
-#define RFAL_FEATURE_NFC_DEP                   true       /* Enable/Disable RFAL support for NFC-DEP (NFCIP1/P2P)                      */
+#define RFAL_FEATURE_NFC_DEP                   false      /* Enable/Disable RFAL support for NFC-DEP (NFCIP1/P2P)                      */
 
 #define RFAL_FEATURE_ISO_DEP_IBLOCK_MAX_LEN    256U       /* ISO-DEP I-Block max length. Please use values as defined by rfalIsoDepFSx */
 #define RFAL_FEATURE_NFC_DEP_BLOCK_MAX_LEN     254U       /* NFC-DEP Block/Payload length. Allowed values: 64, 128, 192, 254           */

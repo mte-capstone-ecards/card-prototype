@@ -24,10 +24,8 @@
 #endif
 
 /* OS */
-#ifndef OS_BAREMETAL
-# define OS_BAREMETAL 0
-#endif
-
 #ifndef OS_FREERTOS
 # define OS_FREERTOS 0
 #endif
+
+#define OS_BAREMETAL (!OS_FREERTOS)
