@@ -73,8 +73,10 @@ void Error_Handler(void);
 #define EINK_BUSY_GPIO_Port GPIOA
 #define EINK_RESET_Pin GPIO_PIN_9
 #define EINK_RESET_GPIO_Port GPIOA
-#define USER_LED_Pin GPIO_PIN_5
-#define USER_LED_GPIO_Port GPIOB
+#define M24LR_SCL_Pin GPIO_PIN_6
+#define M24LR_SCL_GPIO_Port GPIOB
+#define M24LR_SDA_Pin GPIO_PIN_7
+#define M24LR_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

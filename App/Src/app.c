@@ -12,25 +12,34 @@
 
 void app_main(void)
 {
-#if BOARD_G4
-	HAL_Delay(1000);
+#if TYPE_CARD
+	M24lr_i2c_Drv.Init();
+
+	M24LR_StatusTypeDef status = M24lr_i2c_Drv.IsReady(1);
+	if (status != M24LR_OK)
+	{
+		while(1);
+	}
+
+	volatile M24LR_EH_MODE_STATUS mode;
+	volatile M24LR_EH_CFG_VOUT cfg;
+
+	M24lr_i2c_ExtDrv.Read_EH_mode((M24LR_EH_MODE_STATUS *)&mode);
+	M24lr_i2c_ExtDrv.Enable_EH_mode();
+	M24lr_i2c_ExtDrv.Read_EH_mode((M24LR_EH_MODE_STATUS *)&mode);
+
+	M24lr_i2c_ExtDrv.WriteEH_Cfg(M24LR_EH_Cfg_3MA);
+	M24lr_i2c_ExtDrv.ReadEH_Cfg((M24LR_EH_CFG_VOUT *)&cfg);
+	M24lr_i2c_ExtDrv.WriteEH_Cfg(M24LR_EH_Cfg_6MA);
+	M24lr_i2c_ExtDrv.ReadEH_Cfg((M24LR_EH_CFG_VOUT *)&cfg);
+#elif TYPE_CONTROLLER
+	ST25R_main();
+#endif
 
 	while (1)
 	{
-		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
-		HAL_Delay(1000);
+
 	}
-#elif TYPE_CARD
-	eink_demo();
-#elif TYPE_CONTROLLER
-	ST25R_main();
-#else
-	while (1)
-	{
-		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
-		HAL_Delay(1000);
-	}
-#endif
 }
 
 #if OS_FREERTOS

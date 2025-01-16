@@ -36,7 +36,7 @@ set (BOARD_SOURCES
 	${L0x1_DIR}/Core/Src/adc.c
 	${L0x1_DIR}/Core/Src/gpio.c
 	${L0x1_DIR}/Core/Src/spi.c
-	${L0x1_DIR}/Core/Src/usart.c
+	${L0x1_DIR}/Core/Src/i2c.c
 	${L0x1_DIR}/Core/Src/stm32l0xx_hal_msp.c
 	${L0x1_DIR}/Core/Src/stm32l0xx_it.c
 	${L0x1_DIR}/Core/Src/syscalls.c
@@ -60,8 +60,6 @@ set (BOARD_SOURCES
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc_ex.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_tim.c
-	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart.c
-	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart_ex.c
 PARENT_SCOPE)
 
 set (BOARD_INCLUDES
