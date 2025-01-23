@@ -24,7 +24,7 @@
 
 /*! \file
  *
- *  \author Gustavo Patricio 
+ *  \author Gustavo Patricio
  *
  *  \brief RFAL Features/Capabilities Definition for ST25R3911
  */
@@ -46,15 +46,15 @@
 ******************************************************************************
 */
 
-#define RFAL_SUPPORT_MODE_POLL_NFCA                true          /*!< RFAL Poll NFCA mode support switch    */
-#define RFAL_SUPPORT_MODE_POLL_NFCB                true          /*!< RFAL Poll NFCB mode support switch    */    
-#define RFAL_SUPPORT_MODE_POLL_NFCF                true          /*!< RFAL Poll NFCF mode support switch    */
+#define RFAL_SUPPORT_MODE_POLL_NFCA                false         /*!< RFAL Poll NFCA mode support switch    */
+#define RFAL_SUPPORT_MODE_POLL_NFCB                false         /*!< RFAL Poll NFCB mode support switch    */
+#define RFAL_SUPPORT_MODE_POLL_NFCF                false         /*!< RFAL Poll NFCF mode support switch    */
 #define RFAL_SUPPORT_MODE_POLL_NFCV                true          /*!< RFAL Poll NFCV mode support switch    */
-#define RFAL_SUPPORT_MODE_POLL_ACTIVE_P2P          true          /*!< RFAL Poll AP2P mode support switch    */
+#define RFAL_SUPPORT_MODE_POLL_ACTIVE_P2P          false         /*!< RFAL Poll AP2P mode support switch    */
 #define RFAL_SUPPORT_MODE_LISTEN_NFCA              false         /*!< RFAL Listen NFCA mode support switch  */
 #define RFAL_SUPPORT_MODE_LISTEN_NFCB              false         /*!< RFAL Listen NFCB mode support switch  */
 #define RFAL_SUPPORT_MODE_LISTEN_NFCF              false         /*!< RFAL Listen NFCF mode support switch  */
-#define RFAL_SUPPORT_MODE_LISTEN_ACTIVE_P2P        true          /*!< RFAL Listen AP2P mode support switch  */
+#define RFAL_SUPPORT_MODE_LISTEN_ACTIVE_P2P        false         /*!< RFAL Listen AP2P mode support switch  */
 
 /*******************************************************************************/
 /*! RFAL supported Card Emulation (CE)        */
@@ -115,7 +115,7 @@
 */
 
 /*! RFAL Wake-Up Period/Timer */
-typedef enum 
+typedef enum
 {
     RFAL_WUM_PERIOD_10MS      = 0x00,     /*!< Wake-Up timer 10ms                                         */
     RFAL_WUM_PERIOD_20MS      = 0x01,     /*!< Wake-Up timer 20ms                                         */
@@ -133,12 +133,12 @@ typedef enum
     RFAL_WUM_PERIOD_600MS     = 0x15,     /*!< Wake-Up timer 600ms                                        */
     RFAL_WUM_PERIOD_700MS     = 0x16,     /*!< Wake-Up timer 700ms                                        */
     RFAL_WUM_PERIOD_800MS     = 0x17,     /*!< Wake-Up timer 800ms                                        */
-} rfalWumPeriod;                                                                                          
-                                                                                                          
-                                                                                                          
-/*! RFAL Wake-Up Period/Timer */                                                                          
-typedef enum                                                                                              
-{                                                                                                         
+} rfalWumPeriod;
+
+
+/*! RFAL Wake-Up Period/Timer */
+typedef enum
+{
     RFAL_WUM_AA_WEIGHT_4       = 0x00,    /*!< Wake-Up Auto Average Weight 4                              */
     RFAL_WUM_AA_WEIGHT_8       = 0x01,    /*!< Wake-Up Auto Average Weight 8                              */
     RFAL_WUM_AA_WEIGHT_16      = 0x02,    /*!< Wake-Up Auto Average Weight 16                             */
@@ -147,17 +147,17 @@ typedef enum
 
 
 /*! RFAL Wake-Up Mode configuration */
-typedef struct 
+typedef struct
 {
     rfalWumPeriod        period;          /*!< Wake-Up Timer period;how often measurement(s) is performed */
     bool                 irqTout;         /*!< IRQ at every timeout will refresh the measurement(s)       */
-    
-    struct{                               
+
+    struct{
         bool             enabled;         /*!< Reference from WU mode enabled                             */
         rfalWumPeriod    refDelay;        /*!< Obtain reference from WU after delay time                  */
     }refWU;                               /*!< Reference obtained from PD|WU mode                         */
-                                          
-    struct{                               
+
+    struct{
         bool             enabled;         /*!< Inductive Amplitude measurement enabled                    */
         uint8_t          delta;           /*!< Delta between the reference and measurement to wake-up     */
         uint8_t          reference;       /*!< Reference to be used;RFAL_WUM_REFERENCE_AUTO sets it auto  */
@@ -165,7 +165,7 @@ typedef struct
         bool             aaInclMeas;      /*!< When AutoAvg is enabled, include IRQ measurement           */
         rfalWumAAWeight  aaWeight;        /*!< When AutoAvg is enabled, last measure weight               */
     }indAmp;                              /*!< Inductive Amplitude Configuration                          */
-    struct{                                                                                               
+    struct{
         bool             enabled;         /*!< Inductive Phase measurement enabled                        */
         uint8_t          delta;           /*!< Delta between the reference and measurement to wake-up     */
         uint8_t          reference;       /*!< Reference to be used;RFAL_WUM_REFERENCE_AUTO sets it auto  */
@@ -173,7 +173,7 @@ typedef struct
         bool             aaInclMeas;      /*!< When AutoAvg is enabled, include IRQ measurement           */
         rfalWumAAWeight  aaWeight;        /*!< When AutoAvg is enabled, last measure weight               */
     }indPha;                              /*!< Inductive Phase Configuration                              */
-    struct{                                                                                               
+    struct{
         bool             enabled;         /*!< Capacitive measurement enabled                             */
         uint8_t          delta;           /*!< Delta between the reference and measurement to wake-up     */
         uint8_t          reference;       /*!< Reference to be used;RFAL_WUM_REFERENCE_AUTO sets it auto  */
@@ -185,20 +185,20 @@ typedef struct
 
 
 /*! RFAL Wake-Up Mode information */
-typedef struct 
+typedef struct
 {
-    bool                 irqWut;          /*!< Wake-Up Timer IRQ received (cleared upon read)             */   
+    bool                 irqWut;          /*!< Wake-Up Timer IRQ received (cleared upon read)             */
     struct{
         uint8_t          lastMeas;        /*!< Value of the latest measurement                            */
         uint8_t          reference;       /*!< Current reference value                                    */
         bool             irqWu;           /*!< Amplitude WU IRQ received (cleared upon read)              */
     }indAmp;                              /*!< Inductive Amplitude                                        */
-    struct{                                                                                               
+    struct{
         uint8_t          lastMeas;        /*!< Value of the latest measurement                            */
         uint8_t          reference;       /*!< Current reference value                                    */
         bool             irqWu;           /*!< Phase WU IRQ received (cleared upon read)                  */
     }indPha;                              /*!< Inductive Phase                                            */
-    struct{                                                                                               
+    struct{
         uint8_t          lastMeas;        /*!< Value of the latest measurement                            */
         uint8_t          reference;       /*!< Current reference value                                    */
         bool             irqWu;           /*!< Capacitive WU IRQ received (cleared upon read)             */

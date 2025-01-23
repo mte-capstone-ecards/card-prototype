@@ -21,21 +21,42 @@ set(LIB_SOURCES
 )
 
 # Select the correct ST25R chip
-set(LIB_DEFINES ST25R3911)
-set(LIB_SOURCES ${LIB_SOURCES}
-    ${LIB_DIR}/source/st25r3911/rfal_rfst25r3911.c
-    ${LIB_DIR}/source/st25r3911/st25r3911_com.c
-    ${LIB_DIR}/source/st25r3911/st25r3911_interrupt.c
-    ${LIB_DIR}/source/st25r3911/st25r3911.c
-)
+if (${BOARD} MATCHES "F446")
+    set(LIB_DEFINES ST25R3911)
+
+    set(LIB_SOURCES ${LIB_SOURCES}
+        ${LIB_DIR}/source/st25r3911/rfal_rfst25r3911.c
+        ${LIB_DIR}/source/st25r3911/st25r3911_com.c
+        ${LIB_DIR}/source/st25r3911/st25r3911_interrupt.c
+        ${LIB_DIR}/source/st25r3911/st25r3911.c
+    )
+
+    set(LIB_INCLUDES ${LIB_INCLUDES} ${LIB_DIR}/source/st25r3911)
+elseif (${BOARD} MATCHES "G0C1")
+    set(LIB_DEFINES ${LIB_DEFINES} ST25R3916B)
+    set(LIB_DEFINES ${LIB_DEFINES} RFAL_USE_I2C)
+
+    set(LIB_SOURCES ${LIB_SOURCES}
+        ${LIB_DIR}/source/st25r3916/rfal_rfst25r3916.c
+        ${LIB_DIR}/source/st25r3916/st25r3916_aat.c
+        ${LIB_DIR}/source/st25r3916/st25r3916_com.c
+        ${LIB_DIR}/source/st25r3916/st25r3916_irq.c
+        ${LIB_DIR}/source/st25r3916/st25r3916_led.c
+        ${LIB_DIR}/source/st25r3916/st25r3916.c
+    )
+
+    set(LIB_INCLUDES ${LIB_INCLUDES} ${LIB_DIR}/source/st25r3916)
+else()
+    message(FATAL_ERROR "no ST25R reader chip defined")
+endif()
 
 # Forward the lib sources
 set(LIB_SOURCES ${LIB_SOURCES} PARENT_SCOPE)
 
 set(LIB_INCLUDES
+    ${LIB_INCLUDES}
     ${LIB_DIR}/include
     ${LIB_DIR}/source
-    ${LIB_DIR}/source/st25r3911
 PARENT_SCOPE)
 
 set(LIB_DEFINES ${LIB_DEFINES}

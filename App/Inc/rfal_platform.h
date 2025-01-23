@@ -36,25 +36,10 @@
 */
 #include "app.h"
 
-#if BOARD_L0
-# include "stm32l071xx_hal.h"
-#elif BOARD_G4
-# include "stm32g431xx_hal.h"
-#elif BOARD_F4
-# include "stm32f4xx_hal.h"
-#endif
-
-#if defined(BOARD_F4)
-# define ST25R_SPI  hspi1
-#else
-# error "No ST25R SPI defined"
-#endif
-
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
-
-#include "main.h"
 
 #include "ST25R_spi.h"
 #include "ST25R_timer.h"
@@ -64,18 +49,11 @@
 # include "cmsis_os.h"
 #endif
 
-
-
 /*
 ******************************************************************************
 * GLOBAL DEFINES
 ******************************************************************************
 */
-#define ST25R_SS_PIN            ST25_CS_Pin         /* GPIO pin used for ST25R SPI SS                */
-#define ST25R_SS_PORT           ST25_CS_GPIO_Port   /* GPIO port used for ST25R SPI SS port          */
-
-#define ST25R_INT_PIN            ST25_INTR_Pin            /* GPIO pin used for ST25R External Interrupt    */
-#define ST25R_INT_PORT           ST25_INTR_GPIO_Port      /* GPIO port used for ST25R External Interrupt   */
 
 #ifdef LED_FIELD_Pin
 #define PLATFORM_LED_FIELD_PIN      LED_FIELD_Pin       /* GPIO pin used as field LED                        */
@@ -91,8 +69,8 @@
 * GLOBAL MACROS
 ******************************************************************************
 */
-#define platformEnableST25RIntr()   NVIC_EnableIRQ(ST25_INTR_EXTI_IRQn)
-#define platformDisableST25RIntr()  NVIC_DisableIRQ(ST25_INTR_EXTI_IRQn)
+#define platformEnableST25RIntr()                 NVIC_EnableIRQ(ST25R_INT_NUM)
+#define platformDisableST25RIntr()                NVIC_DisableIRQ(ST25R_INT_NUM)
 
 #define platformProtectST25RComm()                do{ globalCommProtectCnt++; __DSB();platformDisableST25RIntr();__DSB();__ISB();}while(0) /* Protect unique access to ST25R communication channel - IRQ disable on single thread environment (MCU) ; Mutex lock on a multi thread environment      */
 #define platformUnprotectST25RComm()              do{ if (--globalCommProtectCnt==0U) {platformEnableST25RIntr();} }while(0)               /* Unprotect unique access to ST25R communication channel - IRQ enable on a single thread environment (MCU) ; Mutex unlock on a multi thread environment */
@@ -138,6 +116,14 @@
 #define platformSpiSelect()                           platformGpioClear(ST25R_SS_PORT, ST25R_SS_PIN)/* SPI SS\CS: Chip|Slave Select                */
 #define platformSpiDeselect()                         platformGpioSet(ST25R_SS_PORT, ST25R_SS_PIN)  /* SPI SS\CS: Chip|Slave Deselect              */
 #define platformSpiTxRx( txBuf, rxBuf, len )          spiTxRx(txBuf, rxBuf, len)                    /* SPI transceive                              */
+
+#define platformI2CStart()                        // TODO
+#define platformI2CStop()                         // TODO
+#define platformI2CRepeatStart()                  // TODO
+#define platformI2CSlaveAddrWR( sA )              // TODO
+#define platformI2CSlaveAddrRD( sA )              // TODO
+#define platformI2CTx( txBuf, len, last, txOnly ) // TODO
+#define platformI2CRx( txBuf, len )               // TODO
 
 // #define platformLog(...)                              logUsart(__VA_ARGS__)                         /* Log  method                                 */
 #define platformLog(...)

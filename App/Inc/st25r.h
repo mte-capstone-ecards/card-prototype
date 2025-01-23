@@ -2,7 +2,7 @@
 
 #include "app.h"
 
-#if TYPE_CONTROLLER
+#if FTR_NFCREADER
 
 #include <stdint.h>
 

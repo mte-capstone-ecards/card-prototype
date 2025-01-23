@@ -2,6 +2,8 @@
 #include "eink.h"
 #include <string.h>
 
+#if FTR_EINK
+
 void eink_clearBuf(EPDBuf buf)
 {
     memset(buf, 0x00, sizeof(EPDBuf));
@@ -50,3 +52,4 @@ void eink_demo()
     eink_fullUpdate(buf);
     return;
 }
+#endif

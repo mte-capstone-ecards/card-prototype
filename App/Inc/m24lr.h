@@ -2,6 +2,6 @@
 
 #include "app.h"
 
-#if TYPE_CARD
+#if FTR_NFCTAG
 
 #endif

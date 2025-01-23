@@ -14,6 +14,10 @@
 # define BOARD_F4 0
 #endif
 
+#ifndef BOARD_G0
+# define BOARD_G0 0
+#endif
+
 /* TYPES */
 #ifndef TYPE_CARD
 # define TYPE_CARD 0
@@ -29,3 +33,9 @@
 #endif
 
 #define OS_BAREMETAL (!OS_FREERTOS)
+
+/* Features */
+#define FTR_EINK        (TYPE_CARD)
+#define FTR_NFCTAG      (TYPE_CARD)
+#define FTR_NFCREADER   (TYPE_CONTROLLER)
+

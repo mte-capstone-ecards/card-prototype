@@ -6,6 +6,8 @@ elseif (${BOARD} MATCHES "F446")
 	add_subdirectory(devboard_f446)
 elseif (${BOARD} MATCHES "L071")
 	add_subdirectory(card_rev1_l071)
+elseif (${BOARD} MATCHES "G0C1")
+	add_subdirectory(controller_g0c1)
 endif()
 
 # Variables needed

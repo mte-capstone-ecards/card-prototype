@@ -14,7 +14,6 @@
 #endif
 
 #if OS_BAREMETAL
-
 static void m24lr_i2c_demo()
 {
 	M24lr_i2c_Drv.Init();
@@ -53,8 +52,8 @@ static void sdcard_demo()
 void app_main(void)
 {
 #if TYPE_CARD
-	// m24lr_i2c_demo();
-	sdcard_demo();
+	m24lr_i2c_demo();
+	// sdcard_demo();
 #elif TYPE_CONTROLLER
 	ST25R_main();
 #endif
@@ -69,51 +68,8 @@ void app_main(void)
 
 void App_HeartbeatTask(void *args)
 {
-	static uint8_t read0[] = ST25R_CMD_READ_SINGLE_BLOCK(0x00);
-
-	static uint8_t write0[] = ST25R_CMD_WRITE_SINGLE_BLOCK(0x00, 0xDEADBEEF);
-	// static uint8_t write0[] = ST25R_CMD_WRITE_SINGLE_BLOCK(0x00, 0xBEEFDEAD);
-
-	static uint8_t read1[] = ST25R_CMD_READ_SINGLE_BLOCK(0x01);
-
-	static uint8_t write1[] = ST25R_CMD_WRITE_SINGLE_BLOCK(0x01, 0x00112233);
-
-	static ST25R_command cmd_read0 = {
-		.payload = read0,
-		.payloadSize = sizeof(read0),
-	};
-
-	static ST25R_command cmd_read1 = {
-		.payload = read1,
-		.payloadSize = sizeof(read1),
-	};
-
-	static ST25R_command cmd_write0 = {
-		.payload = write0,
-		.payloadSize = sizeof(write0),
-	};
-
-	static ST25R_command cmd_write1 = {
-		.payload = write1,
-		.payloadSize = sizeof(write1),
-	};
-
-
-	extern osMessageQueueId_t nfcCommandQueueHandle;
-	osMessageQueuePut(nfcCommandQueueHandle, &cmd_read1, 	0, 10);
-	osMessageQueuePut(nfcCommandQueueHandle, &cmd_write1, 	0, 10);
-	osMessageQueuePut(nfcCommandQueueHandle, &cmd_read1, 	0, 10);
-
 	for (;;)
 	{
-		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
-
-		if (osMessageQueueGetCount(nfcCommandQueueHandle) == 0)
-		{
-			osMessageQueuePut(nfcCommandQueueHandle, &cmd_read0, 	0, 10);
-			osMessageQueuePut(nfcCommandQueueHandle, &cmd_write0, 	0, 10);
-			osMessageQueuePut(nfcCommandQueueHandle, &cmd_read0, 	0, 10);
-		}
 
 		osDelay(500);
 	}

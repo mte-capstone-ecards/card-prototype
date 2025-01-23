@@ -1,9 +1,9 @@
 #include "m24lr.h"
 
+#if FTR_NFCTAG
+
 #include "m24lr_driver.h"
 #include <i2c.h>
-
-#define M24LR_I2C	hi2c1
 
 M24LR_StatusTypeDef M24lr_IO_Init( void )
 {
@@ -73,3 +73,5 @@ M24LR_StatusTypeDef M24lr_IO_IsDeviceReady( const uint8_t DevAddr, const uint32_
 			return M24LR_TIMEOUT;
 	}
 }
+
+#endif

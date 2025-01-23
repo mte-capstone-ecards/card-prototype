@@ -1,8 +1,7 @@
 
-#include "app.h"
 #include "eink.h"
 
-#if TYPE_CARD
+#if FTR_EINK
 #include <main.h>
 #include <spi.h>
 

@@ -1,6 +1,7 @@
 
 #include "st25r.h"
 
+#if FTR_NFCREADER
 #include <spi.h>
 
 #include <stdbool.h>
@@ -9,7 +10,11 @@
 #include "rfal_nfc.h"
 #include "rfal_analogConfig.h"
 
-#include "st25r3911_interrupt.h"
+#if defined(ST25R3911)
+# include "st25r3911_interrupt.h"
+#elif defined(ST25R3916B)
+# include "st25r3916_irq.h"
+#endif
 
 #if OS_FREERTOS
 # include "cmsis_os.h"
@@ -283,8 +288,14 @@ void ST25R_task(void *arg)
 // INTR Callback function
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    if (GPIO_Pin == ST25_INTR_Pin)
+    if (GPIO_Pin == ST25R_INT_PIN)
     {
+
+#if defined(ST25R3911)
         st25r3911Isr();
+#elif defined(ST25R3916B)
+        st25r3916Isr();
+#endif
     }
 }
+#endif

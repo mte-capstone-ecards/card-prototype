@@ -2,19 +2,9 @@
 
 #include "app.h"
 
-#if TYPE_CARD
-
+#if FTR_EINK
 
 #include <stdint.h>
-
-/** SPI Peripheral **/
-#if defined(BOARD_G4)
-# define EINK_SPI hspi2
-#elif defined(BOARD_L0)
-# define EINK_SPI hspi1
-#else
-# error "No SPI peripheral defined for eink"
-#endif
 
 /* 3.70 Inch EPD */
 #define EINK_SCREEN_SIZE_V 416

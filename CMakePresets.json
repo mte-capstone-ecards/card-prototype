@@ -69,6 +69,24 @@
             "hidden": true
         },
         {
+            "name": "controller_g0c1",
+            "displayName": "Controller Revision 1 base config (G0C1)",
+            "cacheVariables": {
+                "BOARD": "G0C1",
+                "TYPE": "CONTROLLER"
+            },
+            "hidden": true
+        },
+        {
+            "name": "card_rev1_l071",
+            "displayName": "Card Revision 1 base config (L071)",
+            "cacheVariables": {
+                "BOARD": "L071",
+                "TYPE": "CARD"
+            },
+            "hidden": true
+        },
+        {
             "name": "nucleof446_debug",
             "displayName": "Debug Nucleo F446",
             "inherits": [
@@ -133,6 +151,28 @@
             ],
             "binaryDir": "${sourceDir}/Release/L071",
             "description": "Release build for Card Rev 1 w/ L071 configuration"
+        },
+        {
+            "name": "controllerg0c1_debug",
+            "displayName": "Debug Controller",
+            "inherits": [
+                "wincubeclt_default",
+                "controller_g0c1",
+                "debug"
+            ],
+            "binaryDir": "${sourceDir}/Debug/G0C1",
+            "description": "Debug build for Controller (G0C1)"
+        },
+        {
+            "name": "controllerg0c1_release",
+            "displayName": "Release Controller",
+            "inherits": [
+                "wincubeclt_default",
+                "controller_g0c1",
+                "release"
+            ],
+            "binaryDir": "${sourceDir}/Release/G0C1",
+            "description": "Release build for Controller (G0C1)"
         }
     ],
     "buildPresets": [
@@ -165,6 +205,16 @@
             "name": "Release Card Rev 1",
             "displayName": "Release Card Rev 1",
             "configurePreset": "cardrev1l071_release"
+        },
+        {
+            "name": "Debug Controller",
+            "displayName": "Debug Controller",
+            "configurePreset": "controllerg0c1_debug"
+        },
+        {
+            "name": "Release Controller",
+            "displayName": "Release Controller",
+            "configurePreset": "controllerg0c1_release"
         }
     ]
 }
