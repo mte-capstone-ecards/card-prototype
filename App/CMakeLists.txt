@@ -10,6 +10,7 @@ if (${TYPE} MATCHES "CONTROLLER")
 	set (APP_SOURCES ${APP_SOURCES}
 		${APP_DIR}/Src/st25r.c
 		${APP_DIR}/Src/RTOSResources.c
+		${APP_DIR}/Src/led.c
 	)
 elseif (${TYPE} MATCHES "CARD")
 	set (APP_SOURCES ${APP_SOURCES}

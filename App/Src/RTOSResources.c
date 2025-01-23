@@ -5,8 +5,8 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-#include "app.h"
 #include "st25r.h"
+#include "led.h"
 
 // RTOS Mutexes
 
@@ -36,6 +36,15 @@ const osThreadAttr_t st25rTask_attributes = {
   .priority = (osPriority_t) osPriorityHigh,
 };
 
+#if FTR_LED
+osThreadId_t ledTaskHandle;
+const osThreadAttr_t ledTask_attributes = {
+  .name = "ledTask",
+  .stack_size = 256 * 2,
+  .priority = (osPriority_t) osPriorityLow,
+};
+#endif
+
 // RTOS Events
 
 
@@ -60,6 +69,9 @@ void MX_FREERTOS_Init(void) {
     // RTOS Threads
     heartbeatTaskHandle = osThreadNew(App_HeartbeatTask, NULL, &heartbeatTask_attributes);
     st25rTaskHandle     = osThreadNew(ST25R_task, NULL, &st25rTask_attributes);
+#if FTR_LED
+    ledTaskHandle       = osThreadNew(LED_task, NULL, &ledTask_attributes);
+#endif
 
     // RTOS Events
 

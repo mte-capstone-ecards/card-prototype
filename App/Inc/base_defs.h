@@ -38,4 +38,4 @@
 #define FTR_EINK        (TYPE_CARD)
 #define FTR_NFCTAG      (TYPE_CARD)
 #define FTR_NFCREADER   (TYPE_CONTROLLER)
-
+#define FTR_LED         (TYPE_CONTROLLER)
