@@ -19,7 +19,7 @@ set (PROJECT_TYPE             "exe")
 ###################### LIBRARIES ######################################
 # Common libraries
 set(SELECTED_LIBS
-
+	DataProtocol
 )
 
 # Controller Libraries

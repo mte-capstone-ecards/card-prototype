@@ -5,18 +5,26 @@
 #if FTR_NFCREADER
 
 #include <stdint.h>
+#include <stdbool.h>
+
+void ST25R_task(void *);
+bool ST25R_connected(void);
 
 // Commands
-#define ST25R_CMD_SYS_INFO_REQ                       { 0x02, 0x2B }          /* NFC-V Get System Information command*/
-#define ST25R_CMD_READ_SINGLE_BLOCK(addr)            { 0x02, 0x20, (addr)}   /* NFC-V Read single block command*/
-#define ST25R_CMD_WRITE_SINGLE_BLOCK(addr, data)     { 0x02, 0x21, (addr), (((data) & 0xFF000000) >> 24), (((data) & 0x00FF0000) >> 16), (((data) & 0x0000FF00) >> 8), (((data) & 0x000000FF) >> 0)}   /* NFC-V Read single block command*/
+#define ST25R_MAX_PAYLOAD_SIZE  32U
 
 typedef struct {
-    uint8_t *payload;
+    uint8_t payload[ST25R_MAX_PAYLOAD_SIZE];
     uint8_t payloadSize;
+
+    uint8_t *rxBuf;
+    uint8_t rxOffset;
+    uint8_t rxLen;
 } ST25R_command;
 
-void ST25R_main(void);
-void ST25R_task(void *);
+void ST25R_setCommand_getSysInfo(ST25R_command *cmd);
+void ST25R_setCommand_readSingleBlock(ST25R_command *cmd, uint8_t addr, uint32_t *readLoc);
+void ST25R_setCommand_writeSingleBlock(ST25R_command *cmd, uint8_t addr, uint32_t data);
+void ST25R_setCommand_readMultipleBlock(ST25R_command *cmd, uint8_t addr, uint8_t len, uint32_t *readLoc);
 
 #endif

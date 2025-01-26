@@ -7,11 +7,11 @@
 typedef enum {
 
     LED_HANDLE_COUNT,
-} LEDhandle;
+} LEDHandle;
 
-void LED_setLedOn(LEDhandle led);
-void LED_setLedOff(LEDhandle led);
-void LED_setLedFreq(LEDhandle led, uint16_t hz);
+void LED_setLedOn(LEDHandle led);
+void LED_setLedOff(LEDHandle led);
+void LED_setLedFreq(LEDHandle led, uint16_t hz);
 
 void LED_task(void *);
 

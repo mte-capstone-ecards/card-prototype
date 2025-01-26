@@ -29,9 +29,8 @@ typedef enum{
     ST25R_STATE_TECHDETECT          =  1,  /* Technology Detection state  */
     ST25R_STATE_COLAVOIDANCE        =  2,  /* Collision Avoidance state   */
     ST25R_STATE_ACTIVATION          =  3,  /* Activation state            */
-    ST25R_STATE_DATAEXCHANGE_START  =  4,  /* Data Exchange Start state   */
-    ST25R_STATE_DATAEXCHANGE_CHECK  =  5,  /* Data Exchange Check state   */
-    ST25R_STATE_DEACTIVATION        =  9   /* Deactivation state          */
+    ST25R_STATE_CONNECTED           =  4,  /* Fully connected state, execute inner commands */
+    ST25R_STATE_DEACTIVATION        =  5   /* Deactivation state          */
 } ST25R_state;
 
 #define ST25R_RF_BUF_LEN   255   /* RF buffer length            */
@@ -40,15 +39,6 @@ typedef enum{
 #define ST25R_NUM_DEVICES      10    /* Number of devices supported */
 
 typedef rfalNfcvListenDevice ST25R_Device;
-
-#if !OS_FREERTOS
-// static uint8_t nfcSelectedCommandPayload[] = ST25R_CMD_WRITE_SINGLE_BLOCK(0x00, 0xABCD0055);
-static uint8_t nfcSelectedCommandPayload[] = ST25R_CMD_READ_SINGLE_BLOCK(0x00);
-static ST25R_command nfcSelectedCommand = {
-    .payload = nfcSelectedCommandPayload,
-    .payloadSize = sizeof(nfcSelectedCommandPayload),
-};
-#endif
 
 /*****************************************/
 /*        Private Data Definitions       */
@@ -60,15 +50,9 @@ static struct {
 
     ST25R_Device devList[ST25R_NUM_DEVICES];
     uint8_t devCnt;
-
     ST25R_Device *activeDev;
 
     ST25R_command nextCommand;
-
-    uint8_t rfTxBuf[ST25R_RF_BUF_LEN];
-    uint8_t rfRxBuf[ST25R_RF_BUF_LEN];
-
-    uint16_t rcvLen;
 } st25r;
 
 /*****************************************/
@@ -137,42 +121,9 @@ static bool ST25R_Activation( uint8_t devIt )
     return true;
 }
 
-static ReturnCode ST25R_DataExchange( void )
+static ReturnCode ST25R_Connected( void )
 {
-    rfalTransceiveContext ctx;
-    ReturnCode            err;
-    rfalIsoDepTxRxParam   isoDepTxRx;
-    rfalNfcDepTxRxParam   nfcDepTxRx;
-    uint8_t               *txBuf;
-    uint16_t              txBufLen;
-
-
-    /*******************************************************************************/
-    /* The Data Exchange is divided in two different moments, the trigger/Start of *
-     *  the transfer followed by the check until its completion                    */
-    if( st25r.state == ST25R_STATE_DATAEXCHANGE_START )                      /* Trigger/Start the data exchange */
-    {
-        // Check if the message exists
-        if (st25r.nextCommand.payloadSize == 0U)
-        {
-            return RFAL_ERR_NOMSG;
-        }
-
-        txBuf    = st25r.nextCommand.payload;
-        txBufLen = st25r.nextCommand.payloadSize;
-
-        /*******************************************************************************/
-        /* Trigger a RFAL Transceive using the previous defined frames                 */
-        rfalCreateByteFlagsTxRxContext( ctx, txBuf, txBufLen, st25r.rfRxBuf, sizeof(st25r.rfRxBuf), &st25r.rcvLen, RFAL_TXRX_FLAGS_DEFAULT, rfalConvMsTo1fc(20) );
-        return (((err = rfalStartTransceive( &ctx )) == RFAL_ERR_NONE) ? RFAL_ERR_BUSY : err);     /* Signal RFAL_ERR_BUSY as Data Exchange has been started and is ongoing */
-    }
-    /*******************************************************************************/
-    /* The Data Exchange has been started, wait until completed                    */
-    else if( st25r.state == ST25R_STATE_DATAEXCHANGE_CHECK )
-    {
-        return rfalGetTransceiveStatus();
-    }
-    return RFAL_ERR_REQUEST;
+    // Inner command loop
 }
 
 static bool ST25R_Deactivate( void )
@@ -234,29 +185,16 @@ void ST25R_task(void *arg)
                     break;
                 }
 
-                st25r.state = ST25R_STATE_DATAEXCHANGE_START;                /* Device has been properly activated, go to Data Exchange */
+                st25r.state = ST25R_STATE_CONNECTED; /* Device has been properly activated, we are now connected */
                 break;
 
-            case ST25R_STATE_DATAEXCHANGE_START:
-            case ST25R_STATE_DATAEXCHANGE_CHECK:
+            case ST25R_STATE_CONNECTED:
 
-                st25r.err = ST25R_DataExchange();                                /* Perform Data Exchange, in this example a simple transfer will executed in order to do device's presence check */
+                st25r.err = ST25R_Connected();
                 switch( st25r.err )
                 {
-                    case RFAL_ERR_NONE:                                                    /* Data exchange successful  */
-                        memset(&st25r.nextCommand, 0U, sizeof(ST25R_command));  // Clear the previous command
-                        st25r.state = ST25R_STATE_DATAEXCHANGE_START;        /* Trigger new exchange with device */
-                        break;
-
-                    case RFAL_ERR_BUSY:                                                    /* Data exchange ongoing  */
-                        st25r.state = ST25R_STATE_DATAEXCHANGE_CHECK;        /* Once triggered/started the Data Exchange only do check until is completed */
-                        break;
-
-                    case RFAL_ERR_NOMSG:                                                   /* No message to send. Grab a message from the queue  */
-                        extern osMessageQueueId_t nfcCommandQueueHandle;
-                        osStatus_t status = osMessageQueueGet(nfcCommandQueueHandle, &st25r.nextCommand, NULL, 10);
-                        st25r.state = ST25R_STATE_DATAEXCHANGE_START;        /* Trigger new exchange with device */
-                        break;
+                    case RFAL_ERR_NONE: // No issues, stay connected
+                            st25r.state = ST25R_STATE_CONNECTED;
 
                     default:                                                          /* Data exchange not successful, card removed or other transmission error */
                         st25r.state = ST25R_STATE_DEACTIVATION;              /* Restart loop */
@@ -283,6 +221,14 @@ void ST25R_task(void *arg)
             platformDelay(5);
         }
     }
+}
+
+bool ST25R_connected()
+{
+    return (
+        (st25r.state == ST25R_STATE_DATAEXCHANGE_START) ||
+        (st25r.state == ST25R_STATE_DATAEXCHANGE_CHECK)
+    );
 }
 
 // INTR Callback function

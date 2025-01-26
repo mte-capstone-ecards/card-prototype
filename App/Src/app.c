@@ -66,11 +66,14 @@ void app_main(void)
 
 #elif OS_FREERTOS
 
+#include "data_protocol.h"
+#include "eeprom.h"
+
 void App_HeartbeatTask(void *args)
 {
 	for (;;)
 	{
-
+		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
 		osDelay(500);
 	}
 }

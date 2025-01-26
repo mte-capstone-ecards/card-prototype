@@ -7,6 +7,8 @@
 
 #include "st25r.h"
 #include "led.h"
+#include "button.h"
+#include "sender.h"
 
 // RTOS Mutexes
 
@@ -15,11 +17,21 @@
 // RTOS Timers
 
 // RTOS Queues
+#if FTR_DATASENDER
 extern osMessageQueueId_t nfcCommandQueueHandle;
 osMessageQueueId_t nfcCommandQueueHandle;
 const osMessageQueueAttr_t nfcCommandQueue_attributes = {
     .name = "nfcCommandQueue",
 };
+#endif
+
+#if FTR_BUTTON
+extern osMessageQueueId_t buttonEventQueueHandle;
+osMessageQueueId_t buttonEventQueueHandle;
+const osMessageQueueAttr_t buttonEventQueue_attributes = {
+    .name = "buttonEventQueue",
+};
+#endif
 
 // RTOS Threads
 osThreadId_t heartbeatTaskHandle;
@@ -35,6 +47,15 @@ const osThreadAttr_t st25rTask_attributes = {
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityHigh,
 };
+
+#if FTR_DATASENDER
+osThreadId_t senderTaskHandle;
+const osThreadAttr_t senderTask_attributes = {
+  .name = "senderTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
+#endif
 
 #if FTR_LED
 osThreadId_t ledTaskHandle;
@@ -64,11 +85,17 @@ void MX_FREERTOS_Init(void) {
     // RTOS Timers
 
     // RTOS Queues
-    nfcCommandQueueHandle = osMessageQueueNew(10, sizeof(ST25R_command), &nfcCommandQueue_attributes);
+    nfcCommandQueueHandle   = osMessageQueueNew(1, sizeof(ST25R_command), &nfcCommandQueue_attributes);
+#if FTR_BUTTON
+    buttonEventQueueHandle  = osMessageQueueNew(10, sizeof(Button_event), &buttonEventQueue_attributes);
+#endif
 
     // RTOS Threads
     heartbeatTaskHandle = osThreadNew(App_HeartbeatTask, NULL, &heartbeatTask_attributes);
     st25rTaskHandle     = osThreadNew(ST25R_task, NULL, &st25rTask_attributes);
+#if FTR_DATASENDER
+    senderTaskHandle       = osThreadNew(Sender_task, NULL, &senderTask_attributes);
+#endif
 #if FTR_LED
     ledTaskHandle       = osThreadNew(LED_task, NULL, &ledTask_attributes);
 #endif

@@ -35,7 +35,10 @@
 #define OS_BAREMETAL (!OS_FREERTOS)
 
 /* Features */
-#define FTR_EINK        (TYPE_CARD)
-#define FTR_NFCTAG      (TYPE_CARD)
-#define FTR_NFCREADER   (TYPE_CONTROLLER)
-#define FTR_LED         (TYPE_CONTROLLER)
+#define FTR_EINK            (TYPE_CARD)
+#define FTR_NFCTAG          (TYPE_CARD)
+#define FTR_NFCREADER       (TYPE_CONTROLLER)
+#define FTR_LED             (TYPE_CONTROLLER)
+#define FTR_BUTTON          (TYPE_CONTROLLER)
+#define FTR_DATASENDER      (TYPE_CONTROLLER)
+#define FTR_DATARECEIVER    (TYPE_CARD)
