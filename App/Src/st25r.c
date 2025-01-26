@@ -189,8 +189,6 @@ static ReturnCode ST25R_Connected( void )
             break;
     }
 
-    st25r.nextCommand.callback();
-
     return RFAL_ERR_NONE;
 }
 
