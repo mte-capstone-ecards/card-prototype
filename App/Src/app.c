@@ -49,7 +49,7 @@ static void sdcard_demo()
 	while (1);
 }
 
-void app_main(void)
+void card_main(void)
 {
 #if TYPE_CARD
 	m24lr_i2c_demo();
@@ -68,9 +68,26 @@ void app_main(void)
 
 #include "data_protocol.h"
 #include "eeprom.h"
+#include "sender.h"
 
-void App_HeartbeatTask(void *args)
+void Controller_hearbeatTask(void *args)
 {
+	SenderDataSpec senderData;
+	uint8_t numWords = 20;
+	uint32_t words[numWords];
+
+	senderData.startBit = 0;
+	senderData.data = words;
+	senderData.numWords = numWords;
+
+	for (uint8_t i = 0; i < numWords; i++)
+	{
+		words[i] = i * 0x10 + 0x5;
+	}
+
+	extern osMessageQueueId_t dataSenderQueueHandle;
+	osMessageQueuePut(dataSenderQueueHandle, &senderData, 0, 10);
+
 	for (;;)
 	{
 		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);

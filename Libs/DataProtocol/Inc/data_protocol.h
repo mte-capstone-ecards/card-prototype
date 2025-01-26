@@ -4,24 +4,29 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <cassert.h>
+
+#define DATA_CRC_SIZE       2
 
 typedef struct
 {
-    uint8_t packetId;
+    uint16_t dataLen;
+    uint8_t crc[DATA_CRC_SIZE];
 } DataHeader;
 
 #define DATA_PACKET_SIZE    256 // Size of total packet in bytes
 #define DATA_HEADER_SIZE    (sizeof(DataHeader))
-#define DATA_CRC_SIZE       2
-#define DATA_PAYLOAD_SIZE   (DATA_PACKET_SIZE - DATA_HEADER_SIZE) // Size of payload buffer in bytes
 
-typedef uint8_t DataPayload[DATA_PAYLOAD_SIZE];
+static_assert(DATA_HEADER_SIZE % 4 == 0, "Data header of packet must be a multiple of 4 bytes");
+
+#define DATA_PAYLOAD_SIZE   ((DATA_PACKET_SIZE - DATA_HEADER_SIZE) / 4) // Size of payload buffer in bytes
+
+typedef uint32_t DataPayload[DATA_PAYLOAD_SIZE];
 
 typedef struct
 {
     DataHeader header;
     DataPayload payload;
-    uint8_t crc[DATA_CRC_SIZE];
 } DataPacket;
 
 #if FTR_DATASENDER

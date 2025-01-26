@@ -4,7 +4,7 @@
 #include "board.h"
 
 #if OS_FREERTOS
-void App_HeartbeatTask(void *);
+void Controller_hearbeatTask(void *);
 #else
-void app_main(void);
+void card_main(void);
 #endif

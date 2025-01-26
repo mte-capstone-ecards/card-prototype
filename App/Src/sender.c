@@ -7,6 +7,8 @@
 #include "eeprom.h"
 #include "st25r.h"
 
+#include "data_protocol.h"
+
 #define SENDER_STATEMACHINE_PERIOD 5 // ms
 
 typedef enum
@@ -28,8 +30,36 @@ static struct {
     SenderState state;
     uint32_t initIndex;
 
-    SenderDataSpec data;
+    SenderDataSpec senderData;
+
+    DataPacket packet;
 } sender;
+
+extern osMessageQueueId_t dataSenderQueueHandle;
+
+static bool Sender_loadNextPacket(void)
+{
+    if (sender.senderData.numWords == 0)
+        return false;
+
+    // Clear existing packet data
+    memset(&sender.packet, 0U, sizeof(DataPacket));
+
+    // Determine transmission length
+    uint16_t len = sender.senderData.numWords < DATA_PAYLOAD_SIZE ? sender.senderData.numWords : DATA_PAYLOAD_SIZE;
+    sender.packet.header.dataLen = len;
+
+    // Copy this amount of data into the payload
+    memcpy(sender.packet.payload, sender.senderData.data + sender.senderData.startBit, 4 * len);
+
+    // TODO: Add the CRC
+
+    // Advance the start bit and subtract the length
+    sender.senderData.startBit += len;
+    sender.senderData.numWords -= len;
+
+    return true;
+}
 
 void Sender_task(void *args)
 {
@@ -81,10 +111,10 @@ void Sender_task(void *args)
             case SENDER_STATE_CHALLENGE:
 
                 // Read the reader's header
-                Eeprom_readReaderHeader();
+                Eeprom_readReceiverHeader();
 
                 // Check to see if the challenge was responded
-                if (eeprom.readerHeader.seqNum == (eeprom.senderHeader.seqNum + 1))
+                if (eeprom.receiverHeader.seqNum == (eeprom.senderHeader.seqNum + 1))
                 {
                     sender.state = SENDER_STATE_IDLE;
                     break;
@@ -94,13 +124,38 @@ void Sender_task(void *args)
 
             case SENDER_STATE_IDLE:
 
+                osStatus_t status = osMessageQueueGet(dataSenderQueueHandle, &sender.senderData, NULL, 10);
+
+                if (status == osOK)
+                {
+                    // We have received new data, we need to move into transmitting
+                    sender.state = SENDER_STATE_TRANSMITTING;
+                    break;
+                }
+
                 break;
 
             case SENDER_STATE_TRANSMITTING:
+                if (Sender_loadNextPacket())
+                {
+                    Eeprom_writeData(0, (uint32_t *) &sender.packet, DATA_HEADER_SIZE + sender.packet.header.dataLen);
+
+                    sender.state = SENDER_STATE_WAITING; // Wait for the response
+                    break;
+                }
+                else
+                {
+                    sender.state = SENDER_STATE_CHECKING; // No data to transmit, check the transmission is correct
+                    break;
+                }
 
                 break;
 
             case SENDER_STATE_WAITING:
+
+                // Read the readers header, when we get a new reader message
+                // Check if its ACK -> go to sender state transmitting
+                // If its a NACK -> go to sender re-transmitting
 
                 break;
 

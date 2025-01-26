@@ -10,7 +10,7 @@ File for defining and validating of HW resources as needed.
 #include "main.h"
 
 #if BOARD_L0
-# include "stm32l071xx_hal.h"
+# include "stm32l0xx_hal.h"
 #elif BOARD_G4
 # include "stm32g431xx_hal.h"
 #elif BOARD_F4

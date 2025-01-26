@@ -91,7 +91,7 @@ int main(void)
   MX_SPI2_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  app_main();
+  card_main();
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -85,7 +85,11 @@ static bool Eeprom_readBlocks(uint16_t addr, uint8_t len, volatile uint32_t *rea
 
 bool Eeprom_waiting()
 {
+#if FTR_DATASENDER
     return osMessageQueueGetCount(nfcCommandQueueHandle) != 0U;
+#elif FTR_DATARECEIVER
+    return false;
+#endif
 }
 
 bool Eeprom_readSector(uint8_t sector)
@@ -95,16 +99,26 @@ bool Eeprom_readSector(uint8_t sector)
 
 bool Eeprom_writeNextSeqId()
 {
-    eeprom.senderHeader.seqNum = eeprom.readerHeader.seqNum + 1;
+#if FTR_DATASENDER
+    eeprom.senderHeader.seqNum = eeprom.receiverHeader.seqNum + 1;
     return Eeprom_writeBlock(0, *((uint32_t *) &eeprom.senderHeader));
+#elif FTR_DATARECEIVER
+    eeprom.receiverHeader.seqNum = eeprom.senderHeader.seqNum + 1;
+    return Eeprom_writeBlock(1, *((uint32_t *) &eeprom.receiverHeader));
+#endif
 }
 
-bool Eeprom_readReaderHeader()
+bool Eeprom_readReceiverHeader()
 {
-    return Eeprom_readBlock(1, (uint32_t *) &eeprom.readerHeader);
+    return Eeprom_readBlock(1, (uint32_t *) &eeprom.receiverHeader);
 }
 
-bool Eeprom_writeData(uint8_t dataAddr, uint32_t data)
+bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len)
 {
-    return Eeprom_writeBlock(2 + dataAddr, data);
+    for (uint16_t i = 0; i < len; i++)
+    {
+        if (!Eeprom_writeBlock(2 + dataAddr + i, data[i]))
+            return false;
+    }
+    return true;
 }

@@ -23,6 +23,12 @@ osMessageQueueId_t nfcCommandQueueHandle;
 const osMessageQueueAttr_t nfcCommandQueue_attributes = {
     .name = "nfcCommandQueue",
 };
+
+extern osMessageQueueId_t dataSenderQueueHandle;
+osMessageQueueId_t dataSenderQueueHandle;
+const osMessageQueueAttr_t dataSenderQueue_attributes = {
+    .name = "dataSenderQueue",
+};
 #endif
 
 #if FTR_BUTTON
@@ -85,13 +91,16 @@ void MX_FREERTOS_Init(void) {
     // RTOS Timers
 
     // RTOS Queues
+#if FTR_DATASENDER
     nfcCommandQueueHandle   = osMessageQueueNew(1, sizeof(ST25R_command), &nfcCommandQueue_attributes);
+    dataSenderQueueHandle   = osMessageQueueNew(1, sizeof(SenderDataSpec), &dataSenderQueue_attributes);
+#endif
 #if FTR_BUTTON
     buttonEventQueueHandle  = osMessageQueueNew(10, sizeof(Button_event), &buttonEventQueue_attributes);
 #endif
 
     // RTOS Threads
-    heartbeatTaskHandle = osThreadNew(App_HeartbeatTask, NULL, &heartbeatTask_attributes);
+    heartbeatTaskHandle = osThreadNew(Controller_hearbeatTask, NULL, &heartbeatTask_attributes);
     st25rTaskHandle     = osThreadNew(ST25R_task, NULL, &st25rTask_attributes);
 #if FTR_DATASENDER
     senderTaskHandle       = osThreadNew(Sender_task, NULL, &senderTask_attributes);
