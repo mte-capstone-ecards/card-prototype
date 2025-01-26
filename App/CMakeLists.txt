@@ -11,7 +11,6 @@ set (APP_SOURCES
 if (${TYPE} MATCHES "CONTROLLER")
 	set (APP_SOURCES ${APP_SOURCES}
 		${APP_DIR}/Src/st25r.c
-		${APP_DIR}/Src/st25r_commands.c
 		${APP_DIR}/Src/RTOSResources.c
 		${APP_DIR}/Src/sender.c
 	)

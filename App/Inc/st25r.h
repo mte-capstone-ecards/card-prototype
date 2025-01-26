@@ -3,6 +3,7 @@
 #include "app.h"
 
 #if FTR_NFCREADER
+#include "m24lr.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -14,17 +15,39 @@ bool ST25R_connected(void);
 #define ST25R_MAX_PAYLOAD_SIZE  32U
 
 typedef struct {
-    uint8_t payload[ST25R_MAX_PAYLOAD_SIZE];
-    uint8_t payloadSize;
+    NFCCommand cmd;
+    bool completed;
 
-    uint8_t *rxBuf;
-    uint8_t rxOffset;
-    uint8_t rxLen;
+    union
+    {
+        struct
+        {
+            uint8_t addr;
+
+            uint8_t *rxLoc;
+        } readSingleCmd;
+
+        struct
+        {
+            uint8_t addr;
+            uint32_t data;
+        } writeSingleCmd;
+
+        struct
+        {
+            uint8_t addr;
+            uint8_t len;
+
+            uint8_t *rxLoc;
+        } readMultipleCmd;
+
+        struct
+        {
+            uint8_t addr;
+            uint8_t len;
+
+            uint8_t *data;
+        } writeMultipleCmd;
+    };
 } ST25R_command;
-
-void ST25R_setCommand_getSysInfo(ST25R_command *cmd);
-void ST25R_setCommand_readSingleBlock(ST25R_command *cmd, uint8_t addr, uint32_t *readLoc);
-void ST25R_setCommand_writeSingleBlock(ST25R_command *cmd, uint8_t addr, uint32_t data);
-void ST25R_setCommand_readMultipleBlock(ST25R_command *cmd, uint8_t addr, uint8_t len, uint32_t *readLoc);
-
 #endif

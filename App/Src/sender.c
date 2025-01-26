@@ -60,18 +60,16 @@ void Sender_task(void *args)
 
             case SENDER_STATE_INIT:
 
-                if (sender.initIndex >= EEPROM_WORDS)
+                if (sender.initIndex >= EEPROM_NUM_SECTORS)
                 {
                     extern osMessageQueueId_t nfcCommandQueueHandle;
                     if (osMessageQueueGetCount(nfcCommandQueueHandle) == 0)
                         sender.state = SENDER_STATE_CHALLENGE;
                     break;
                 }
-
-                static const uint8_t readNum = 1;
-                if (Eeprom_readBytes(sender.initIndex, readNum, ((uint32_t *) &eeprom) + sender.initIndex))
+                else if (Eeprom_readSector(sender.initIndex))
                 {
-                    sender.initIndex += readNum;
+                    sender.initIndex++;
                 }
 
                 break;

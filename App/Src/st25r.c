@@ -43,6 +43,7 @@ typedef rfalNfcvListenDevice ST25R_Device;
 /*****************************************/
 /*        Private Data Definitions       */
 /*****************************************/
+#define RX_BUF_SIZE 256
 
 static struct {
     ST25R_state state;
@@ -53,6 +54,7 @@ static struct {
     ST25R_Device *activeDev;
 
     ST25R_command nextCommand;
+    uint8_t rxBuf[RX_BUF_SIZE];
 } st25r;
 
 /*****************************************/
@@ -123,7 +125,73 @@ static bool ST25R_Activation( uint8_t devIt )
 
 static ReturnCode ST25R_Connected( void )
 {
-    // Inner command loop
+    extern osMessageQueueId_t nfcCommandQueueHandle;
+
+    // Check if we have a command, if not, yield and try again soon
+    if (osMessageQueueGet(nfcCommandQueueHandle, &st25r.nextCommand, NULL, 10) != osOK)
+        return RFAL_ERR_NONE;
+
+    uint16_t rcvLen;
+
+    switch (st25r.nextCommand.cmd)
+    {
+        case NFC_COMMAND_READ_SINGLE_BLOCK:
+            rfalNfcvPollerReadSingleBlock(
+                RFAL_NFCV_REQ_FLAG_DEFAULT,
+                NULL,
+                st25r.nextCommand.readSingleCmd.addr,
+                st25r.rxBuf,
+                RX_BUF_SIZE,
+                &rcvLen
+            );
+
+            memcpy(
+                st25r.nextCommand.readSingleCmd.rxLoc,
+                &st25r.rxBuf[1],
+                4U
+            );
+
+            break;
+
+        case NFC_COMMAND_READ_MULTIPLE_BLOCK:
+            rfalNfcvPollerReadMultipleBlocks(
+                RFAL_NFCV_REQ_FLAG_DEFAULT,
+                NULL,
+                st25r.nextCommand.readMultipleCmd.addr,
+                st25r.nextCommand.readMultipleCmd.len,
+                st25r.rxBuf,
+                RX_BUF_SIZE,
+                &rcvLen
+            );
+
+            memcpy(
+                st25r.nextCommand.readMultipleCmd.rxLoc,
+                &st25r.rxBuf[1],
+                4U * (st25r.nextCommand.readMultipleCmd.len + 1)
+            );
+
+            break;
+
+        case NFC_COMMAND_WRITE_SINGLE_BLOCK:
+            rfalNfcvPollerWriteSingleBlock(
+                RFAL_NFCV_REQ_FLAG_DEFAULT,
+                NULL,
+                st25r.nextCommand.writeSingleCmd.addr,
+                (uint8_t *) &st25r.nextCommand.writeSingleCmd.data,
+                4U
+            );
+
+            break;
+
+        default:
+            // Unimplemented command
+
+            break;
+    }
+
+    st25r.nextCommand.callback();
+
+    return RFAL_ERR_NONE;
 }
 
 static bool ST25R_Deactivate( void )
@@ -195,6 +263,7 @@ void ST25R_task(void *arg)
                 {
                     case RFAL_ERR_NONE: // No issues, stay connected
                             st25r.state = ST25R_STATE_CONNECTED;
+                            break;
 
                     default:                                                          /* Data exchange not successful, card removed or other transmission error */
                         st25r.state = ST25R_STATE_DEACTIVATION;              /* Restart loop */
@@ -213,7 +282,7 @@ void ST25R_task(void *arg)
                 break;
 
             default:
-            return;
+                break;
         }
 
         if (st25r.state == ST25R_STATE_INIT)
@@ -226,8 +295,7 @@ void ST25R_task(void *arg)
 bool ST25R_connected()
 {
     return (
-        (st25r.state == ST25R_STATE_DATAEXCHANGE_START) ||
-        (st25r.state == ST25R_STATE_DATAEXCHANGE_CHECK)
+        (st25r.state == ST25R_STATE_CONNECTED)
     );
 }
 
