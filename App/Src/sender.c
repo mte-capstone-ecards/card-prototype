@@ -28,6 +28,7 @@ static struct {
     SenderState state;
     uint32_t initIndex;
 
+    SenderDataSpec data;
 } sender;
 
 void Sender_task(void *args)
@@ -62,9 +63,12 @@ void Sender_task(void *args)
 
                 if (sender.initIndex >= EEPROM_NUM_SECTORS)
                 {
-                    extern osMessageQueueId_t nfcCommandQueueHandle;
-                    if (osMessageQueueGetCount(nfcCommandQueueHandle) == 0)
-                        sender.state = SENDER_STATE_CHALLENGE;
+                    if(!Eeprom_waiting())
+                    {
+                        // We can enter challenge mode if we are able to send a write command
+                        if (Eeprom_writeNextSeqId())
+                            sender.state = SENDER_STATE_CHALLENGE;
+                    }
                     break;
                 }
                 else if (Eeprom_readSector(sender.initIndex))
@@ -76,7 +80,16 @@ void Sender_task(void *args)
 
             case SENDER_STATE_CHALLENGE:
 
-                osDelay(10);
+                // Read the reader's header
+                Eeprom_readReaderHeader();
+
+                // Check to see if the challenge was responded
+                if (eeprom.readerHeader.seqNum == (eeprom.senderHeader.seqNum + 1))
+                {
+                    sender.state = SENDER_STATE_IDLE;
+                    break;
+                }
+
                 break;
 
             case SENDER_STATE_IDLE:
@@ -104,6 +117,8 @@ void Sender_task(void *args)
                 break;
 
             case SENDER_STATE_ERROR:
+
+
 
                 break;
         }

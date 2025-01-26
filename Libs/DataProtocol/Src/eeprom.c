@@ -2,7 +2,6 @@
 #include "eeprom.h"
 
 volatile Eeprom eeprom;
-#define EEPROM_ADDR( element ) ((uint8_t) ((uint8_t *) &element - (uint8_t *) &eeprom))
 
 #if FTR_DATASENDER
 # include "st25r.h"
@@ -11,7 +10,6 @@ volatile Eeprom eeprom;
 # include <string.h>
 
 extern osMessageQueueId_t nfcCommandQueueHandle;
-extern osSemaphoreId_t nfcCommandSemaphore;
 
 # define NUM_NFC_COMMANDS 10
 ST25R_command cmd[2];
@@ -87,7 +85,7 @@ static bool Eeprom_readBlocks(uint16_t addr, uint8_t len, volatile uint32_t *rea
 
 bool Eeprom_waiting()
 {
-    return cmd[0].completed && cmd[1].completed;
+    return osMessageQueueGetCount(nfcCommandQueueHandle) != 0U;
 }
 
 bool Eeprom_readSector(uint8_t sector)
@@ -97,16 +95,16 @@ bool Eeprom_readSector(uint8_t sector)
 
 bool Eeprom_writeNextSeqId()
 {
-    uint8_t block = EEPROM_ADDR(eeprom.header.senderCmdBytes.seqNum) / 4;
-    uint8_t offset = 4 - (EEPROM_ADDR(eeprom.header.senderCmdBytes.seqNum) % 4);
+    eeprom.senderHeader.seqNum = eeprom.readerHeader.seqNum + 1;
+    return Eeprom_writeBlock(0, *((uint32_t *) &eeprom.senderHeader));
+}
 
-    uint8_t existingData = *(((uint32_t *) &eeprom) + block) & ~(0xFF << (8U * offset));
-    uint8_t nextSeqId = eeprom.header.readerCfg.seqNum + 1;
-
-    return Eeprom_writeBlock(block, existingData | (nextSeqId << (8U * offset)));
+bool Eeprom_readReaderHeader()
+{
+    return Eeprom_readBlock(1, (uint32_t *) &eeprom.readerHeader);
 }
 
 bool Eeprom_writeData(uint8_t dataAddr, uint32_t data)
 {
-    return Eeprom_writeBlock(EEPROM_ADDR(eeprom.data.u32[data]) / 4, data);
+    return Eeprom_writeBlock(2 + dataAddr, data);
 }
