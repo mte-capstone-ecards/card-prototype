@@ -189,6 +189,8 @@ static ReturnCode ST25R_Connected( void )
             break;
     }
 
+    // TODO: Need to implement I2C busy polling loop
+
     return RFAL_ERR_NONE;
 }
 

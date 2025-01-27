@@ -61,5 +61,6 @@ extern volatile Eeprom eeprom;
 bool Eeprom_readSector(uint8_t sector);
 bool Eeprom_waiting(void);
 bool Eeprom_writeNextSeqId(void);
+bool Eeprom_readSenderHeader(void);
 bool Eeprom_readReceiverHeader(void);
 bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len);

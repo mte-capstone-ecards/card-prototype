@@ -22,7 +22,10 @@ static void inline clearCmd(ST25R_command *cmd)
 {
     memset(cmd, 0U, sizeof(ST25R_command));
 }
+#endif
 
+#if FTR_DATARECEIVER
+#include "m24lr_driver.h"
 #endif
 
 static bool Eeprom_writeBlock(uint16_t addr, eepromWord data)
@@ -40,6 +43,8 @@ static bool Eeprom_writeBlock(uint16_t addr, eepromWord data)
 
     FLIP_ACTIVE();
     return true;
+#elif FTR_DATARECEIVER
+    return M24lr_i2c_Drv.WriteData((uint8_t *) &data, addr * 4, 4) == M24LR_OK;
 #endif
     return false;
 }
@@ -59,6 +64,8 @@ static bool Eeprom_readBlock(uint16_t addr, volatile uint32_t *readLoc)
 
     FLIP_ACTIVE();
     return true;
+#elif FTR_DATARECEIVER
+    return M24lr_i2c_Drv.ReadData((uint8_t *) readLoc, addr * 4, 4) == M24LR_OK;
 #endif
     return false;
 }
@@ -79,6 +86,8 @@ static bool Eeprom_readBlocks(uint16_t addr, uint8_t len, volatile uint32_t *rea
 
     FLIP_ACTIVE();
     return true;
+#elif FTR_DATARECEIVER
+    return M24lr_i2c_Drv.ReadData((uint8_t *) readLoc, addr * 4, 4 * len) == M24LR_OK;
 #endif
     return false;
 }
@@ -106,6 +115,11 @@ bool Eeprom_writeNextSeqId()
     eeprom.receiverHeader.seqNum = eeprom.senderHeader.seqNum + 1;
     return Eeprom_writeBlock(1, *((uint32_t *) &eeprom.receiverHeader));
 #endif
+}
+
+bool Eeprom_readSenderHeader()
+{
+    return Eeprom_readBlock(0, (uint32_t *) &eeprom.senderHeader);
 }
 
 bool Eeprom_readReceiverHeader()

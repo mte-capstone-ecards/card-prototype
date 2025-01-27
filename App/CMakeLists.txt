@@ -18,6 +18,7 @@ elseif (${TYPE} MATCHES "CARD")
 	set (APP_SOURCES ${APP_SOURCES}
 		${APP_DIR}/Src/m24lr.c
 		${APP_DIR}/Src/receiver.c
+		${APP_DIR}/Src/card.c
 	)
 endif()
 
