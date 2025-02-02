@@ -45,6 +45,10 @@ typedef rfalNfcvListenDevice ST25R_Device;
 /*****************************************/
 #define RX_BUF_SIZE 256
 
+static const ST25R_command defaultCommand = {
+    .cmd = NFC_COMMAND_GET_SYS_INFO
+};
+
 static struct {
     ST25R_state state;
     ReturnCode err;
@@ -126,17 +130,18 @@ static bool ST25R_Activation( uint8_t devIt )
 static ReturnCode ST25R_Connected( void )
 {
     extern osMessageQueueId_t nfcCommandQueueHandle;
+    ReturnCode ret;
 
-    // Check if we have a command, if not, yield and try again soon
+    // Check if we have a command, if not, send a empty command to check if its still here
     if (osMessageQueueGet(nfcCommandQueueHandle, &st25r.nextCommand, NULL, 10) != osOK)
-        return RFAL_ERR_NONE;
+        memcpy(&st25r.nextCommand, &defaultCommand, sizeof(defaultCommand));
 
     uint16_t rcvLen;
 
     switch (st25r.nextCommand.cmd)
     {
         case NFC_COMMAND_READ_SINGLE_BLOCK:
-            rfalNfcvPollerReadSingleBlock(
+            ret = rfalNfcvPollerReadSingleBlock(
                 RFAL_NFCV_REQ_FLAG_DEFAULT,
                 NULL,
                 st25r.nextCommand.readSingleCmd.addr,
@@ -154,7 +159,7 @@ static ReturnCode ST25R_Connected( void )
             break;
 
         case NFC_COMMAND_READ_MULTIPLE_BLOCK:
-            rfalNfcvPollerReadMultipleBlocks(
+            ret = rfalNfcvPollerReadMultipleBlocks(
                 RFAL_NFCV_REQ_FLAG_DEFAULT,
                 NULL,
                 st25r.nextCommand.readMultipleCmd.addr,
@@ -173,7 +178,7 @@ static ReturnCode ST25R_Connected( void )
             break;
 
         case NFC_COMMAND_WRITE_SINGLE_BLOCK:
-            rfalNfcvPollerWriteSingleBlock(
+            ret = rfalNfcvPollerWriteSingleBlock(
                 RFAL_NFCV_REQ_FLAG_DEFAULT,
                 NULL,
                 st25r.nextCommand.writeSingleCmd.addr,
@@ -183,6 +188,15 @@ static ReturnCode ST25R_Connected( void )
 
             break;
 
+        case NFC_COMMAND_GET_SYS_INFO:
+            ret = rfalNfcvPollerGetSystemInformation(
+                RFAL_NFCV_REQ_FLAG_DEFAULT,
+                NULL,
+                st25r.rxBuf,
+                RX_BUF_SIZE,
+                &rcvLen
+            );
+
         default:
             // Unimplemented command
 
@@ -191,7 +205,7 @@ static ReturnCode ST25R_Connected( void )
 
     // TODO: Need to implement I2C busy polling loop
 
-    return RFAL_ERR_NONE;
+    return ret;
 }
 
 static bool ST25R_Deactivate( void )

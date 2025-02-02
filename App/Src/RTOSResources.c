@@ -47,12 +47,14 @@ const osThreadAttr_t heartbeatTask_attributes = {
   .priority = (osPriority_t) osPriorityNormal,
 };
 
+#if FTR_NFCREADER
 osThreadId_t st25rTaskHandle;
 const osThreadAttr_t st25rTask_attributes = {
   .name = "st25rTask",
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityHigh,
 };
+#endif
 
 #if FTR_DATASENDER
 osThreadId_t senderTaskHandle;
@@ -101,7 +103,9 @@ void MX_FREERTOS_Init(void) {
 
     // RTOS Threads
     heartbeatTaskHandle = osThreadNew(Controller_hearbeatTask, NULL, &heartbeatTask_attributes);
+#if FTR_NFCREADER
     st25rTaskHandle     = osThreadNew(ST25R_task, NULL, &st25rTask_attributes);
+#endif
 #if FTR_DATASENDER
     senderTaskHandle       = osThreadNew(Sender_task, NULL, &senderTask_attributes);
 #endif

@@ -1,6 +1,8 @@
 
 #include "sender.h"
 
+#if FTR_DATASENDER
+
 #include <cmsis_os.h>
 #include <string.h>
 
@@ -73,7 +75,6 @@ void Sender_task(void *args)
         if ((sender.state != SENDER_STATE_DISCONNECTED) && !ST25R_connected())
         {
             sender.state = SENDER_STATE_ERROR;
-            break;
         }
 
         switch (sender.state)
@@ -179,3 +180,5 @@ void Sender_task(void *args)
         }
     }
 }
+
+#endif

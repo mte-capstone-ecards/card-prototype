@@ -16,10 +16,14 @@ bool ST25R_connected(void);
 
 typedef struct {
     NFCCommand cmd;
-    bool completed;
 
     union
     {
+        struct
+        {
+
+        } sysInfoCmd;
+
         struct
         {
             uint8_t addr;

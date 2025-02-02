@@ -2,6 +2,8 @@
 
 #include "base_defs.h"
 
+#if FTR_EEPROM
+
 #include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -64,3 +66,5 @@ bool Eeprom_writeNextSeqId(void);
 bool Eeprom_readSenderHeader(void);
 bool Eeprom_readReceiverHeader(void);
 bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len);
+
+#endif

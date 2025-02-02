@@ -62,5 +62,9 @@ File for defining and validating of HW resources as needed.
 # endif
 #endif
 
+#if BOARD_G0
+# define USER_LED_GPIO_Port LED_DEBUG_G_GPIO_Port
+# define USER_LED_Pin       LED_DEBUG_G_Pin
+#endif
 
 

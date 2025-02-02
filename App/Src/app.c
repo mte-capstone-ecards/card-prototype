@@ -53,6 +53,7 @@ static void sdcard_demo()
 
 void Controller_hearbeatTask(void *args)
 {
+#if FTR_DATASENDER
 	SenderDataSpec senderData;
 	uint8_t numWords = 20;
 	uint32_t words[numWords];
@@ -63,11 +64,12 @@ void Controller_hearbeatTask(void *args)
 
 	for (uint8_t i = 0; i < numWords; i++)
 	{
-		words[i] = i * 0x10 + 0x5;
+		words[i] = i * 0x10 + 0x4;
 	}
 
 	extern osMessageQueueId_t dataSenderQueueHandle;
 	osMessageQueuePut(dataSenderQueueHandle, &senderData, 0, 10);
+#endif
 
 	for (;;)
 	{

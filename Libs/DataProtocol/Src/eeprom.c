@@ -1,6 +1,8 @@
 
 #include "eeprom.h"
 
+#if FTR_EEPROM
+
 volatile Eeprom eeprom;
 
 #if FTR_DATASENDER
@@ -136,3 +138,5 @@ bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len)
     }
     return true;
 }
+
+#endif
