@@ -111,11 +111,11 @@ void Sender_task(void *args)
 
             case SENDER_STATE_CHALLENGE:
 
-                // Read the reader's header
+                // Read the receiver's header
                 Eeprom_readReceiverHeader();
 
                 // Check to see if the challenge was responded
-                if (eeprom.receiverHeader.seqNum == (eeprom.senderHeader.seqNum + 1))
+                if (!Eeprom_partnerStale())
                 {
                     sender.state = SENDER_STATE_IDLE;
                     break;
@@ -154,9 +154,27 @@ void Sender_task(void *args)
 
             case SENDER_STATE_WAITING:
 
-                // Read the readers header, when we get a new reader message
-                // Check if its ACK -> go to sender state transmitting
-                // If its a NACK -> go to sender re-transmitting
+                // Read the receiver's header
+                Eeprom_readReceiverHeader();
+                osDelay(20);
+
+                if (!Eeprom_partnerStale())
+                {
+                    // Read the receivers header, when we get a new receiver message
+                    // Check if its ACK -> go to sender state transmitting
+                    // If its a NACK -> go to sender re-transmitting
+
+                    if (eeprom.receiverHeader.ack)
+                    {
+                        sender.state = SENDER_STATE_TRANSMITTING;
+                    }
+                    else
+                    {
+                        sender.state = SENDER_STATE_RETRANSMITTING;
+                    }
+
+                    break;
+                }
 
                 break;
 
@@ -166,9 +184,27 @@ void Sender_task(void *args)
 
             case SENDER_STATE_CHECKING:
 
+                // Not implemented, go straight to updating
+                sender.state = SENDER_STATE_UPDATING;
+
                 break;
 
             case SENDER_STATE_UPDATING:
+
+                // Send a command requesting the device to update the display
+                eeprom.senderHeader.update = 1;
+                Eeprom_writeNextSeqId(); // This will write the entire command block including the row above
+
+                // Read the receiver's header
+                Eeprom_readReceiverHeader();
+
+                if (eeprom.receiverHeader.updated)
+                {
+                    // It updated! We can send next ID and go back to idle.
+                    Eeprom_writeNextSeqId();
+                    sender.state = SENDER_STATE_IDLE;
+                    break;
+                }
 
                 break;
 

@@ -8,8 +8,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "img.h"
-
 volatile uint8_t x = 0;
 #define NOP() (x++);
 

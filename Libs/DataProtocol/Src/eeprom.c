@@ -108,6 +108,11 @@ bool Eeprom_readSector(uint8_t sector)
     return Eeprom_readBlocks(32U * sector, 32, eeprom.sectors[sector]);
 }
 
+bool Eeprom_readAll(void)
+{
+    return Eeprom_readBlocks(0, 32U * 4, eeprom.sectors[0]);
+}
+
 bool Eeprom_writeNextSeqId()
 {
 #if FTR_DATASENDER
@@ -127,6 +132,15 @@ bool Eeprom_readSenderHeader()
 bool Eeprom_readReceiverHeader()
 {
     return Eeprom_readBlock(1, (uint32_t *) &eeprom.receiverHeader);
+}
+
+bool Eeprom_partnerStale()
+{
+#if FTR_DATASENDER
+    return (eeprom.receiverHeader.seqNum) == (eeprom.senderHeader.seqNum + 1);
+#elif FTR_DATARECEIVER
+    return (eeprom.senderHeader.seqNum) == (eeprom.receiverHeader.seqNum + 1);
+#endif
 }
 
 bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len)

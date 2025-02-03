@@ -19,6 +19,8 @@ elseif (${TYPE} MATCHES "CARD")
 		${APP_DIR}/Src/m24lr.c
 		${APP_DIR}/Src/receiver.c
 		${APP_DIR}/Src/card.c
+		${APP_DIR}/Src/eink_e370_driver.c
+		${APP_DIR}/Src/eink_lib.c
 	)
 endif()
 

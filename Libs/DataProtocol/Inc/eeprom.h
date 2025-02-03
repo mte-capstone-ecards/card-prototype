@@ -22,12 +22,23 @@ typedef uint8_t eepromWord;
 
 typedef struct {
     uint8_t seqNum;
-    uint8_t dummy[3];
+
+    struct {
+        uint8_t update:1;
+    };
+
+    uint8_t dummy[2];
 } SenderHeader;
 
 typedef struct {
     uint8_t seqNum;
-    uint8_t dummy[3];
+
+    struct {
+        uint8_t ack:1;
+        uint8_t updated:1;
+    };
+
+    uint8_t dummy[2];
 } receiverHeader;
 
 static_assert(sizeof(SenderHeader) == 4, "Sender header must fit in a block");
@@ -61,10 +72,12 @@ typedef struct
 extern volatile Eeprom eeprom;
 
 bool Eeprom_readSector(uint8_t sector);
+bool Eeprom_readAll(void);
 bool Eeprom_waiting(void);
 bool Eeprom_writeNextSeqId(void);
 bool Eeprom_readSenderHeader(void);
 bool Eeprom_readReceiverHeader(void);
+bool Eeprom_partnerStale(void);
 bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len);
 
 #endif
