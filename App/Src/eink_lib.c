@@ -50,6 +50,7 @@ void eink_demo()
     }
 
     eink_fullUpdate(buf);
+    while(1);
     return;
 }
 #endif

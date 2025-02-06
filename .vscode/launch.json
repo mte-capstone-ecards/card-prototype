@@ -9,7 +9,6 @@
             "executable": "${command:cmake.launchTargetPath}",
             "svdFile": "${command:cmake.getLaunchTargetDirectory}/device.svd",
             "servertype": "stlink",
-            "runToEntryPoint": "main"
         },
         {
             "name": "Picoprobe Debug",

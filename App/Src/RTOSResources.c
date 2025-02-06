@@ -94,7 +94,7 @@ void MX_FREERTOS_Init(void) {
 
     // RTOS Queues
 #if FTR_DATASENDER
-    nfcCommandQueueHandle   = osMessageQueueNew(1, sizeof(ST25R_command), &nfcCommandQueue_attributes);
+    nfcCommandQueueHandle   = osMessageQueueNew(20, sizeof(ST25R_command), &nfcCommandQueue_attributes);
     dataSenderQueueHandle   = osMessageQueueNew(1, sizeof(SenderDataSpec), &dataSenderQueue_attributes);
 #endif
 #if FTR_BUTTON

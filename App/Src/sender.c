@@ -97,8 +97,17 @@ void Sender_task(void *args)
                     if(!Eeprom_waiting())
                     {
                         // We can enter challenge mode if we are able to send a write command
+                        eeprom.senderHeader.update = 0;
+                        eeprom.senderHeader.data = 0;
                         if (Eeprom_writeNextSeqId())
+                        {
                             sender.state = SENDER_STATE_CHALLENGE;
+                        }
+                        else
+                        {
+                            sender.state = SENDER_STATE_ERROR;
+                            break;
+                        }
                     }
                     break;
                 }
@@ -115,9 +124,18 @@ void Sender_task(void *args)
                 Eeprom_readReceiverHeader();
 
                 // Check to see if the challenge was responded
-                if (!Eeprom_partnerStale())
+                if (Eeprom_partnerUpdated())
                 {
                     sender.state = SENDER_STATE_IDLE;
+                    eeprom.senderHeader.update = 0;
+                    eeprom.senderHeader.data = 0;
+
+                    if (!Eeprom_writeNextSeqId()) // Ack to transition card to idle
+                    {
+                        sender.state = SENDER_STATE_ERROR;
+                        break;
+                    }
+
                     break;
                 }
 
@@ -139,7 +157,16 @@ void Sender_task(void *args)
             case SENDER_STATE_TRANSMITTING:
                 if (Sender_loadNextPacket())
                 {
-                    Eeprom_writeData(0, (uint32_t *) &sender.packet, DATA_HEADER_SIZE + sender.packet.header.dataLen);
+                    if (!Eeprom_writeData(0, (uint32_t *) &sender.packet, DATA_HEADER_SIZE + sender.packet.header.dataLen))
+                    {
+                        sender.state = SENDER_STATE_ERROR;
+                        break;
+                    }
+
+                    // Can we make this a enum, change to Eeprom_writeNextHeader(enum HeaderTypes);
+                    eeprom.senderHeader.update = 0;
+                    eeprom.senderHeader.data = 1;
+                    Eeprom_writeNextSeqId();
 
                     sender.state = SENDER_STATE_WAITING; // Wait for the response
                     break;
@@ -156,9 +183,9 @@ void Sender_task(void *args)
 
                 // Read the receiver's header
                 Eeprom_readReceiverHeader();
-                osDelay(20);
+                osDelay(40);
 
-                if (!Eeprom_partnerStale())
+                if (Eeprom_partnerUpdated())
                 {
                     // Read the receivers header, when we get a new receiver message
                     // Check if its ACK -> go to sender state transmitting
@@ -193,7 +220,12 @@ void Sender_task(void *args)
 
                 // Send a command requesting the device to update the display
                 eeprom.senderHeader.update = 1;
-                Eeprom_writeNextSeqId(); // This will write the entire command block including the row above
+                eeprom.senderHeader.data = 0;
+                if (!Eeprom_writeNextSeqId()) // This will write the entire command block including the row above
+                {
+                    sender.state = SENDER_STATE_ERROR;
+                    break;
+                }
 
                 // Read the receiver's header
                 Eeprom_readReceiverHeader();
@@ -201,7 +233,14 @@ void Sender_task(void *args)
                 if (eeprom.receiverHeader.updated)
                 {
                     // It updated! We can send next ID and go back to idle.
-                    Eeprom_writeNextSeqId();
+                    eeprom.senderHeader.update = 0;
+                    eeprom.senderHeader.data = 0;
+                    if (!Eeprom_writeNextSeqId())
+                    {
+                        sender.state = SENDER_STATE_ERROR;
+                        break;
+                    }
+
                     sender.state = SENDER_STATE_IDLE;
                     break;
                 }
@@ -210,7 +249,10 @@ void Sender_task(void *args)
 
             case SENDER_STATE_ERROR:
 
-
+                // Reset sender
+                // memset(&sender, 0U, sizeof(sender));
+                extern uint32_t period;
+                period = 100;
 
                 break;
         }

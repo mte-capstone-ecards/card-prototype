@@ -7,8 +7,8 @@
 typedef struct
 {
     uint32_t *data;
-    uint8_t  startBit;
-    uint8_t  numWords;
+    uint32_t  startBit;
+    uint32_t  numWords;
 } SenderDataSpec;
 
 void Sender_task(void *args);

@@ -25,6 +25,7 @@ typedef struct {
 
     struct {
         uint8_t update:1;
+        uint8_t data:1;
     };
 
     uint8_t dummy[2];
@@ -77,7 +78,7 @@ bool Eeprom_waiting(void);
 bool Eeprom_writeNextSeqId(void);
 bool Eeprom_readSenderHeader(void);
 bool Eeprom_readReceiverHeader(void);
-bool Eeprom_partnerStale(void);
+bool Eeprom_partnerUpdated(void);
 bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len);
 
 #endif

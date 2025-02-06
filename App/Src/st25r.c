@@ -33,7 +33,8 @@ typedef enum{
     ST25R_STATE_DEACTIVATION        =  5   /* Deactivation state          */
 } ST25R_state;
 
-#define ST25R_RF_BUF_LEN   255   /* RF buffer length            */
+#define ST25R_MAX_RETRIES   50       // Number of times to retry the send command
+#define ST25R_RF_BUF_LEN    255   /* RF buffer length            */
 
 // Device Definition
 #define ST25R_NUM_DEVICES      10    /* Number of devices supported */
@@ -58,6 +59,8 @@ static struct {
     ST25R_Device *activeDev;
 
     ST25R_command nextCommand;
+    uint8_t retries;
+
     uint8_t rxBuf[RX_BUF_SIZE];
 } st25r;
 
@@ -133,77 +136,92 @@ static ReturnCode ST25R_Connected( void )
     ReturnCode ret;
 
     // Check if we have a command, if not, send a empty command to check if its still here
-    if (osMessageQueueGet(nfcCommandQueueHandle, &st25r.nextCommand, NULL, 10) != osOK)
+    // Include a delay to ensure that while we don't have a pending command, we allow the I2C operation to run
+    if (osMessageQueueGet(nfcCommandQueueHandle, &st25r.nextCommand, NULL, 200) != osOK)
+    {
         memcpy(&st25r.nextCommand, &defaultCommand, sizeof(defaultCommand));
+    }
+
+    // We received a new command, reset our retries
+    st25r.retries = ST25R_MAX_RETRIES;
 
     uint16_t rcvLen;
 
-    switch (st25r.nextCommand.cmd)
+    while (st25r.retries > 0)
     {
-        case NFC_COMMAND_READ_SINGLE_BLOCK:
-            ret = rfalNfcvPollerReadSingleBlock(
-                RFAL_NFCV_REQ_FLAG_DEFAULT,
-                NULL,
-                st25r.nextCommand.readSingleCmd.addr,
-                st25r.rxBuf,
-                RX_BUF_SIZE,
-                &rcvLen
-            );
+        switch (st25r.nextCommand.cmd)
+        {
+            case NFC_COMMAND_READ_SINGLE_BLOCK:
+                ret = rfalNfcvPollerReadSingleBlock(
+                    RFAL_NFCV_REQ_FLAG_DEFAULT,
+                    NULL,
+                    st25r.nextCommand.readSingleCmd.addr,
+                    st25r.rxBuf,
+                    RX_BUF_SIZE,
+                    &rcvLen
+                );
 
-            memcpy(
-                st25r.nextCommand.readSingleCmd.rxLoc,
-                &st25r.rxBuf[1],
-                4U
-            );
+                memcpy(
+                    st25r.nextCommand.readSingleCmd.rxLoc,
+                    &st25r.rxBuf[1],
+                    4U
+                );
 
-            break;
+                break;
 
-        case NFC_COMMAND_READ_MULTIPLE_BLOCK:
-            ret = rfalNfcvPollerReadMultipleBlocks(
-                RFAL_NFCV_REQ_FLAG_DEFAULT,
-                NULL,
-                st25r.nextCommand.readMultipleCmd.addr,
-                st25r.nextCommand.readMultipleCmd.len,
-                st25r.rxBuf,
-                RX_BUF_SIZE,
-                &rcvLen
-            );
+            case NFC_COMMAND_READ_MULTIPLE_BLOCK:
+                ret = rfalNfcvPollerReadMultipleBlocks(
+                    RFAL_NFCV_REQ_FLAG_DEFAULT,
+                    NULL,
+                    st25r.nextCommand.readMultipleCmd.addr,
+                    st25r.nextCommand.readMultipleCmd.len,
+                    st25r.rxBuf,
+                    RX_BUF_SIZE,
+                    &rcvLen
+                );
 
-            memcpy(
-                st25r.nextCommand.readMultipleCmd.rxLoc,
-                &st25r.rxBuf[1],
-                4U * (st25r.nextCommand.readMultipleCmd.len + 1)
-            );
+                memcpy(
+                    st25r.nextCommand.readMultipleCmd.rxLoc,
+                    &st25r.rxBuf[1],
+                    4U * (st25r.nextCommand.readMultipleCmd.len + 1)
+                );
 
-            break;
+                break;
 
-        case NFC_COMMAND_WRITE_SINGLE_BLOCK:
-            ret = rfalNfcvPollerWriteSingleBlock(
-                RFAL_NFCV_REQ_FLAG_DEFAULT,
-                NULL,
-                st25r.nextCommand.writeSingleCmd.addr,
-                (uint8_t *) &st25r.nextCommand.writeSingleCmd.data,
-                4U
-            );
+            case NFC_COMMAND_WRITE_SINGLE_BLOCK:
+                ret = rfalNfcvPollerWriteSingleBlock(
+                    RFAL_NFCV_REQ_FLAG_DEFAULT,
+                    NULL,
+                    st25r.nextCommand.writeSingleCmd.addr,
+                    (uint8_t *) &st25r.nextCommand.writeSingleCmd.data,
+                    4U
+                );
 
-            break;
+                break;
 
-        case NFC_COMMAND_GET_SYS_INFO:
-            ret = rfalNfcvPollerGetSystemInformation(
-                RFAL_NFCV_REQ_FLAG_DEFAULT,
-                NULL,
-                st25r.rxBuf,
-                RX_BUF_SIZE,
-                &rcvLen
-            );
+            case NFC_COMMAND_GET_SYS_INFO:
+                ret = rfalNfcvPollerGetSystemInformation(
+                    RFAL_NFCV_REQ_FLAG_DEFAULT,
+                    NULL,
+                    st25r.rxBuf,
+                    RX_BUF_SIZE,
+                    &rcvLen
+                );
 
-        default:
-            // Unimplemented command
+            default:
+                // Unimplemented command
 
-            break;
+                break;
+        }
+
+        if (ret == RFAL_ERR_NONE)
+            return ret;
+        else
+            st25r.retries--;
+
+        // Blocking wait between retries.
+        HAL_Delay(5);
     }
-
-    // TODO: Need to implement I2C busy polling loop
 
     return ret;
 }

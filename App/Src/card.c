@@ -23,13 +23,16 @@ typedef enum
 struct Card_S {
     CardState state;
 
+    bool open;
     uint8_t challengeValue;
+
     EPDBuf buf;
     uint32_t pixelPointer;
 } card;
 
 static void Card_initialize(void)
 {
+    eink_powerUp();
     memset(&card, 0U, sizeof(struct Card_S));
 
 	M24lr_i2c_Drv.Init();
@@ -83,13 +86,15 @@ void card_main(void)
                 break;
 
             case CARD_STATE_CHALLENGE:
-                // Read the next sender header
+                // Read the next sender header. Only move to idle once we've written and accepted a challenge
                 Eeprom_readSenderHeader();
 
                 // Check if our previous challenge was accepted
-                if (eeprom.senderHeader.seqNum == card.challengeValue)
+                if (card.open && eeprom.senderHeader.seqNum == card.challengeValue)
                 {
+                    // Ack and move to idle!
                     card.state = CARD_STATE_IDLE;
+                    Eeprom_writeNextSeqId();
                     break;
                 }
 
@@ -97,7 +102,10 @@ void card_main(void)
                 Eeprom_writeNextSeqId();
                 card.challengeValue = eeprom.receiverHeader.seqNum + 1;
 
-                HAL_Delay(5000);
+                // We have now written the challenge answer, we can start moving to idle
+                card.open = true;
+
+                HAL_Delay(1000);
 
                 break;
 
@@ -107,7 +115,7 @@ void card_main(void)
                 // Wait until we receive a message
                 Eeprom_readSenderHeader();
 
-                if (!Eeprom_partnerStale())
+                if (Eeprom_partnerUpdated())
                 {
 
                     if (eeprom.senderHeader.update)
@@ -115,14 +123,25 @@ void card_main(void)
                         card.state = CARD_STATE_UPDATE;
                         break;
                     }
+                    else if (eeprom.senderHeader.data)
+                    {
+                        // Read the whole eeprom
+                        Eeprom_readAll();
 
-                    // Read the whole eeprom
-                    Eeprom_readAll();
+                        Card_loadPacket();
 
-                    Card_loadPacket();
-
-                    Eeprom_writeNextSeqId();
+                        // We need to ack
+                        eeprom.receiverHeader.ack = 1;
+                        Eeprom_writeNextSeqId();
+                        eeprom.receiverHeader.ack = 0;
+                    }
+                    else
+                    {
+                        Eeprom_writeNextSeqId();
+                    }
                 }
+
+                HAL_Delay(33);
 
                 break;
 

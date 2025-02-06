@@ -51,30 +51,39 @@ static void sdcard_demo()
 #include "eeprom.h"
 #include "sender.h"
 
+extern uint32_t period;
+uint32_t period = 500;
+
+#define NUM_WORDS ((416 * (240 / 8)) / 4)
+uint32_t words[NUM_WORDS];
+
 void Controller_hearbeatTask(void *args)
 {
 #if FTR_DATASENDER
 	SenderDataSpec senderData;
-	uint8_t numWords = 20;
-	uint32_t words[numWords];
+
 
 	senderData.startBit = 0;
 	senderData.data = words;
-	senderData.numWords = numWords;
+	senderData.numWords = NUM_WORDS;
 
-	for (uint8_t i = 0; i < numWords; i++)
+	for (uint32_t i = 0; i < NUM_WORDS; i++)
 	{
-		words[i] = i * 0x10 + 0x4;
+		words[i] = (1U << i) - 1U;
 	}
 
-	extern osMessageQueueId_t dataSenderQueueHandle;
-	osMessageQueuePut(dataSenderQueueHandle, &senderData, 0, 10);
 #endif
 
 	for (;;)
 	{
 		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
-		osDelay(500);
+
+#if FTR_DATASENDER
+		extern osMessageQueueId_t dataSenderQueueHandle;
+		osMessageQueuePut(dataSenderQueueHandle, &senderData, 0, 10);
+#endif
+
+		osDelay(period);
 	}
 }
 #endif
