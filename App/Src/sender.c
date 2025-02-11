@@ -39,7 +39,7 @@ static struct {
 
 extern osMessageQueueId_t dataSenderQueueHandle;
 
-static bool Sender_loadNextPacket(void)
+static uint16_t Sender_loadNextPacket(void)
 {
     if (sender.senderData.numWords == 0)
         return false;
@@ -56,11 +56,7 @@ static bool Sender_loadNextPacket(void)
 
     // TODO: Add the CRC
 
-    // Advance the start bit and subtract the length
-    sender.senderData.startBit += len;
-    sender.senderData.numWords -= len;
-
-    return true;
+    return len;
 }
 
 void Sender_task(void *args)
@@ -97,18 +93,12 @@ void Sender_task(void *args)
                     if(!Eeprom_waiting())
                     {
                         // We can enter challenge mode if we are able to send a write command
-                        eeprom.senderHeader.update = 0;
-                        eeprom.senderHeader.data = 0;
-                        if (Eeprom_writeNextSeqId())
+                        if (Eeprom_writeNextHeader(SENDER_CHALLENGE_INSTR))
                         {
                             sender.state = SENDER_STATE_CHALLENGE;
                         }
-                        else
-                        {
-                            sender.state = SENDER_STATE_ERROR;
-                            break;
-                        }
                     }
+
                     break;
                 }
                 else if (Eeprom_readSector(sender.initIndex))
@@ -127,18 +117,10 @@ void Sender_task(void *args)
                 if (Eeprom_partnerUpdated())
                 {
                     sender.state = SENDER_STATE_IDLE;
-                    eeprom.senderHeader.update = 0;
-                    eeprom.senderHeader.data = 0;
-
-                    if (!Eeprom_writeNextSeqId()) // Ack to transition card to idle
-                    {
-                        sender.state = SENDER_STATE_ERROR;
-                        break;
-                    }
-
                     break;
                 }
 
+                osDelay(25);
                 break;
 
             case SENDER_STATE_IDLE:
@@ -157,16 +139,17 @@ void Sender_task(void *args)
             case SENDER_STATE_TRANSMITTING:
                 if (Sender_loadNextPacket())
                 {
-                    if (!Eeprom_writeData(0, (uint32_t *) &sender.packet, DATA_HEADER_SIZE + sender.packet.header.dataLen))
+                    if (Eeprom_writeData(0, (uint32_t *) &sender.packet, DATA_HEADER_SIZE + sender.packet.header.dataLen))
                     {
-                        sender.state = SENDER_STATE_ERROR;
+                    }
+                    else
+                    {
+                        // No room in queue, try again
                         break;
                     }
 
-                    // Can we make this a enum, change to Eeprom_writeNextHeader(enum HeaderTypes);
-                    eeprom.senderHeader.update = 0;
-                    eeprom.senderHeader.data = 1;
-                    Eeprom_writeNextSeqId();
+                    while (!Eeprom_writeNextHeader(SENDER_DATA_INSTR))
+                        osThreadYield();
 
                     sender.state = SENDER_STATE_WAITING; // Wait for the response
                     break;
@@ -183,7 +166,6 @@ void Sender_task(void *args)
 
                 // Read the receiver's header
                 Eeprom_readReceiverHeader();
-                osDelay(40);
 
                 if (Eeprom_partnerUpdated())
                 {
@@ -191,8 +173,12 @@ void Sender_task(void *args)
                     // Check if its ACK -> go to sender state transmitting
                     // If its a NACK -> go to sender re-transmitting
 
-                    if (eeprom.receiverHeader.ack)
+                    if (eeprom.receiverHeader.instruction == RECEIVER_ACK)
                     {
+                        // Advance the start bit and subtract the length
+                        sender.senderData.startBit += sender.packet.header.dataLen;
+                        sender.senderData.numWords -= sender.packet.header.dataLen;
+
                         sender.state = SENDER_STATE_TRANSMITTING;
                     }
                     else
@@ -203,6 +189,7 @@ void Sender_task(void *args)
                     break;
                 }
 
+                osDelay(40);
                 break;
 
             case SENDER_STATE_RETRANSMITTING:
@@ -219,31 +206,28 @@ void Sender_task(void *args)
             case SENDER_STATE_UPDATING:
 
                 // Send a command requesting the device to update the display
-                eeprom.senderHeader.update = 1;
-                eeprom.senderHeader.data = 0;
-                if (!Eeprom_writeNextSeqId()) // This will write the entire command block including the row above
+                if (!Eeprom_writeNextHeader(SENDER_UPDATE_INSTR))
+                {
+                    osDelay(25);
+                    break;
+                }
+
+                // Read the receiver's header
+                while(eeprom.receiverHeader.instruction != RECEIVER_UPDATED)
+                {
+                    Eeprom_readReceiverHeader();
+                    osDelay(25);
+                }
+
+                // It updated! We can send next ID and go back to idle.
+                if (!Eeprom_writeNextHeader(SENDER_NULL_INSTR))
                 {
                     sender.state = SENDER_STATE_ERROR;
                     break;
                 }
 
-                // Read the receiver's header
-                Eeprom_readReceiverHeader();
-
-                if (eeprom.receiverHeader.updated)
-                {
-                    // It updated! We can send next ID and go back to idle.
-                    eeprom.senderHeader.update = 0;
-                    eeprom.senderHeader.data = 0;
-                    if (!Eeprom_writeNextSeqId())
-                    {
-                        sender.state = SENDER_STATE_ERROR;
-                        break;
-                    }
-
-                    sender.state = SENDER_STATE_IDLE;
-                    break;
-                }
+                sender.state = SENDER_STATE_IDLE;
+                break;
 
                 break;
 

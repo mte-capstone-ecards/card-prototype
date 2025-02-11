@@ -52,7 +52,7 @@ static void sdcard_demo()
 #include "sender.h"
 
 extern uint32_t period;
-uint32_t period = 500;
+uint32_t period = 20;
 
 #define NUM_WORDS ((416 * (240 / 8)) / 4)
 uint32_t words[NUM_WORDS];
@@ -74,9 +74,32 @@ void Controller_hearbeatTask(void *args)
 
 #endif
 
+	static uint32_t counter = 0;
+
 	for (;;)
 	{
-		HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
+ 		// HAL_GPIO_TogglePin(LED_DEBUG_G_GPIO_Port, LED_DEBUG_G_Pin);
+		// HAL_GPIO_TogglePin(LED_DEBUG_R_GPIO_Port, LED_DEBUG_R_Pin);
+		// HAL_GPIO_TogglePin(LED_DEBUG_B_GPIO_Port, LED_DEBUG_B_Pin);
+		// HAL_GPIO_TogglePin(LED_PWR_GPIO_Port, LED_PWR_Pin);
+		// HAL_GPIO_TogglePin(LED_DISPLAY_R_GPIO_Port, LED_DISPLAY_R_Pin);
+		// HAL_GPIO_TogglePin(LED_DISPLAY_B_GPIO_Port, LED_DISPLAY_B_Pin);
+		// // HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
+
+		if (HAL_GPIO_ReadPin(USER_BUTTON1_GPIO_Port, USER_BUTTON1_Pin))
+		{
+			if (counter < 12)
+				counter++;
+			else if (counter == 12)
+			{
+				counter++;
+				HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
+			}
+		}
+		else
+		{
+			counter = 0;
+		}
 
 #if FTR_DATASENDER
 		extern osMessageQueueId_t dataSenderQueueHandle;

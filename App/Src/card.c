@@ -13,9 +13,7 @@
 typedef enum
 {
     CARD_STATE_POWERON = 0U,    // Initial state on power on
-    CARD_STATE_CHALLENGE,       // Try to find a challenge
     CARD_STATE_IDLE,
-    CARD_STATE_UPDATE,
 
     CARD_STATE_ERROR,           // Error, unrecoverable generally
 } CardState;
@@ -81,78 +79,46 @@ void card_main(void)
             case CARD_STATE_POWERON:
 
                 // Should we only switch when field is on? This should be a given with EH
-                card.state = CARD_STATE_CHALLENGE;
-
-                break;
-
-            case CARD_STATE_CHALLENGE:
-                // Read the next sender header. Only move to idle once we've written and accepted a challenge
-                Eeprom_readSenderHeader();
-
-                // Check if our previous challenge was accepted
-                if (card.open && eeprom.senderHeader.seqNum == card.challengeValue)
-                {
-                    // Ack and move to idle!
-                    card.state = CARD_STATE_IDLE;
-                    Eeprom_writeNextSeqId();
-                    break;
-                }
-
-                // We failed... write the expected answer to the latest read header
-                Eeprom_writeNextSeqId();
-                card.challengeValue = eeprom.receiverHeader.seqNum + 1;
-
-                // We have now written the challenge answer, we can start moving to idle
-                card.open = true;
-
-                HAL_Delay(1000);
-
+                card.state = CARD_STATE_IDLE;
                 break;
 
             case CARD_STATE_IDLE:
-                // TODO: Idle state is currently idle and receiving, maybe want to seperate
-
                 // Wait until we receive a message
                 Eeprom_readSenderHeader();
 
+                if (eeprom.senderHeader.instruction == SENDER_CHALLENGE_INSTR)
+                {
+                    Eeprom_writeNextHeader(RECEIVER_NULL);
+                    break;
+                }
+
                 if (Eeprom_partnerUpdated())
                 {
-
-                    if (eeprom.senderHeader.update)
+                    switch (eeprom.senderHeader.instruction)
                     {
-                        card.state = CARD_STATE_UPDATE;
-                        break;
-                    }
-                    else if (eeprom.senderHeader.data)
-                    {
-                        // Read the whole eeprom
-                        Eeprom_readAll();
+                        case SENDER_UPDATE_INSTR:
+                            eink_fullUpdate(card.buf);
+                            Eeprom_writeNextHeader(RECEIVER_UPDATED);
+                            break;
 
-                        Card_loadPacket();
+                        case SENDER_DATA_INSTR:
+                            // Read the whole eeprom
+                            Eeprom_readAll();
+                            Card_loadPacket();
 
-                        // We need to ack
-                        eeprom.receiverHeader.ack = 1;
-                        Eeprom_writeNextSeqId();
-                        eeprom.receiverHeader.ack = 0;
-                    }
-                    else
-                    {
-                        Eeprom_writeNextSeqId();
+                            Eeprom_writeNextHeader(RECEIVER_ACK);
+
+                            break;
+
+                        case SENDER_NULL_INSTR:
+                        default:
+                            Eeprom_writeNextHeader(RECEIVER_NULL);
+
+                            break;
                     }
                 }
 
-                HAL_Delay(33);
-
-                break;
-
-            case CARD_STATE_UPDATE:
-
-                eink_fullUpdate(card.buf);
-
-                eeprom.receiverHeader.updated = 1;
-                Eeprom_writeNextSeqId();
-
-                card.state = CARD_STATE_CHALLENGE;
+                HAL_Delay(90);
 
                 break;
 

@@ -8,36 +8,44 @@
 #include <assert.h>
 #include <stdbool.h>
 
+typedef enum __attribute__ ((__packed__)) {
+    SENDER_NULL_INSTR,
+    SENDER_CHALLENGE_INSTR,
+    SENDER_DATA_INSTR,
+    SENDER_UPDATE_INSTR,
+} SenderInstruction;
+
+typedef enum __attribute__ ((__packed__)) {
+    RECEIVER_NULL,
+    RECEIVER_ACK,
+    RECEIVER_NACK,
+    RECEIVER_UPDATED
+} ReceiverInstruction;
+
 #if FTR_DATASENDER
 # define SENDER_WRITE   volatile
 # define READER_WRITE   const volatile
 
 typedef uint32_t eepromWord;
+typedef SenderInstruction Instruction;
 #elif FTR_DATARECEIVER
 # define SENDER_WRITE   const volatile
 # define READER_WRITE   volatile
 
 typedef uint8_t eepromWord;
+typedef ReceiverInstruction Instruction;
 #endif
 
 typedef struct {
     uint8_t seqNum;
-
-    struct {
-        uint8_t update:1;
-        uint8_t data:1;
-    };
+    SenderInstruction instruction;
 
     uint8_t dummy[2];
 } SenderHeader;
 
 typedef struct {
     uint8_t seqNum;
-
-    struct {
-        uint8_t ack:1;
-        uint8_t updated:1;
-    };
+    ReceiverInstruction instruction;
 
     uint8_t dummy[2];
 } receiverHeader;
@@ -75,7 +83,7 @@ extern volatile Eeprom eeprom;
 bool Eeprom_readSector(uint8_t sector);
 bool Eeprom_readAll(void);
 bool Eeprom_waiting(void);
-bool Eeprom_writeNextSeqId(void);
+bool Eeprom_writeNextHeader(Instruction instruction);
 bool Eeprom_readSenderHeader(void);
 bool Eeprom_readReceiverHeader(void);
 bool Eeprom_partnerUpdated(void);

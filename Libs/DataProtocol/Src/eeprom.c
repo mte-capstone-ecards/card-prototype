@@ -132,14 +132,16 @@ bool Eeprom_readAll(void)
     return Eeprom_readBlocks(0, 32U * 4, eeprom.sectors[0]);
 }
 
-bool Eeprom_writeNextSeqId()
+bool Eeprom_writeNextHeader(Instruction instruction)
 {
 #if FTR_DATASENDER
     Eeprom_readReceiverHeader();
+    eeprom.senderHeader.instruction = instruction;
     eeprom.senderHeader.seqNum = eeprom.receiverHeader.seqNum + 1;
     return Eeprom_writeBlock(0, *((uint32_t *) &eeprom.senderHeader));
 #elif FTR_DATARECEIVER
     Eeprom_readSenderHeader();
+    eeprom.receiverHeader.instruction = instruction;
     eeprom.receiverHeader.seqNum = eeprom.senderHeader.seqNum + 1;
     return Eeprom_writeBlock(1, *((uint32_t *) &eeprom.receiverHeader));
 #endif
