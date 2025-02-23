@@ -9,6 +9,10 @@
 
 // M24lr_i2c_Drv
 // M24lr_i2c_ExtDrv
+#define CARD_TEST_LED_GPIO_Port GPIOA //idk?
+#define CARD_TEST_LED_Pin 2 //idk this either
+
+static const uint32_t max_voltage = 2;
 
 typedef enum
 {
@@ -30,6 +34,7 @@ struct Card_S {
 
 static void Card_initialize(void)
 {
+
     eink_powerUp();
     memset(&card, 0U, sizeof(struct Card_S));
 
@@ -41,6 +46,34 @@ static void Card_initialize(void)
 		card.state = CARD_STATE_ERROR;
 	}
 }
+
+static void lowPower_start(){
+    //leds are for testing but currently have none? on card board 
+    //HAL_GPIO_WritePin(CARD_TEST_LED_GPIO_Port, CARD_TEST_LED_Pin, 1);
+    //HAL_Delay (3000); 
+    HAL_SuspendTick(); //clock paused in low power mode
+    //HAL_GPIO_WritePin(CARD_TEST_LED_GPIO_Port, CARD_TEST_LED_Pin, 0); 
+    HAL_PWR_EnableSleepOnExit(); //sleep after everyinterrupt it is woken up by
+
+    //HAL_PWR_EnterSLEEPMode (PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI); //low poer mode ysed and return from interrupt
+
+    //
+    HAL_ResumeTick();
+    //HAL_GPIO_WritePin(CARD_TEST_LED_GPIO_Port, CARD_TEST_LED_Pin, 1);
+
+    //current is around 1.8 mA for stm32F103 (from resarch, ik this is a differnt stm32)
+}
+
+//in switch mode for state machine, if interrupt turns things on, use state machine to turn off if not enough change?
+/*
+HAL_ADC_ConvCplotCallback - this function will  be created by new stm32 ioc file -> need help :((
+    uint32_t voltageDiff;
+    if (voltageDiff >= max_voltage){
+        HAL_ResumeTick();
+        HAL_PWR_DisableSleepOnExit();
+    }
+
+*/
 
 static void Card_loadPacket(void)
 {
