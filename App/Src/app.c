@@ -36,7 +36,16 @@
 static void sdcard_demo()
 {
 	// Code
+	
+	//need to download the https://github.com/stm32duino/FatFs library 
+	/*
+	f_mount
+	f_opendir
+	f_open
+	f_read 
+	f_lseek
 
+	*/
 
 
 
