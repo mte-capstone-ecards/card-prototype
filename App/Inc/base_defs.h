@@ -35,12 +35,12 @@
 #define OS_BAREMETAL (!OS_FREERTOS)
 
 /* Features */
+#define FTR_SIMEEPROM       (1U)
 #define FTR_EINK            (TYPE_CARD)
-#define FTR_NFCTAG          (TYPE_CARD)
-#define FTR_NFCREADER       (TYPE_CONTROLLER)
+#define FTR_NFCTAG          (TYPE_CARD & !FTR_SIMEEPROM)
+#define FTR_NFCREADER       (TYPE_CONTROLLER & !FTR_SIMEEPROM)
 #define FTR_LED             (TYPE_CONTROLLER)
 #define FTR_BUTTON          (TYPE_CONTROLLER)
 #define FTR_EEPROM          ((TYPE_CARD | TYPE_CONTROLLER))
 #define FTR_DATASENDER      (TYPE_CONTROLLER)
 #define FTR_DATARECEIVER    (TYPE_CARD)
-#define FTR_SIMEEPROM       (0U)

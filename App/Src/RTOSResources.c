@@ -93,8 +93,10 @@ void MX_FREERTOS_Init(void) {
     // RTOS Timers
 
     // RTOS Queues
-#if FTR_DATASENDER
+#if FTR_NFCREADER
     nfcCommandQueueHandle   = osMessageQueueNew(20, sizeof(ST25R_command), &nfcCommandQueue_attributes);
+#endif
+#if FTR_DATASENDER
     dataSenderQueueHandle   = osMessageQueueNew(1, sizeof(SenderDataSpec), &dataSenderQueue_attributes);
 #endif
 #if FTR_BUTTON

@@ -73,6 +73,9 @@ void Error_Handler(void);
 #define EINK_BUSY_GPIO_Port GPIOA
 #define EINK_RESET_Pin GPIO_PIN_9
 #define EINK_RESET_GPIO_Port GPIOA
+#define M24LR_BUSY_Pin GPIO_PIN_5
+#define M24LR_BUSY_GPIO_Port GPIOB
+#define M24LR_BUSY_EXTI_IRQn EXTI4_15_IRQn
 #define M24LR_SCL_Pin GPIO_PIN_6
 #define M24LR_SCL_GPIO_Port GPIOB
 #define M24LR_SDA_Pin GPIO_PIN_7

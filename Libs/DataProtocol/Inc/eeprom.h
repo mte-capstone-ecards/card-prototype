@@ -48,16 +48,16 @@ typedef struct {
     ReceiverInstruction instruction;
 
     uint8_t dummy[2];
-} receiverHeader;
+} ReceiverHeader;
 
 static_assert(sizeof(SenderHeader) == 4, "Sender header must fit in a block");
-static_assert(sizeof(receiverHeader) == 4, "Reader header must fit in a block");
+static_assert(sizeof(ReceiverHeader) == 4, "Reader header must fit in a block");
 
 // Eeprom of M24LR
 #define EEPROM_NUM_SECTORS  4U
 #define EEPROM_SIZE (4 * 1024 / 8) // 4 kBit
 #define EEPROM_WORDS (EEPROM_SIZE / 4)
-#define EEPROM_DATA_BYTES (EEPROM_SIZE - sizeof(SenderHeader) - sizeof(receiverHeader))
+#define EEPROM_DATA_BYTES (EEPROM_SIZE - sizeof(SenderHeader) - sizeof(ReceiverHeader))
 #define EEPROM_DATA_WORDS (EEPROM_DATA_BYTES / 4)
 
 typedef volatile uint32_t Sector[32];
@@ -67,7 +67,7 @@ typedef struct
     union {
         struct {
             SenderHeader senderHeader;
-            receiverHeader receiverHeader;
+            ReceiverHeader receiverHeader;
 
             SENDER_WRITE union {
                 uint8_t     u8[EEPROM_DATA_BYTES];

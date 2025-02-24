@@ -147,7 +147,8 @@ static ReturnCode ST25R_Connected( void )
 
     uint16_t rcvLen;
 
-    while (st25r.retries > 0)
+    // while (st25r.retries > 0)
+    while(1)
     {
         switch (st25r.nextCommand.cmd)
         {
@@ -220,7 +221,7 @@ static ReturnCode ST25R_Connected( void )
             st25r.retries--;
 
         // Blocking wait between retries.
-        HAL_Delay(5);
+        HAL_Delay(10);
     }
 
     return ret;

@@ -2,6 +2,10 @@
 
 #include "app.h"
 
+#if !FTR_NFCREADER
+#define ST25R_connected()   true
+#endif
+
 #if FTR_NFCREADER
 #include "m24lr.h"
 
