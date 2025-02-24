@@ -1,0 +1,3 @@
+[submodule "ugui"]
+	path = Libs/ugui
+	url = git@github.com:mte-capstone-ecards/UGUI.git
