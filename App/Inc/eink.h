@@ -19,6 +19,7 @@ typedef uint8_t EPDBuf[EINK_SCREEN_SIZE_V][ROW_BYTES];
 // Driver Functions
 void eink_fullUpdate(EPDBuf buf);
 void eink_powerUp(void);
+void eink_powerDown(void);
 
 // Library Functions
 void eink_clearBuf(EPDBuf buf);

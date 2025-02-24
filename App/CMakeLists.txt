@@ -14,7 +14,7 @@ if (${TYPE} MATCHES "CONTROLLER")
 		${APP_DIR}/Src/RTOSResources.c
 		${APP_DIR}/Src/sender.c
 		${APP_DIR}/Src/eink_e370_driver.c
-		${APP_DIR}/Src/eink_lib.c
+		${APP_DIR}/Src/gui.c
 	)
 elseif (${TYPE} MATCHES "CARD")
 	set (APP_SOURCES ${APP_SOURCES}

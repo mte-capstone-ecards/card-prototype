@@ -27,6 +27,7 @@ if (${TYPE} MATCHES "CONTROLLER")
 	set(SELECTED_LIBS ${SELECTED_LIBS}
 		# RFAL
 		# ST25R_Common
+		ugui
 	)
 endif()
 
