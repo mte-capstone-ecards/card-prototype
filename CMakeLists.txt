@@ -25,8 +25,8 @@ set(SELECTED_LIBS
 # Controller Libraries
 if (${TYPE} MATCHES "CONTROLLER")
 	set(SELECTED_LIBS ${SELECTED_LIBS}
-		RFAL
-		ST25R_Common
+		# RFAL
+		# ST25R_Common
 	)
 endif()
 

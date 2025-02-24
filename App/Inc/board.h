@@ -57,6 +57,8 @@ File for defining and validating of HW resources as needed.
 #  define EINK_SPI hspi2
 # elif BOARD_L0
 #  define EINK_SPI hspi1
+# elif BOARD_G0
+#  define EINK_SPI hspi3
 # else
 #  error "No SPI peripheral defined for eink"
 # endif

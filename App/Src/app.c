@@ -57,8 +57,23 @@ uint32_t period = 20;
 #define NUM_WORDS ((416 * (240 / 8)) / 4)
 uint32_t words[NUM_WORDS];
 
+#include "eink.h"
+EPDBuf buf = { 0U};
+
 void Controller_hearbeatTask(void *args)
 {
+	// eink_demo();
+	eink_powerUp();
+	eink_fullUpdate(buf);
+
+	while(1)
+	{
+		HAL_GPIO_TogglePin(LED_DEBUG_R_GPIO_Port, LED_DEBUG_R_Pin);
+		HAL_GPIO_TogglePin(LED_DEBUG_G_GPIO_Port, LED_DEBUG_G_Pin);
+		HAL_GPIO_TogglePin(LED_DEBUG_B_GPIO_Port, LED_DEBUG_B_Pin);
+		HAL_Delay(500);
+	}
+
 #if FTR_DATASENDER
 	SenderDataSpec senderData;
 

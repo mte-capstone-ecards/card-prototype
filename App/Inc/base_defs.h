@@ -1,6 +1,5 @@
 #pragma once
 
-
 /* BOARDS */
 #ifndef BOARD_G4
 # define BOARD_G4 0
@@ -36,7 +35,7 @@
 
 /* Features */
 #define FTR_SIMEEPROM       (1U)
-#define FTR_EINK            (TYPE_CARD)
+#define FTR_EINK            (TYPE_CARD | BOARD_G0)
 #define FTR_NFCTAG          (TYPE_CARD & !FTR_SIMEEPROM)
 #define FTR_NFCREADER       (TYPE_CONTROLLER & !FTR_SIMEEPROM)
 #define FTR_LED             (TYPE_CONTROLLER)

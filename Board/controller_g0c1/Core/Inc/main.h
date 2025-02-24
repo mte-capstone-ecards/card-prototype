@@ -122,8 +122,8 @@ void Error_Handler(void);
 #define NFC_A_BUSY_Pin GPIO_PIN_2
 #define NFC_A_BUSY_GPIO_Port GPIOD
 #define NFC_A_BUSY_EXTI_IRQn EXTI2_3_IRQn
-#define EINK_CS_Pin GPIO_PIN_3
-#define EINK_CS_GPIO_Port GPIOD
+#define EINK_SPI_CS_Pin GPIO_PIN_3
+#define EINK_SPI_CS_GPIO_Port GPIOD
 #define EINK_DC_Pin GPIO_PIN_4
 #define EINK_DC_GPIO_Port GPIOD
 #define EINK_RESET_Pin GPIO_PIN_5
