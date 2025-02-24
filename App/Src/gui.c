@@ -44,6 +44,7 @@ UG_DEVICE device = {
 #define MAX_OBJS 15
 UG_WINDOW mainWindow;
 UG_OBJECT mainWindowObjs[MAX_OBJS];
+UG_TEXTBOX mainText;
 
 static void windowHandler(UG_MESSAGE *msg)
 {
@@ -53,13 +54,19 @@ static void windowHandler(UG_MESSAGE *msg)
 void GUI_init()
 {
     UG_Init(&gui, &device);
-    UG_FillScreen(C_BLACK);
+    UG_FillScreen(C_WHITE); // TODO: We could add a driver for fill screen (Memset)
 
     UG_WindowCreate(&mainWindow, mainWindowObjs, MAX_OBJS, &windowHandler);
-    UG_WindowSetTitleTextFont (&mainWindow, FONT_6X10);
-    UG_WindowSetTitleText(&mainWindow, "App Title");
+    UG_WindowSetStyle(&mainWindow, WND_STYLE_HIDE_TITLE);
+
+    UG_TextboxCreate(&mainWindow, &mainText, TXB_ID_0, UGUI_POS(40, 40, 100, 30));
+    UG_TextboxSetFont(&mainWindow, TXB_ID_0, FONT_6X10);
+    UG_TextboxSetText(&mainWindow, TXB_ID_0, "This is the text");
 
     UG_WindowShow(&mainWindow);
+
+    // Doesn't work when the window is on top
+    // UG_FillCircle(150, 120, 40, C_BLACK);
 
     UG_Update();
 }
