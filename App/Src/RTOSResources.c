@@ -43,7 +43,7 @@ const osMessageQueueAttr_t buttonEventQueue_attributes = {
 osThreadId_t heartbeatTaskHandle;
 const osThreadAttr_t heartbeatTask_attributes = {
   .name = "heartbeatTask",
-  .stack_size = 128 * 4,
+  .stack_size = 128,
   .priority = (osPriority_t) osPriorityNormal,
 };
 
@@ -69,8 +69,17 @@ const osThreadAttr_t senderTask_attributes = {
 osThreadId_t ledTaskHandle;
 const osThreadAttr_t ledTask_attributes = {
   .name = "ledTask",
-  .stack_size = 256 * 2,
+  .stack_size = 256,
   .priority = (osPriority_t) osPriorityLow,
+};
+#endif
+
+#if FTR_BUTTON
+osThreadId_t buttonTaskHandle;
+const osThreadAttr_t buttonTask_attributes = {
+  .name = "buttonTask",
+  .stack_size = 256,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 #endif
 
@@ -110,6 +119,9 @@ void MX_FREERTOS_Init(void) {
 #endif
 #if FTR_DATASENDER
     senderTaskHandle       = osThreadNew(Sender_task, NULL, &senderTask_attributes);
+#endif
+#if FTR_BUTTON
+    buttonTaskHandle       = osThreadNew(Button_task, NULL, &buttonTask_attributes);
 #endif
 #if FTR_LED
     ledTaskHandle       = osThreadNew(LED_task, NULL, &ledTask_attributes);

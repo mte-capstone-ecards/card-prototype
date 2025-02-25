@@ -8,6 +8,13 @@
 #include <stdbool.h>
 #include <string.h>
 
+#if OS_BAREMETAL
+# define delay(ms)  delay(ms)
+#elif OS_FREERTOS
+# include <cmsis_os.h>
+# define delay(ms)  osDelay(ms)
+#endif
+
 volatile uint8_t x = 0;
 #define NOP() (x++);
 
@@ -107,35 +114,38 @@ void eink_softReset()
 {
     uint8_t softReset = 0x0e;
     eink_sendIndexData(0x00, &softReset, 1);
-    while (eink_pinRead(PIN_BUSY));
+    while (eink_pinRead(PIN_BUSY))
+        delay(5);
 }
 
 void eink_displayRefresh()
 {
     uint8_t displayRefresh = {0x00};
     eink_sendIndexData(0x12, &displayRefresh, 1U);
-    while (eink_pinRead(PIN_BUSY));
+    while (eink_pinRead(PIN_BUSY))
+        delay(5);
 }
 
 void eink_reset()
 {
     const uint8_t delays[] = {1, 5, 10, 5, 1};
 
-    HAL_Delay(delays[0]);
+    delay(delays[0]);
     eink_pinDeassert(PIN_RESET);
-    HAL_Delay(delays[1]);
+    delay(delays[1]);
     eink_pinAssert(PIN_RESET);
-    HAL_Delay(delays[2]);
+    delay(delays[2]);
     eink_pinDeassert(PIN_RESET);
-    HAL_Delay(delays[3]);
+    delay(delays[3]);
     eink_pinDeassert(PIN_CS);
-    HAL_Delay(delays[4]);
+    delay(delays[4]);
 }
 
 void eink_DCDCpowerOn()
 {
     eink_sendIndexData(0x04, 0x00, 1U);
-    while (eink_pinRead(PIN_BUSY));
+    while (eink_pinRead(PIN_BUSY))
+        delay(5);
 }
 
 /*****************************************/
@@ -153,7 +163,7 @@ void eink_powerUp()
 {
     eink_pinInit();
 
-    HAL_Delay(5);
+    delay(5);
 
     eink_reset();
     eink_softReset();

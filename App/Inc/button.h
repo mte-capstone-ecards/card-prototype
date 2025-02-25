@@ -9,6 +9,14 @@
 typedef enum
 {
 
+    BUTTON_A,
+    BUTTON_B,
+
+    BUTTON_UP,
+    BUTTON_DOWN,
+    BUTTON_LEFT,
+    BUTTON_RIGHT,
+
     BUTTON_COUNT,
 } ButtonHandle;
 
@@ -25,5 +33,7 @@ typedef struct
 
     PressType type;
 } Button_event;
+
+void Button_task(void *args);
 
 #endif

@@ -59,6 +59,7 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define USER_BUTTON2_Pin GPIO_PIN_11
 #define USER_BUTTON2_GPIO_Port GPIOC
+#define USER_BUTTON2_EXTI_IRQn EXTI4_15_IRQn
 #define LED_DEBUG_G_Pin GPIO_PIN_13
 #define LED_DEBUG_G_GPIO_Port GPIOC
 #define LED_DEBUG_R_Pin GPIO_PIN_14
@@ -105,14 +106,19 @@ void Error_Handler(void);
 #define NFC_B_SDA_GPIO_Port GPIOB
 #define USER_BUTTON1_Pin GPIO_PIN_15
 #define USER_BUTTON1_GPIO_Port GPIOB
+#define USER_BUTTON1_EXTI_IRQn EXTI4_15_IRQn
 #define USER_BUTTON7_Pin GPIO_PIN_8
 #define USER_BUTTON7_GPIO_Port GPIOA
+#define USER_BUTTON7_EXTI_IRQn EXTI4_15_IRQn
 #define USER_BUTTON6_Pin GPIO_PIN_9
 #define USER_BUTTON6_GPIO_Port GPIOA
+#define USER_BUTTON6_EXTI_IRQn EXTI4_15_IRQn
 #define USER_BUTTON5_Pin GPIO_PIN_6
 #define USER_BUTTON5_GPIO_Port GPIOC
+#define USER_BUTTON5_EXTI_IRQn EXTI4_15_IRQn
 #define USER_BUTTON4_Pin GPIO_PIN_7
 #define USER_BUTTON4_GPIO_Port GPIOC
+#define USER_BUTTON4_EXTI_IRQn EXTI4_15_IRQn
 #define LED_PWR_Pin GPIO_PIN_10
 #define LED_PWR_GPIO_Port GPIOA
 #define LED_DISPLAY_R_Pin GPIO_PIN_11
@@ -140,6 +146,7 @@ void Error_Handler(void);
 #define SD_CARD_CONNDET_GPIO_Port GPIOB
 #define USER_BUTTON3_Pin GPIO_PIN_10
 #define USER_BUTTON3_GPIO_Port GPIOC
+#define USER_BUTTON3_EXTI_IRQn EXTI4_15_IRQn
 
 /* USER CODE BEGIN Private defines */
 

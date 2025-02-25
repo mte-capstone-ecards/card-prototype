@@ -28,10 +28,7 @@ void Controller_hearbeatTask(void *args)
 
 	while(1)
 	{
-		HAL_GPIO_TogglePin(LED_DEBUG_R_GPIO_Port, LED_DEBUG_R_Pin);
-		HAL_GPIO_TogglePin(LED_DEBUG_G_GPIO_Port, LED_DEBUG_G_Pin);
-		HAL_GPIO_TogglePin(LED_DEBUG_B_GPIO_Port, LED_DEBUG_B_Pin);
-		HAL_Delay(500);
+		osDelay(500);
 	}
 
 #if FTR_DATASENDER

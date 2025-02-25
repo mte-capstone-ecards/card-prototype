@@ -4,11 +4,130 @@
 #if FTR_BUTTON
 
 #include "cmsis_os.h"
+#include "led.h"
 
 // Button Queue, when a button that is not currently in the queue is pressed, add it to the queue
 extern osMessageQueueId_t buttonEventQueueHandle;
 
+#define BUTTON_NOT_PRESSED  0x0
+#define BUTTON_HOLD_TIME    2000    // ms
 
+typedef struct
+{
+    GPIO_TypeDef *port;
+    uint16_t pin;
+
+    uint32_t pressed;
+    bool held;
+} Button;
+
+Button buttons[BUTTON_COUNT] = {
+    [BUTTON_A] = {
+        .port = USER_BUTTON1_GPIO_Port,
+        .pin = USER_BUTTON1_Pin,
+
+        .pressed = BUTTON_NOT_PRESSED,
+        .held = false,
+    },
+    [BUTTON_B] = {
+        .port = USER_BUTTON2_GPIO_Port,
+        .pin = USER_BUTTON2_Pin,
+
+        .pressed = BUTTON_NOT_PRESSED,
+        .held = false,
+    },
+
+    [BUTTON_UP] = {
+        .port = USER_BUTTON6_GPIO_Port,
+        .pin = USER_BUTTON6_Pin,
+
+        .pressed = BUTTON_NOT_PRESSED,
+        .held = false,
+    },
+    [BUTTON_DOWN] = {
+        .port = USER_BUTTON3_GPIO_Port,
+        .pin = USER_BUTTON3_Pin,
+
+        .pressed = BUTTON_NOT_PRESSED,
+        .held = false,
+    },
+    [BUTTON_LEFT] = {
+        .port = USER_BUTTON5_GPIO_Port,
+        .pin = USER_BUTTON5_Pin,
+
+        .pressed = BUTTON_NOT_PRESSED,
+        .held = false,
+    },
+    [BUTTON_RIGHT] = {
+        .port = USER_BUTTON4_GPIO_Port,
+        .pin = USER_BUTTON4_Pin,
+
+        .pressed = BUTTON_NOT_PRESSED,
+        .held = false,
+    },
+};
+
+static void inline Button_press(ButtonHandle handle)
+{
+    LED_enableHz(LED_DISPLAY_R, 2);
+}
+
+static void inline Button_release(ButtonHandle handle)
+{
+    LED_disable(LED_DISPLAY_R);
+}
+
+static void inline Button_hold(ButtonHandle handle)
+{
+    LED_enableHz(LED_DISPLAY_R, 4);
+}
+
+void Button_task(void *args)
+{
+    (void) args;
+
+    for (;;)
+    {
+        for (uint8_t i = 0; i < BUTTON_COUNT; i++)
+        {
+            if (buttons[i].pressed != BUTTON_NOT_PRESSED)
+            {
+                if (HAL_GetTick() - buttons[i].pressed > BUTTON_HOLD_TIME && !buttons[i].held)
+                {
+                    buttons[i].held = true;
+                    Button_hold(i);
+                }
+            }
+        }
+
+        osDelay(10);
+    }
+}
+
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+    for (uint8_t i = 0; i < BUTTON_COUNT; i++)
+    {
+        if (buttons[i].pin == GPIO_Pin)
+        {
+            buttons[i].held = false;
+            buttons[i].pressed = HAL_GetTick();
+            Button_press(i);
+        }
+    }
+}
+
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
+{
+    for (uint8_t i = 0; i < BUTTON_COUNT; i++)
+    {
+        if (buttons[i].pin == GPIO_Pin)
+        {
+            buttons[i].pressed = BUTTON_NOT_PRESSED;
+            Button_release(i);
+        }
+    }
+}
 
 
 #endif

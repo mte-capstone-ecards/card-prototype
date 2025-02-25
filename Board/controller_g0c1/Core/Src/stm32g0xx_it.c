@@ -116,6 +116,26 @@ void EXTI2_3_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles EXTI line 4 to 15 interrupts.
+  */
+void EXTI4_15_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI4_15_IRQn 0 */
+
+  /* USER CODE END EXTI4_15_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(USER_BUTTON5_Pin);
+  HAL_GPIO_EXTI_IRQHandler(USER_BUTTON4_Pin);
+  HAL_GPIO_EXTI_IRQHandler(USER_BUTTON7_Pin);
+  HAL_GPIO_EXTI_IRQHandler(USER_BUTTON6_Pin);
+  HAL_GPIO_EXTI_IRQHandler(USER_BUTTON3_Pin);
+  HAL_GPIO_EXTI_IRQHandler(USER_BUTTON2_Pin);
+  HAL_GPIO_EXTI_IRQHandler(USER_BUTTON1_Pin);
+  /* USER CODE BEGIN EXTI4_15_IRQn 1 */
+
+  /* USER CODE END EXTI4_15_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM1 break, update, trigger and commutation interrupts.
   */
 void TIM1_BRK_UP_TRG_COM_IRQHandler(void)

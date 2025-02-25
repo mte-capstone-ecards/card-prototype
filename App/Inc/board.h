@@ -29,7 +29,7 @@ File for defining and validating of HW resources as needed.
 # endif
 #endif
 
-#if FTR_NFCREADER
+#if FTR_NFCREADER | FTR_SIMEEPROM
 # if BOARD_F4
 #  define ST25R_SPI  hspi1
 
