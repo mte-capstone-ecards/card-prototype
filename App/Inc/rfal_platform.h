@@ -124,6 +124,7 @@
 #define platformI2CSlaveAddrRD( sA )              // TODO
 #define platformI2CTx( txBuf, len, last, txOnly ) // TODO
 #define platformI2CRx( txBuf, len )               // TODO
+#define ST25R_I2C_TIMEOUT HAL_MAX_DELAY
 
 // #define platformLog(...)                              logUsart(__VA_ARGS__)                         /* Log  method                                 */
 #define platformLog(...)
