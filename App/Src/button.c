@@ -5,6 +5,7 @@
 
 #include "cmsis_os.h"
 #include "led.h"
+#include "gui.h"
 
 // Button Queue, when a button that is not currently in the queue is pressed, add it to the queue
 extern osMessageQueueId_t buttonEventQueueHandle;
@@ -69,7 +70,11 @@ Button buttons[BUTTON_COUNT] = {
 
 static void inline Button_press(ButtonHandle handle)
 {
-    LED_enableHz(LED_DISPLAY_R, 2);
+    if (handle == BUTTON_UP)
+        GUI_decrementSelectedButton();
+
+    if (handle == BUTTON_A)
+        GUI_incrementSelectedButton();
 }
 
 static void inline Button_release(ButtonHandle handle)

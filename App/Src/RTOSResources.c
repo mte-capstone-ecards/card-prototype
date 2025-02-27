@@ -43,7 +43,7 @@ const osMessageQueueAttr_t buttonEventQueue_attributes = {
 osThreadId_t heartbeatTaskHandle;
 const osThreadAttr_t heartbeatTask_attributes = {
   .name = "heartbeatTask",
-  .stack_size = 128,
+  .stack_size = 128 * 2,
   .priority = (osPriority_t) osPriorityNormal,
 };
 
