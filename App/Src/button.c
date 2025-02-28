@@ -23,6 +23,7 @@ typedef struct
 } Button;
 
 Button buttons[BUTTON_COUNT] = {
+#if BOARD_G0
     [BUTTON_A] = {
         .port = USER_BUTTON1_GPIO_Port,
         .pin = USER_BUTTON1_Pin,
@@ -66,15 +67,16 @@ Button buttons[BUTTON_COUNT] = {
         .pressed = BUTTON_NOT_PRESSED,
         .held = false,
     },
+#endif
 };
 
 static void inline Button_press(ButtonHandle handle)
 {
-    if (handle == BUTTON_UP)
-        GUI_decrementSelectedButton();
+    // if (handle == BUTTON_UP)
+    //     GUI_decrementSelectedButton();
 
-    if (handle == BUTTON_A)
-        GUI_incrementSelectedButton();
+    // if (handle == BUTTON_A)
+    //     GUI_incrementSelectedButton();
 }
 
 static void inline Button_release(ButtonHandle handle)

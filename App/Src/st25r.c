@@ -346,3 +346,58 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 }
 #endif
+
+#if defined(ST25R3916B)
+// We have to define some I2C functions
+# include <i2c.h>
+
+int32_t ST25R_SequentialSend(const uint16_t DevAddr, const uint8_t * const pData, const uint16_t Length, const uint8_t last, const uint8_t txOnly)
+{
+    HAL_StatusTypeDef ret;
+    uint32_t txFlag;
+
+    if ((last != 0) && (txOnly != 0))
+    {
+      txFlag = I2C_LAST_FRAME;
+    }
+    else
+    {
+      txFlag = (last ? /*I2C_LAST_FRAME_NO_STOP*/ I2C_FIRST_FRAME : I2C_FIRST_AND_NEXT_FRAME);
+    }
+
+    ret = HAL_I2C_Master_Seq_Transmit_IT(&ST25R_I2C, DevAddr, (uint8_t*)pData, Length, txFlag);
+    if (ret != HAL_OK)
+    {
+      return ret;
+    }
+
+    while (HAL_I2C_GetState(&ST25R_I2C) != HAL_I2C_STATE_READY);
+
+    if (HAL_I2C_GetError(&ST25R_I2C) != HAL_I2C_ERROR_NONE)
+    {
+      return HAL_ERROR;
+    }
+    return HAL_OK;
+}
+
+int32_t ST25R_SequentialReceive(const uint16_t DevAddr, uint8_t * const pData, uint16_t Length)
+{
+    HAL_StatusTypeDef ret;
+
+    ret = HAL_I2C_Master_Seq_Receive_IT(&ST25R_I2C, DevAddr, (uint8_t*)pData, Length, I2C_LAST_FRAME);
+    if (ret != HAL_OK)
+    {
+      return ret;
+    }
+
+    while (HAL_I2C_GetState(&ST25R_I2C) != HAL_I2C_STATE_READY);
+
+    if (HAL_I2C_GetError(&ST25R_I2C) != HAL_I2C_ERROR_NONE)
+    {
+      return HAL_ERROR;
+    }
+
+    return HAL_OK;
+}
+
+#endif

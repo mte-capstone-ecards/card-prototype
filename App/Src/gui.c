@@ -3,10 +3,14 @@
 #include "ugui.h"
 #include "ugui_fonts.h"
 #include "eink.h"
+#include "button.h"
 #include <string.h>
 
 EPDBuf buf;
 
+/***************************************
+            Eink driver functions
+****************************************/
 static void GUI_pset(UG_S16 x, UG_S16 y, UG_COLOR color)
 {
     if (x > EINK_SCREEN_SIZE_V)
@@ -16,6 +20,9 @@ static void GUI_pset(UG_S16 x, UG_S16 y, UG_COLOR color)
 
     // Reflect vertically
     x = EINK_SCREEN_SIZE_V - (x + 1);
+
+    // Reflect horizontally
+    y = EINK_SCREEN_SIZE_H - (y + 1);
 
     if (color == C_BLACK)
         buf[x][y / 8] |= 1U << (7 - (y % 8));
@@ -33,6 +40,10 @@ static void GUI_flush(void)
     memset(buf, 0x00, sizeof(EPDBuf));
 }
 
+
+/***************************************
+            UGui
+****************************************/
 UG_GUI gui;
 UG_DEVICE device = {
     .x_dim = EINK_SCREEN_SIZE_V,
@@ -93,26 +104,12 @@ static void GUI_highlightButtons()
     UG_ButtonSetForeColor(&mainWindow, menuGui.selectedButton, C_WHITE);
 }
 
-void GUI_incrementSelectedButton()
+void GUI_buttonHandler(ButtonHandle button)
 {
-    menuGui.selectedButton++;
-    if (menuGui.selectedButton >= menus[menuGui.currentMenu].maxButton)
-        menuGui.selectedButton = 0;
+    // switch (menuGui.currentMenu)
+    // {
 
-    GUI_highlightButtons();
-    UG_WindowShow(&mainWindow);
-    UG_Update();
-}
-
-void GUI_decrementSelectedButton()
-{
-    if (menuGui.selectedButton == 0)
-        menuGui.selectedButton = menus[menuGui.currentMenu].maxButton;
-    menuGui.selectedButton--;
-
-    GUI_highlightButtons();
-    UG_WindowShow(&mainWindow);
-    UG_Update();
+    // }
 }
 
 static void showMenu(MenuScreen menu)

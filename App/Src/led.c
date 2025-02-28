@@ -22,6 +22,7 @@ typedef struct {
 } LED;
 
 LED leds[LED_HANDLE_COUNT] = {
+#if BOARD_G0
     [LED_DISPLAY_R] = { // R11
         .port   = LED_DISPLAY_R_GPIO_Port,
         .pin    = LED_DISPLAY_R_Pin,
@@ -53,6 +54,7 @@ LED leds[LED_HANDLE_COUNT] = {
 
         .enabled = false,
     },
+#endif
 };
 
 void LED_enableSolid(LEDHandle handle)

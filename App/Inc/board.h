@@ -47,6 +47,8 @@ File for defining and validating of HW resources as needed.
 #  define ST25R_INT_PORT        NFC_A_BUSY_GPIO_Port      /* GPIO port used for ST25R External Interrupt   */
 
 #  define ST25R_INT_NUM         NFC_A_BUSY_EXTI_IRQn
+
+#  define ST25R_I2C_TIMEOUT     HAL_MAX_DELAY
 # else
 #  error "Must define HW peripherals for NFC reader"
 # endif

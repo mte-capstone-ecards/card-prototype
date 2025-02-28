@@ -400,4 +400,3 @@ bool st25r3916IsRegValid( uint8_t reg )
     }
     return true;
 }
-

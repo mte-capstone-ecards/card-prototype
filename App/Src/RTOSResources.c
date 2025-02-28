@@ -51,7 +51,7 @@ const osThreadAttr_t heartbeatTask_attributes = {
 osThreadId_t st25rTaskHandle;
 const osThreadAttr_t st25rTask_attributes = {
   .name = "st25rTask",
-  .stack_size = 256 * 4,
+  .stack_size = 256 * 6,
   .priority = (osPriority_t) osPriorityHigh,
 };
 #endif

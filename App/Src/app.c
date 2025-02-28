@@ -24,7 +24,9 @@ uint32_t words[NUM_WORDS];
 
 void Controller_hearbeatTask(void *args)
 {
+#if FTR_GUI
 	GUI_init();
+#endif
 
 	while(1)
 	{

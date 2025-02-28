@@ -15,6 +15,11 @@
 void ST25R_task(void *);
 bool ST25R_connected(void);
 
+#if defined(ST25R3916B)
+int32_t ST25R_SequentialSend(const uint16_t DevAddr, const uint8_t * const pData, const uint16_t Length, const uint8_t last, const uint8_t txOnly);
+int32_t ST25R_SequentialReceive(const uint16_t DevAddr, uint8_t * const pData, uint16_t Length);
+#endif
+
 // Commands
 #define ST25R_MAX_PAYLOAD_SIZE  32U
 

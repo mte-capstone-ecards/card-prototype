@@ -148,6 +148,10 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
 
     /* I2C2 clock enable */
     __HAL_RCC_I2C2_CLK_ENABLE();
+
+    /* I2C2 interrupt Init */
+    HAL_NVIC_SetPriority(I2C2_3_IRQn, 3, 0);
+    HAL_NVIC_EnableIRQ(I2C2_3_IRQn);
   /* USER CODE BEGIN I2C2_MspInit 1 */
 
   /* USER CODE END I2C2_MspInit 1 */
@@ -172,6 +176,10 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
 
     /* I2C3 clock enable */
     __HAL_RCC_I2C3_CLK_ENABLE();
+
+    /* I2C3 interrupt Init */
+    HAL_NVIC_SetPriority(I2C2_3_IRQn, 3, 0);
+    HAL_NVIC_EnableIRQ(I2C2_3_IRQn);
   /* USER CODE BEGIN I2C3_MspInit 1 */
 
   /* USER CODE END I2C3_MspInit 1 */
@@ -197,6 +205,15 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 
     HAL_GPIO_DeInit(NFC_B_SDA_GPIO_Port, NFC_B_SDA_Pin);
 
+    /* I2C2 interrupt Deinit */
+  /* USER CODE BEGIN I2C2:I2C2_3_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "I2C2_3_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(I2C2_3_IRQn); */
+  /* USER CODE END I2C2:I2C2_3_IRQn disable */
+
   /* USER CODE BEGIN I2C2_MspDeInit 1 */
 
   /* USER CODE END I2C2_MspDeInit 1 */
@@ -216,6 +233,15 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
     HAL_GPIO_DeInit(NFC_A_SCL_GPIO_Port, NFC_A_SCL_Pin);
 
     HAL_GPIO_DeInit(NFC_A_SDA_GPIO_Port, NFC_A_SDA_Pin);
+
+    /* I2C3 interrupt Deinit */
+  /* USER CODE BEGIN I2C3:I2C2_3_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "I2C2_3_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(I2C2_3_IRQn); */
+  /* USER CODE END I2C3:I2C2_3_IRQn disable */
 
   /* USER CODE BEGIN I2C3_MspDeInit 1 */
 

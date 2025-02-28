@@ -44,6 +44,7 @@
 #include "ST25R_spi.h"
 #include "ST25R_timer.h"
 #include "ST25R_logger.h"
+#include "st25r.h"
 
 #if OS_FREERTOS
 # include "cmsis_os.h"
@@ -117,14 +118,14 @@
 #define platformSpiDeselect()                         platformGpioSet(ST25R_SS_PORT, ST25R_SS_PIN)  /* SPI SS\CS: Chip|Slave Deselect              */
 #define platformSpiTxRx( txBuf, rxBuf, len )          spiTxRx(txBuf, rxBuf, len)                    /* SPI transceive                              */
 
-#define platformI2CStart()                        // TODO
-#define platformI2CStop()                         // TODO
-#define platformI2CRepeatStart()                  // TODO
-#define platformI2CSlaveAddrWR( sA )              // TODO
-#define platformI2CSlaveAddrRD( sA )              // TODO
-#define platformI2CTx( txBuf, len, last, txOnly ) // TODO
-#define platformI2CRx( txBuf, len )               // TODO
-#define ST25R_I2C_TIMEOUT HAL_MAX_DELAY
+#define platformI2CTx( txBuf, len, last, txOnly )     ST25R_SequentialSend((uint16_t)0xA0, (uint8_t *)(txBuf), (len), last, txOnly ) /*!< I2C Transmit                                */
+#define platformI2CRx( txBuf, len )                   ST25R_SequentialReceive((uint16_t)0xA0, rxBuf, len )           /*!< I2C Receive                                 */
+#define platformI2CStart()                                                                          /*!< I2C Start condition                         */
+#define platformI2CStop()                                                                           /*!< I2C Stop condition                          */
+#define platformI2CRepeatStart()                                                                    /*!< I2C Repeat Start                            */
+#define platformI2CSlaveAddrWR(add)                                                                 /*!< I2C Slave address for Write operation       */
+#define platformI2CSlaveAddrRD(add)                                                                 /*!< I2C Slave address for Read operation        */
+
 
 // #define platformLog(...)                              logUsart(__VA_ARGS__)                         /* Log  method                                 */
 #define platformLog(...)
