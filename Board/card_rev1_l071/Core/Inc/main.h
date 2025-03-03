@@ -65,8 +65,6 @@ void Error_Handler(void);
 #define EINK_DC_GPIO_Port GPIOA
 #define EINK_SPI_SCL_Pin GPIO_PIN_5
 #define EINK_SPI_SCL_GPIO_Port GPIOA
-#define EINK_SPI_CS_Pin GPIO_PIN_6
-#define EINK_SPI_CS_GPIO_Port GPIOA
 #define EINK_SPI_MOSI_Pin GPIO_PIN_7
 #define EINK_SPI_MOSI_GPIO_Port GPIOA
 #define EINK_BUSY_Pin GPIO_PIN_8

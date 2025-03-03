@@ -10,7 +10,7 @@
 // M24lr_i2c_Drv
 // M24lr_i2c_ExtDrv
 #define CARD_TEST_LED_GPIO_Port GPIOA //idk?
-#define CARD_TEST_LED_Pin 2 //idk this either
+#define CARD_TEST_LED_Pin 6 //idk this either
 
 static const uint32_t max_voltage = 2;
 
@@ -34,6 +34,7 @@ struct Card_S {
 
 static void Card_initialize(void)
 {
+    lowPower_start();
 
     eink_powerUp();
     memset(&card, 0U, sizeof(struct Card_S));
@@ -49,17 +50,17 @@ static void Card_initialize(void)
 
 static void lowPower_start(){
     //leds are for testing but currently have none? on card board 
-    //HAL_GPIO_WritePin(CARD_TEST_LED_GPIO_Port, CARD_TEST_LED_Pin, 1);
-    //HAL_Delay (3000); 
+    HAL_GPIO_WritePin(CARD_TEST_LED_GPIO_Port, CARD_TEST_LED_Pin, 1); //may have to switch to 0
+    HAL_Delay (3000); 
     HAL_SuspendTick(); //clock paused in low power mode
-    //HAL_GPIO_WritePin(CARD_TEST_LED_GPIO_Port, CARD_TEST_LED_Pin, 0); 
+    HAL_GPIO_WritePin(CARD_TEST_LED_GPIO_Port, CARD_TEST_LED_Pin, 0); 
     HAL_PWR_EnableSleepOnExit(); //sleep after everyinterrupt it is woken up by
 
     //HAL_PWR_EnterSLEEPMode (PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI); //low poer mode ysed and return from interrupt
 
     //
     HAL_ResumeTick();
-    //HAL_GPIO_WritePin(CARD_TEST_LED_GPIO_Port, CARD_TEST_LED_Pin, 1);
+    HAL_GPIO_WritePin(CARD_TEST_LED_GPIO_Port, CARD_TEST_LED_Pin, 1);
 
     //current is around 1.8 mA for stm32F103 (from resarch, ik this is a differnt stm32)
 }
