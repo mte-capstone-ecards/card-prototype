@@ -96,6 +96,13 @@ UG_OBJECT GameSelect_objs[GameSelect_objectCount];
 
 uint8_t GameSelect_selectedGame;
 
+#define GameSelect_numGames 3
+char GameSelect_games[GameSelect_numGames][20] = {
+    "POKER",
+    "HANABI",
+    "CARDS VS HUMANITY",
+};
+
 /*
     Player Select
 */
@@ -130,13 +137,27 @@ static void GameSelect_shapeDraw(UG_MESSAGE *msg)
 {
     UG_DrawLine(UGUI_POS(5, 35, 405, 0), C_BLACK);
 
-    UG_FillFrame(UGUI_POS(65, 100, 285, 45), C_BLACK);
-    UG_OBJECT *obj = (UG_OBJECT*) &(GameSelect_window.objlst[OBJ_ID_2]);
+    if (GUI_selectedButton == 0)
+    {
+        UG_FillFrame(UGUI_POS(65, 100, 285, 45), C_BLACK);
 
-    obj->state |= OBJ_STATE_UPDATE | OBJ_STATE_REDRAW;
-    obj->update(&GameSelect_window, obj);
-    UG_DrawFrame(UGUI_POS(65 + 2, 100 + 2, 285 - 4, 45 - 4), C_WHITE);
+        UG_TextboxSetForeColor(&GameSelect_window, OBJ_ID_2, C_WHITE);
+        UG_TextboxSetBackColor(&GameSelect_window, OBJ_ID_2, C_NONE);
+        UG_OBJECT *obj = (UG_OBJECT*) &(GameSelect_window.objlst[OBJ_ID_2]);
 
+        obj->state |= OBJ_STATE_UPDATE | OBJ_STATE_REDRAW;
+        obj->update(&GameSelect_window, obj);
+        UG_DrawFrame(UGUI_POS(65 + 2, 100 + 2, 285 - 4, 45 - 4), C_WHITE);
+    }
+    else
+    {
+        UG_TextboxSetForeColor(&GameSelect_window, OBJ_ID_2, C_BLACK);
+        UG_TextboxSetBackColor(&GameSelect_window, OBJ_ID_2, C_NONE);
+        UG_OBJECT *obj = (UG_OBJECT*) &(GameSelect_window.objlst[OBJ_ID_2]);
+
+        obj->state |= OBJ_STATE_UPDATE | OBJ_STATE_REDRAW;
+        obj->update(&GameSelect_window, obj);
+    }
 }
 
 static void PlayerSelect_selectPlayerCount(uint8_t player)
@@ -229,10 +250,7 @@ static void GUI_constructMenus()
 
                 UG_TextboxCreate(&GameSelect_window, &GameSelect_game, OBJ_ID_2, UGUI_POS(65, 100, 285, 25));
                 UG_TextboxSetFont(&GameSelect_window, OBJ_ID_2, FONT_20);
-                UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, "CARDS VS HUMANITY");
-                UG_TextboxSetForeColor(&GameSelect_window, OBJ_ID_2, C_WHITE);
-                UG_TextboxSetBackColor(&GameSelect_window, OBJ_ID_2, C_BLACK);
-                UG_TextboxSetAlignment(&GameSelect_window, OBJ_ID_2, ALIGN_CENTER); // TODO: Needed?
+                UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, "");
 
                 UG_TextboxCreate(&GameSelect_window, &GameSelect_rightArrow, OBJ_ID_3, UGUI_POS(365, 105, 20, 15));
                 UG_TextboxSetFont(&GameSelect_window, OBJ_ID_3, FONT_20);
@@ -293,10 +311,10 @@ void GUI_updateCurrentMenu()
             UG_WindowShow(&MainMenu_window);
             break;
         case MENU_GAME_SELECT:
-            UG_WindowShow(&MainMenu_window);
+            UG_WindowShow(&GameSelect_window);
             break;
         case MENU_PLAYER_SELECT:
-            UG_WindowShow(&MainMenu_window);
+            UG_WindowShow(&PlayerSelect_window);
             break;
         default:
             UG_FillScreen(C_WHITE); // TODO: We could add a driver for fill screen (Memset)
@@ -308,7 +326,7 @@ void GUI_updateCurrentMenu()
 
 void GUI_setMenu(MenuScreen menu)
 {
-    switch(GUI_currentMenu)
+    switch(menu)
     {
         case MENU_MAIN:
             GUI_highlightButton(&MainMenu_window, OBJ_ID_1);
@@ -320,6 +338,9 @@ void GUI_setMenu(MenuScreen menu)
         case MENU_GAME_SELECT:
             GUI_selectedButton = 0;
             GameSelect_selectedGame = 0;
+            GUI_unhighlightButton(&GameSelect_window, OBJ_ID_4);
+
+            UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, GameSelect_games[GameSelect_selectedGame]);
 
             break;
         case MENU_PLAYER_SELECT:
@@ -339,34 +360,76 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
     switch (GUI_currentMenu)
     {
         case MENU_MAIN:
-
-            if (BUTTON(LEFT, SINGLE))
-            {
-                GUI_highlightButton(&MainMenu_window, OBJ_ID_1);
-                GUI_unhighlightButton(&MainMenu_window, OBJ_ID_2);
-
-                GUI_selectedButton = 0;
-            }
-
-            if (BUTTON(RIGHT, SINGLE))
+            if (BUTTON(RIGHT, SINGLE) && GUI_selectedButton == 0)
             {
                 GUI_highlightButton(&MainMenu_window, OBJ_ID_2);
                 GUI_unhighlightButton(&MainMenu_window, OBJ_ID_1);
 
                 GUI_selectedButton = 1;
+                GUI_updateCurrentMenu();
+            }
+
+            if (BUTTON(LEFT, SINGLE) && GUI_selectedButton == 1)
+            {
+                GUI_highlightButton(&MainMenu_window, OBJ_ID_1);
+                GUI_unhighlightButton(&MainMenu_window, OBJ_ID_2);
+
+                GUI_selectedButton = 0;
+
+                GUI_updateCurrentMenu();
             }
 
             if (BUTTON(A, SINGLE))
             {
                 if (GUI_selectedButton == 0)
                 {
-
-                    GUI_selectedButton = 0;
+                    GUI_setMenu(MENU_GAME_SELECT);
                 }
             }
 
             break;
         case MENU_GAME_SELECT:
+
+            if (BUTTON(UP, SINGLE) && GUI_selectedButton == 1)
+            {
+                GUI_selectedButton = 0;
+                GUI_unhighlightButton(&GameSelect_window, OBJ_ID_4);
+
+
+                GUI_updateCurrentMenu();
+            }
+
+            if (BUTTON(DOWN, SINGLE) && GUI_selectedButton == 0)
+            {
+                GUI_selectedButton = 1;
+                GUI_highlightButton(&GameSelect_window, OBJ_ID_4);
+
+
+                GUI_updateCurrentMenu();
+            }
+
+            if (BUTTON(LEFT, SINGLE) && GUI_selectedButton == 0)
+            {
+                if (GameSelect_selectedGame == 0)
+                    GameSelect_selectedGame = GameSelect_numGames;
+
+                GameSelect_selectedGame--;
+
+                UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, GameSelect_games[GameSelect_selectedGame]);
+
+                GUI_updateCurrentMenu();
+            }
+
+            if (BUTTON(RIGHT, SINGLE) && GUI_selectedButton == 0)
+            {
+                GameSelect_selectedGame++;
+                if (GameSelect_selectedGame == GameSelect_numGames)
+                    GameSelect_selectedGame = 0;
+
+                UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, GameSelect_games[GameSelect_selectedGame]);
+
+                GUI_updateCurrentMenu();
+            }
 
             break;
         case MENU_PLAYER_SELECT:
@@ -375,8 +438,6 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
         default:
             break;
     }
-
-    GUI_updateCurrentMenu();
 }
 
 void GUI_init()

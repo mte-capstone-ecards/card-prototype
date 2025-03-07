@@ -34,7 +34,7 @@
 #define OS_BAREMETAL (!OS_FREERTOS)
 
 /* Features */
-#define FTR_SIMEEPROM       (0U)
+#define FTR_SIMEEPROM       (1U)
 #define FTR_EINK            (TYPE_CARD | BOARD_G0)
 #define FTR_NFCTAG          (TYPE_CARD & !FTR_SIMEEPROM)
 #define FTR_NFCREADER       (TYPE_CONTROLLER & !FTR_SIMEEPROM)
