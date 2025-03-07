@@ -9,7 +9,7 @@
 #include <string.h>
 
 #if OS_BAREMETAL
-# define delay(ms)  delay(ms)
+# define delay(ms)  HAL_Delay(ms)
 #elif OS_FREERTOS
 # include <cmsis_os.h>
 # define delay(ms)  osDelay(ms)

@@ -72,21 +72,17 @@ Button buttons[BUTTON_COUNT] = {
 
 static void inline Button_press(ButtonHandle handle)
 {
-    // if (handle == BUTTON_UP)
-    //     GUI_decrementSelectedButton();
-
-    // if (handle == BUTTON_A)
-    //     GUI_incrementSelectedButton();
+    GUI_buttonCallback(handle, PRESS_SINGLE);
 }
 
 static void inline Button_release(ButtonHandle handle)
 {
-    LED_disable(LED_DISPLAY_R);
+    LED_disable(LED_DEBUG_B);
 }
 
 static void inline Button_hold(ButtonHandle handle)
 {
-    LED_enableHz(LED_DISPLAY_R, 4);
+    GUI_buttonCallback(handle, PRESS_LONG);
 }
 
 void Button_task(void *args)

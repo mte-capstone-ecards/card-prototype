@@ -4,8 +4,8 @@ set(APP_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (APP_SOURCES
 	${APP_DIR}/Src/app.c
-# 	${APP_DIR}/Src/led.c
-# 	${APP_DIR}/Src/button.c
+	${APP_DIR}/Src/led.c
+	${APP_DIR}/Src/button.c
 )
 
 if (${TYPE} MATCHES "CONTROLLER")
@@ -13,8 +13,8 @@ if (${TYPE} MATCHES "CONTROLLER")
 		${APP_DIR}/Src/st25r.c
 		${APP_DIR}/Src/RTOSResources.c
 		${APP_DIR}/Src/sender.c
-		# ${APP_DIR}/Src/eink_e370_driver.c
-		# ${APP_DIR}/Src/gui.c
+		${APP_DIR}/Src/eink_e370_driver.c
+		${APP_DIR}/Src/gui.c
 	)
 elseif (${TYPE} MATCHES "CARD")
 	set (APP_SOURCES ${APP_SOURCES}
