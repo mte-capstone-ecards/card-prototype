@@ -70,6 +70,8 @@ Button buttons[BUTTON_COUNT] = {
 #endif
 };
 
+// TODO: All button callbacks should be done via message queue (osMessageQueuePut -> From ISR)
+
 static void inline Button_press(ButtonHandle handle)
 {
     GUI_buttonCallback(handle, PRESS_SINGLE);

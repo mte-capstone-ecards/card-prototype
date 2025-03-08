@@ -4,6 +4,7 @@
 #include "ugui_fonts.h"
 #include "eink.h"
 #include "button.h"
+#include "games.h"
 #include <string.h>
 
 EPDBuf buf;
@@ -19,10 +20,10 @@ static void GUI_pset(UG_S16 x, UG_S16 y, UG_COLOR color)
         return;
 
     // Reflect vertically
-    // x = EINK_SCREEN_SIZE_V - (x + 1);
+    x = EINK_SCREEN_SIZE_V - (x + 1);
 
     // Reflect horizontally
-    y = EINK_SCREEN_SIZE_H - (y + 1);
+    // y = EINK_SCREEN_SIZE_H - (y + 1);
 
     if (color == C_BLACK)
         buf[x][y / 8] |= 1U << (7 - (y % 8));
@@ -61,6 +62,7 @@ typedef enum
     MENU_GAME_SELECT,
     MENU_PLAYER_SELECT,
     MENU_CARD_LOAD,
+    MENU_GAME,
     MENU_ABOUT,
 
     MENU_COUNT
@@ -68,13 +70,6 @@ typedef enum
 
 MenuScreen GUI_currentMenu = MENU_MAIN;
 uint8_t GUI_selectedButton = 0;
-
-#define GUI_numGames 3
-char GUI_games[GUI_numGames][20] = {
-    "POKER",
-    "HANABI",
-    "CARDS VS HUMANITY",
-};
 
 /*
     Main Menu Objects
@@ -225,13 +220,13 @@ static void CardLoad_shapeDraw(UG_MESSAGE *msg)
     // UG_DrawFrame(UGUI_POS(65 + 2, 100 + 2, 285 - 4, 45 - 4), C_WHITE);
 }
 
-static void GUI_highlightButton(UG_WINDOW *wnd, UG_U8 id)
+void GUI_highlightButton(UG_WINDOW *wnd, UG_U8 id)
 {
     UG_ButtonSetForeColor(wnd, id, C_WHITE);
     UG_ButtonSetBackColor(wnd, id, C_BLACK);
 }
 
-static void GUI_unhighlightButton(UG_WINDOW *wnd, UG_U8 id)
+void GUI_unhighlightButton(UG_WINDOW *wnd, UG_U8 id)
 {
     UG_ButtonSetForeColor(wnd, id, C_BLACK);
     UG_ButtonSetBackColor(wnd, id, C_WHITE);
@@ -348,6 +343,11 @@ static void GUI_constructMenus()
 
                 break;
 
+            case MENU_GAME:
+                Game_constructMenu();
+
+                break;
+
             default:
                 break;
         }
@@ -370,6 +370,9 @@ void GUI_updateCurrentMenu()
             break;
         case MENU_CARD_LOAD:
             UG_WindowShow(&CardLoad_window);
+        case MENU_GAME:
+            Game_updateMenu();
+            break;
         default:
             UG_FillScreen(C_WHITE); // TODO: We could add a driver for fill screen (Memset)
             break;
@@ -394,7 +397,7 @@ void GUI_setMenu(MenuScreen menu)
             GameSelect_selectedGame = 0;
             GUI_unhighlightButton(&GameSelect_window, OBJ_ID_4);
 
-            UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, GUI_games[GameSelect_selectedGame]);
+            UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, Games_names[GameSelect_selectedGame]);
 
             break;
         case MENU_PLAYER_SELECT:
@@ -402,14 +405,18 @@ void GUI_setMenu(MenuScreen menu)
             GUI_selectedButton = 0;
             GUI_selectedGame = GameSelect_selectedGame;
 
-            UG_TextboxSetText(&PlayerSelect_window, OBJ_ID_0, GUI_games[GUI_selectedGame]);
+            UG_TextboxSetText(&PlayerSelect_window, OBJ_ID_0, Games_names[GUI_selectedGame]);
             GUI_unhighlightButton(&PlayerSelect_window, OBJ_ID_7);
             break;
 
         case MENU_CARD_LOAD:
-            UG_TextboxSetText(&CardLoad_window, OBJ_ID_0, GUI_games[GUI_selectedGame]);
+            UG_TextboxSetText(&CardLoad_window, OBJ_ID_0, Games_names[GUI_selectedGame]);
 
             GUI_unhighlightButton(&CardLoad_window, OBJ_ID_4);
+
+        case MENU_GAME:
+            Game_setMenu(GUI_selectedGame);
+            break;
         default:
             break;
     }
@@ -418,8 +425,6 @@ void GUI_setMenu(MenuScreen menu)
     GUI_updateCurrentMenu();
 }
 
-#define CONCAT(A, B) A ## B
-#define BUTTON(b, t) (button == CONCAT(BUTTON_, b) && type == CONCAT(PRESS_, t))
 void GUI_buttonCallback(ButtonHandle button, PressType type)
 {
     switch (GUI_currentMenu)
@@ -481,11 +486,11 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
             if (BUTTON(LEFT, SINGLE) && GUI_selectedButton == 0)
             {
                 if (GameSelect_selectedGame == 0)
-                    GameSelect_selectedGame = GUI_numGames;
+                    GameSelect_selectedGame = GAME_COUNT;
 
                 GameSelect_selectedGame--;
 
-                UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, GUI_games[GameSelect_selectedGame]);
+                UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, Games_names[GameSelect_selectedGame]);
 
                 GUI_updateCurrentMenu();
                 break;
@@ -494,10 +499,10 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
             if (BUTTON(RIGHT, SINGLE) && GUI_selectedButton == 0)
             {
                 GameSelect_selectedGame++;
-                if (GameSelect_selectedGame == GUI_numGames)
+                if (GameSelect_selectedGame == GAME_COUNT)
                     GameSelect_selectedGame = 0;
 
-                UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, GUI_games[GameSelect_selectedGame]);
+                UG_TextboxSetText(&GameSelect_window, OBJ_ID_2, Games_names[GameSelect_selectedGame]);
 
                 GUI_updateCurrentMenu();
                 break;
@@ -544,6 +549,12 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
                 break;
             }
 
+            // if (BUTTON(A, SINGLE))
+
+            break;
+
+        case MENU_GAME:
+            Game_buttonCallback(button, type);
             break;
         default:
             break;
@@ -555,8 +566,9 @@ void GUI_init()
     UG_Init(&gui, &device);
 
     GUI_constructMenus();
-    GUI_selectedGame = 1;
-    GUI_setMenu(MENU_CARD_LOAD);
+
+    GUI_selectedGame = GAME_HANABI;
+    GUI_setMenu(MENU_GAME);
 
     return;
 }
