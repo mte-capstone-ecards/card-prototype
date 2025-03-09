@@ -147,8 +147,8 @@ static ReturnCode ST25R_Connected( void )
 
     uint16_t rcvLen;
 
-    // while (st25r.retries > 0)
-    while(1)
+    while (st25r.retries > 0)
+    // while(1)
     {
         switch (st25r.nextCommand.cmd)
         {
@@ -238,6 +238,11 @@ static bool ST25R_Deactivate( void )
 void ST25R_task(void *arg)
 {
     (void) arg;
+
+    while(1)
+    {
+        osDelay(1000);
+    }
 
     rfalAnalogConfigInitialize();                                                     /* Initialize RFAL's Analog Configs */
     rfalInitialize();

@@ -11,6 +11,8 @@
 # include "eeprom.h"
 # include "sender.h"
 
+# include "led.h"
+
 # if FTR_GUI
 #  include "gui.h"
 # endif
@@ -29,6 +31,10 @@ void Controller_hearbeatTask(void *args)
 {
 #if FTR_GUI
 	GUI_init();
+#endif
+
+#if FTR_LED
+	LED_enableHz(LED_DEBUG_B, 1);
 #endif
 
 	while(1)

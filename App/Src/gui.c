@@ -45,6 +45,7 @@ static void GUI_flush(void)
 /***************************************
             UGui
 ****************************************/
+// TODO: Trim fonts to only have upper case letters
 #define FONT_12 FONT_7X12
 #define FONT_20 FONT_12X20
 

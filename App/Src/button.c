@@ -23,7 +23,7 @@ typedef struct
 } Button;
 
 Button buttons[BUTTON_COUNT] = {
-#if BOARD_G0
+#if BOARD(CONTROLLER, 1)
     [BUTTON_A] = {
         .port = USER_BUTTON1_GPIO_Port,
         .pin = USER_BUTTON1_Pin,

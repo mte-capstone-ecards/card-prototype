@@ -4,6 +4,8 @@
 #include "ugui.h"
 #include "ugui_fonts.h"
 
+#include <string.h>
+
 #define FONT_12 FONT_7X12
 #define FONT_20 FONT_12X20
 
@@ -50,6 +52,19 @@ UG_OBJECT Hanabi_objs[OBJ_COUNT];
 
 typedef enum
 {
+    CARD_PLAY,
+    CARD_DISCARD,
+
+    CARD_MODE_COUNT
+} CardMode;
+
+char *Hanabi_cardModes[CARD_MODE_COUNT] = {
+    [CARD_PLAY] = "PLAY",
+    [CARD_DISCARD] = "DISCARD",
+};
+
+typedef enum
+{
     SHAPE_STAR,
     SHAPE_PLUS,
     SHAPE_DOLLAR,
@@ -67,11 +82,58 @@ char *Hanabi_shapes[SHAPE_COUNT] = {
     [SHAPE_AT]      = "@",
 };
 
-#define MAX_STACK 5
-char *Hanabi_nums[1 + MAX_STACK] = {
-    "0", "1", "2", "3", "4", "5"
+// Max num is determined by the number of clues (Lives -> 3, Cards -> 5, Clues -> 8)
+#define HANABI_MAX_NUM 8
+char *Hanabi_nums[1 + HANABI_MAX_NUM] = {
+    "0", "1", "2", "3", "4", "5", "6", "7", "8"
 };
 
+char *Hanabi_turnMsg[4] = {
+    "PLAYER 1 TURN",
+    "PLAYER 2 TURN",
+    "PLAYER 3 TURN",
+    "PLAYER 4 TURN",
+};
+
+struct {
+    uint8_t lives;
+    uint8_t clues;
+    uint8_t table[SHAPE_COUNT];
+
+    CardMode cardMode;
+
+    uint8_t turn;
+    uint8_t numPlayers;
+
+    uint8_t selectedButton;
+} Hanabi_game;
+
+/***************************************
+            Game Logic
+****************************************/
+
+static void Hanabi_gameInit()
+{
+    memset(&Hanabi_game, 0U, sizeof(Hanabi_game));
+
+    Hanabi_game.lives = 3;
+    Hanabi_game.clues = 8;
+
+    Hanabi_game.numPlayers = 4; // TODO: Pass this in
+
+    Hanabi_game.selectedButton = 2; // Start with selecting the give clue button
+}
+
+static void Hanabi_endTurn()
+{
+    Hanabi_game.turn++;
+    if (Hanabi_game.turn == Hanabi_game.numPlayers)
+        Hanabi_game.turn = 0;
+}
+
+/***************************************
+            GUI
+****************************************/
 void Hanabi_shapeDraw(UG_MESSAGE* msg)
 {
     UG_DrawLine(UGUI_POS(5, 200, 405, 0), C_BLACK);
@@ -91,7 +153,7 @@ void Hanabi_constructMenu(void)
 
     UG_TextboxCreate(&Hanabi_window, &Hanabi_playerTurn, OBJ_PLAYER_TURN, UGUI_POS(65, 0, 285, 15));
     UG_TextboxSetFont(&Hanabi_window, OBJ_PLAYER_TURN, FONT_12);
-    UG_TextboxSetText(&Hanabi_window, OBJ_PLAYER_TURN, "PLAYER 1 TURN");
+    UG_TextboxSetText(&Hanabi_window, OBJ_PLAYER_TURN, "");
 
     UG_ButtonCreate(&Hanabi_window, &Hanabi_exit, OBJ_EXIT, UGUI_POS(10, 220, 120, 16));
     UG_ButtonSetFont(&Hanabi_window, OBJ_EXIT, FONT_12);
@@ -108,35 +170,111 @@ void Hanabi_constructMenu(void)
     UG_ButtonSetText(&Hanabi_window, OBJ_GIVE_CLUE, "GIVE CLUE");
     UG_ButtonSetAlignment(&Hanabi_window, OBJ_GIVE_CLUE, ALIGN_TOP_CENTER);
 
-    GUI_highlightButton(&Hanabi_window, OBJ_GIVE_CLUE);
-    GUI_unhighlightButton(&Hanabi_window, OBJ_MODE_SWITCH);
-    GUI_unhighlightButton(&Hanabi_window, OBJ_EXIT);
-
     for (uint8_t card = 0; card < 5; card++)
     {
         UG_TextboxCreate(&Hanabi_window, &Hanabi_cardIndicator[card][0], OBJ_CARD0_NUM + 2 * card, UGUI_POS(34 + card * 83, 70, 20, 25));
         UG_TextboxSetFont(&Hanabi_window, OBJ_CARD0_NUM + 2 * card, FONT_20);
-        UG_TextboxSetText(&Hanabi_window, OBJ_CARD0_NUM + 2 * card, Hanabi_nums[card]);
+        UG_TextboxSetText(&Hanabi_window, OBJ_CARD0_NUM + 2 * card, "");
 
         UG_TextboxCreate(&Hanabi_window, &Hanabi_cardIndicator[card][1], OBJ_CARD0_SHAPE + 2 * card, UGUI_POS(34 + card * 83, 120, 20, 25));
         UG_TextboxSetFont(&Hanabi_window, OBJ_CARD0_SHAPE + 2 * card, FONT_20);
         UG_TextboxSetText(&Hanabi_window, OBJ_CARD0_SHAPE + 2 * card, Hanabi_shapes[card]);
     }
+
+    UG_TextboxCreate(&Hanabi_window, &Hanabi_lives[0], OBJ_LIFE_LABEL, UGUI_POS(15, 170, 45, 15));
+    UG_TextboxSetFont(&Hanabi_window, OBJ_LIFE_LABEL, FONT_12);
+    UG_TextboxSetText(&Hanabi_window, OBJ_LIFE_LABEL, "LIVES");
+
+    UG_TextboxCreate(&Hanabi_window, &Hanabi_lives[1], OBJ_LIFE_NUM, UGUI_POS(70, 160, 20, 25));
+    UG_TextboxSetFont(&Hanabi_window, OBJ_LIFE_NUM, FONT_20);
+    UG_TextboxSetText(&Hanabi_window, OBJ_LIFE_NUM, Hanabi_nums[3]);
+
+    UG_TextboxCreate(&Hanabi_window, &Hanabi_clues[0], OBJ_CLUE_LABEL, UGUI_POS(355, 170, 45, 15));
+    UG_TextboxSetFont(&Hanabi_window, OBJ_CLUE_LABEL, FONT_12);
+    UG_TextboxSetText(&Hanabi_window, OBJ_CLUE_LABEL, "CLUES");
+
+    UG_TextboxCreate(&Hanabi_window, &Hanabi_clues[1], OBJ_CLUE_NUM, UGUI_POS(335, 160, 20, 25));
+    UG_TextboxSetFont(&Hanabi_window, OBJ_CLUE_NUM, FONT_20);
+    UG_TextboxSetText(&Hanabi_window, OBJ_CLUE_NUM, "");
+
+    UG_TextboxCreate(&Hanabi_window, &Hanabi_cardMode[0], OBJ_MODE_LABEL, UGUI_POS(175, 155, 65, 15));
+    UG_TextboxSetFont(&Hanabi_window, OBJ_MODE_LABEL, FONT_12);
+    UG_TextboxSetText(&Hanabi_window, OBJ_MODE_LABEL, "MODE");
+    UG_TextboxSetBackColor(&Hanabi_window, OBJ_MODE_LABEL, C_NONE);
+
+    UG_TextboxCreate(&Hanabi_window, &Hanabi_cardMode[1], OBJ_MODE_CURRENT, UGUI_POS(155, 160, 100, 25));
+    UG_TextboxSetFont(&Hanabi_window, OBJ_MODE_CURRENT, FONT_20);
+    UG_TextboxSetText(&Hanabi_window, OBJ_MODE_CURRENT, "");
+    UG_TextboxSetBackColor(&Hanabi_window, OBJ_MODE_CURRENT, C_NONE);
+
 }
 
 void Hanabi_setMenu(void)
 {
     // Game Init
+    Hanabi_gameInit();
 }
 
 void Hanabi_updateMenu(void)
 {
+    UG_TextboxSetText(&Hanabi_window, OBJ_PLAYER_TURN, Hanabi_turnMsg[Hanabi_game.turn]);
+    UG_TextboxSetText(&Hanabi_window, OBJ_LIFE_NUM, Hanabi_nums[Hanabi_game.lives]);
+    UG_TextboxSetText(&Hanabi_window, OBJ_CLUE_NUM, Hanabi_nums[Hanabi_game.clues]);
+
+    for (uint8_t card = 0; card < SHAPE_COUNT; card++)
+    {
+        UG_TextboxSetText(&Hanabi_window, OBJ_CARD0_NUM + card * 2, Hanabi_nums[Hanabi_game.table[card]]);
+    }
+
+    UG_TextboxSetText(&Hanabi_window, OBJ_MODE_CURRENT, Hanabi_cardModes[Hanabi_game.cardMode]);
+
+    for (uint8_t i = 0; i < 3; i++)
+    {
+        GUI_unhighlightButton(&Hanabi_window, OBJ_EXIT + i);
+    }
+    GUI_highlightButton(&Hanabi_window, OBJ_EXIT + Hanabi_game.selectedButton);
+
     UG_WindowShow(&Hanabi_window);
 }
 
 void Hanabi_buttonCallback(ButtonHandle button, PressType type)
 {
+    if (BUTTON(LEFT, SINGLE) && Hanabi_game.selectedButton > 0)
+    {
+        Hanabi_game.selectedButton--;
+        GUI_updateCurrentMenu();
+    }
 
+    if (BUTTON(RIGHT, SINGLE) && Hanabi_game.selectedButton < 2)
+    {
+        Hanabi_game.selectedButton++;
+        GUI_updateCurrentMenu();
+    }
+
+    if (BUTTON(A, SINGLE))
+    {
+        switch (Hanabi_game.selectedButton)
+        {
+            case 0:
+                // TODO: Confirmation message
+                // TODO: What menu do we go to if we exit the game
+                break;
+            case 1:
+                Hanabi_game.cardMode ^= 1;
+                GUI_updateCurrentMenu();
+                break;
+            case 2:
+                if (Hanabi_game.clues > 0)
+                {
+                    Hanabi_game.clues--;
+                    Hanabi_endTurn();
+                    GUI_updateCurrentMenu();
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 
