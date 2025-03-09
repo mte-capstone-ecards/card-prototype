@@ -42,179 +42,250 @@
             }
         },
         {
-            "name": "nucleo_f446",
-            "displayName": "Nucleo F446 base config",
+            "name": "card",
+            "displayName": "Card base config",
+            "cacheVariables": {
+                "TYPE": "CARD"
+            },
+            "hidden": true
+        },
+        {
+            "name": "controller",
+            "displayName": "Controller base config",
+            "cacheVariables": {
+                "TYPE": "CONTROLLER"
+            },
+            "hidden": true
+        },
+
+        {
+            "name": "controller0",
+            "displayName": "Controller Rev0 base config",
+            "inherits": [
+                "wincubeclt_default",
+                "controller"
+            ],
             "cacheVariables": {
                 "BOARD": "F446",
-                "TYPE": "CONTROLLER"
+                "REV": "0"
             },
             "hidden": true
         },
         {
-            "name": "nucleo_g431",
-            "displayName": "Nucleo G431 base config",
-            "cacheVariables": {
-                "BOARD": "G431",
-                "TYPE": "CARD"
-            },
-            "hidden": true
+            "name": "controller0_debug",
+            "displayName": "Controller Rev 0 Debug",
+            "inherits": [
+                "controller0",
+                "debug"
+            ],
+            "binaryDir": "${sourceDir}/Debug/controller/0",
+            "description": "Debug build for controller rev 0 (F446)"
         },
         {
-            "name": "card_rev1_l071",
-            "displayName": "Card Revision 1 base config (L071)",
-            "cacheVariables": {
-                "BOARD": "L071",
-                "TYPE": "CARD"
-            },
-            "hidden": true
+            "name": "controller0_release",
+            "displayName": "Controller Rev 0 Release",
+            "inherits": [
+                "controller0",
+                "release"
+            ],
+            "binaryDir": "${sourceDir}/Release/controller/0",
+            "description": "Release build for controller rev 0 (F446)"
         },
+
+
+
         {
-            "name": "controller_g0c1",
-            "displayName": "Controller Revision 1 base config (G0C1)",
+            "name": "controller1",
+            "displayName": "Controller Rev1 base config",
+            "inherits": [
+                "wincubeclt_default",
+                "controller"
+            ],
             "cacheVariables": {
                 "BOARD": "G0C1",
-                "TYPE": "CONTROLLER"
+                "REV": "1"
             },
             "hidden": true
         },
         {
-            "name": "card_rev1_l071",
-            "displayName": "Card Revision 1 base config (L071)",
+            "name": "controller1_debug",
+            "displayName": "Controller Rev 1 Debug",
+            "inherits": [
+                "controller1",
+                "debug"
+            ],
+            "binaryDir": "${sourceDir}/Debug/controller/1",
+            "description": "Debug build for controller rev 1 (G0C1)"
+        },
+        {
+            "name": "controller1_release",
+            "displayName": "Controller Rev 1 Release",
+            "inherits": [
+                "controller1",
+                "release"
+            ],
+            "binaryDir": "${sourceDir}/Release/controller/1",
+            "description": "Release build for controller rev 1 (G0C1)"
+        },
+
+
+
+        {
+            "name": "card0",
+            "displayName": "Card Rev0 base config",
+            "inherits": [
+                "wincubeclt_default",
+                "card"
+            ],
+            "cacheVariables": {
+                "BOARD": "G431",
+                "REV": "0"
+            },
+            "hidden": true
+        },
+        {
+            "name": "card0_debug",
+            "displayName": "Card Rev 0 Debug",
+            "inherits": [
+                "card0",
+                "debug"
+            ],
+            "binaryDir": "${sourceDir}/Debug/card/0",
+            "description": "Debug build for card rev 0 (G431)"
+        },
+        {
+            "name": "card0_release",
+            "displayName": "Card Rev 0 Release",
+            "inherits": [
+                "card0",
+                "release"
+            ],
+            "binaryDir": "${sourceDir}/Release/card/0",
+            "description": "Release build for card rev 0 (G431)"
+        },
+
+
+
+        {
+            "name": "card1",
+            "displayName": "Card Rev 1 base config",
+            "inherits": [
+                "wincubeclt_default",
+                "card"
+            ],
             "cacheVariables": {
                 "BOARD": "L071",
-                "TYPE": "CARD"
+                "REV": "1"
             },
             "hidden": true
         },
         {
-            "name": "nucleof446_debug",
-            "displayName": "Debug Nucleo F446",
+            "name": "card1_debug",
+            "displayName": "Card Rev 1 Debug",
             "inherits": [
-                "wincubeclt_default",
-                "nucleo_f446",
+                "card1",
                 "debug"
             ],
-            "binaryDir": "${sourceDir}/Debug/F446",
-            "description": "Debug build for Nucleo F446 configuration"
+            "binaryDir": "${sourceDir}/Debug/card/1",
+            "description": "Debug build for card rev 1 (L071)"
         },
         {
-            "name": "nucleof446_release",
-            "displayName": "Release Nucleo F446",
+            "name": "card1_release",
+            "displayName": "Card Rev 1 Release",
             "inherits": [
-                "wincubeclt_default",
-                "nucleo_f446",
+                "card1",
                 "release"
             ],
-            "binaryDir": "${sourceDir}/Release/F446",
-            "description": "Release build for Nucleo F446 configuration"
+            "binaryDir": "${sourceDir}/Release/card/1",
+            "description": "Release build for card rev 1 (L071)"
         },
+
+
+
         {
-            "name": "nucleog431_debug",
-            "displayName": "Debug Nucleo G431",
+            "name": "card2",
+            "displayName": "Card Rev 2 base config",
             "inherits": [
                 "wincubeclt_default",
-                "nucleo_g431",
+                "card"
+            ],
+            "cacheVariables": {
+                "BOARD": "L071",
+                "REV": "2"
+            },
+            "hidden": true
+        },
+        {
+            "name": "card2_debug",
+            "displayName": "Card Rev 2 Debug",
+            "inherits": [
+                "card2",
                 "debug"
             ],
-            "binaryDir": "${sourceDir}/Debug/G431",
-            "description": "Debug build for Nucleo G431 configuration"
+            "binaryDir": "${sourceDir}/Debug/card/2",
+            "description": "Debug build for card rev 2 (L071)"
         },
         {
-            "name": "nucleog431_release",
-            "displayName": "Release Nucleo G431",
+            "name": "card2_release",
+            "displayName": "Card Rev 2 Release",
             "inherits": [
-                "wincubeclt_default",
-                "nucleo_g431",
+                "card2",
                 "release"
             ],
-            "binaryDir": "${sourceDir}/Release/G431",
-            "description": "Release build for Nucleo G431 configuration"
-        },
-        {
-            "name": "cardrev1l071_debug",
-            "displayName": "Debug Card Rev1",
-            "inherits": [
-                "wincubeclt_default",
-                "card_rev1_l071",
-                "debug"
-            ],
-            "binaryDir": "${sourceDir}/Debug/L071",
-            "description": "Debug build for Card Rev 1 w/ L071 configuration"
-        },
-        {
-            "name": "cardrev1l071_release",
-            "displayName": "Release Card Rev1",
-            "inherits": [
-                "wincubeclt_default",
-                "card_rev1_l071",
-                "release"
-            ],
-            "binaryDir": "${sourceDir}/Release/L071",
-            "description": "Release build for Card Rev 1 w/ L071 configuration"
-        },
-        {
-            "name": "controllerg0c1_debug",
-            "displayName": "Debug Controller",
-            "inherits": [
-                "wincubeclt_default",
-                "controller_g0c1",
-                "debug"
-            ],
-            "binaryDir": "${sourceDir}/Debug/G0C1",
-            "description": "Debug build for Controller (G0C1)"
-        },
-        {
-            "name": "controllerg0c1_release",
-            "displayName": "Release Controller",
-            "inherits": [
-                "wincubeclt_default",
-                "controller_g0c1",
-                "release"
-            ],
-            "binaryDir": "${sourceDir}/Release/G0C1",
-            "description": "Release build for Controller (G0C1)"
+            "binaryDir": "${sourceDir}/Release/card/2",
+            "description": "Release build for card rev 2 (L071)"
         }
     ],
     "buildPresets": [
         {
-            "name": "Debug Nucleo F446",
-            "displayName": "Debug Nucleo F446",
-            "configurePreset": "nucleof446_debug"
+            "name": "controller0_debug",
+            "displayName": "Controller Rev 0 Debug",
+            "configurePreset": "controller0_debug"
         },
         {
-            "name": "Release Nucleo F446",
-            "displayName": "Release Nucleo F446",
-            "configurePreset": "nucleof446_release"
+            "name": "controller0_release",
+            "displayName": "Controller Rev 0 Release",
+            "configurePreset": "controller0_release"
         },
         {
-            "name": "Debug Nucleo G431",
-            "displayName": "Debug Nucleo G431",
-            "configurePreset": "nucleog431_debug"
+            "name": "controller1_debug",
+            "displayName": "Controller Rev 1 Debug",
+            "configurePreset": "controller1_debug"
         },
         {
-            "name": "Release Nucleo G431",
-            "displayName": "Release Nucleo G431",
-            "configurePreset": "nucleog431_release"
+            "name": "controller1_release",
+            "displayName": "Controller Rev 1 Release",
+            "configurePreset": "controller1_release"
         },
         {
-            "name": "Debug Card Rev 1",
-            "displayName": "Debug Card Rev 1",
-            "configurePreset": "cardrev1l071_debug"
+            "name": "card0_debug",
+            "displayName": "Card Rev 0 Debug",
+            "configurePreset": "card0_debug"
         },
         {
-            "name": "Release Card Rev 1",
-            "displayName": "Release Card Rev 1",
-            "configurePreset": "cardrev1l071_release"
+            "name": "card0_release",
+            "displayName": "Card Rev 0 Release",
+            "configurePreset": "card0_release"
         },
         {
-            "name": "Debug Controller",
-            "displayName": "Debug Controller",
-            "configurePreset": "controllerg0c1_debug"
+            "name": "card1_debug",
+            "displayName": "Card Rev 1 Debug",
+            "configurePreset": "card1_debug"
         },
         {
-            "name": "Release Controller",
-            "displayName": "Release Controller",
-            "configurePreset": "controllerg0c1_release"
+            "name": "card1_release",
+            "displayName": "Card Rev 1 Release",
+            "configurePreset": "card1_release"
+        },
+        {
+            "name": "card2_debug",
+            "displayName": "Card Rev 2 Debug",
+            "configurePreset": "card2_debug"
+        },
+        {
+            "name": "card2_release",
+            "displayName": "Card Rev 2 Release",
+            "configurePreset": "card2_release"
         }
     ]
 }

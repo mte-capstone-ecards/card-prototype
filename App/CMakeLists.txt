@@ -2,31 +2,71 @@
 
 set(APP_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-set (APP_SOURCES
+set (APP_SOURCES ${APP_SOURCES}
 	${APP_DIR}/Src/app.c
-	${APP_DIR}/Src/led.c
-	${APP_DIR}/Src/button.c
 )
 
-if (${TYPE} MATCHES "CONTROLLER")
+IF (FTR_LED)
 	set (APP_SOURCES ${APP_SOURCES}
-		${APP_DIR}/Src/st25r.c
+		${APP_DIR}/Src/led.c
+	)
+ENDIF()
+
+IF (FTR_BUTTON)
+	set (APP_SOURCES ${APP_SOURCES}
+		${APP_DIR}/Src/button.c
+	)
+ENDIF()
+
+IF (OS_FREERTOS)
+	set (APP_SOURCES ${APP_SOURCES}
 		${APP_DIR}/Src/RTOSResources.c
-		${APP_DIR}/Src/sender.c
+	)
+ENDIF()
+
+IF (FTR_EINK)
+	set (APP_SOURCES ${APP_SOURCES}
 		${APP_DIR}/Src/eink_e370_driver.c
+	)
+
+	IF (${TYPE} STREQUAL "CARD")
+		set (APP_SOURCES ${APP_SOURCES}
+			${APP_DIR}/Src/eink_lib.c
+		)
+	ENDIF()
+ENDIF()
+
+IF (FTR_GUI)
+	set (APP_SOURCES ${APP_SOURCES}
 		${APP_DIR}/Src/gui.c
 		${APP_DIR}/Src/Games/games.c
 		${APP_DIR}/Src/Games/Hanabi.c
 	)
-elseif (${TYPE} MATCHES "CARD")
+ENDIF()
+
+IF (FTR_NFCREADER)
 	set (APP_SOURCES ${APP_SOURCES}
-		${APP_DIR}/Src/m24lr.c
-		${APP_DIR}/Src/receiver.c
-		${APP_DIR}/Src/card.c
-		${APP_DIR}/Src/eink_e370_driver.c
-		${APP_DIR}/Src/eink_lib.c
+		${APP_DIR}/Src/st25r.c
 	)
-endif()
+ENDIF()
+
+IF (FTR_NFCTAG)
+	set (APP_SOURCES ${APP_SOURCES}
+	${APP_DIR}/Src/m24lr.c
+	)
+ENDIF()
+
+IF (FTR_DATASENDER)
+	set (APP_SOURCES ${APP_SOURCES}
+		${APP_DIR}/Src/sender.c
+	)
+ENDIF()
+
+IF (FTR_DATARECEIVER)
+	set (APP_SOURCES ${APP_SOURCES}
+		${APP_DIR}/Src/card.c
+	)
+ENDIF()
 
 set (APP_SOURCES ${APP_SOURCES} PARENT_SCOPE)
 

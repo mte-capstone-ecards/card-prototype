@@ -34,7 +34,6 @@ typedef struct
     PressType type;
 } Button_event;
 
-#define CONCAT(A, B) A ## B
 #define BUTTON(b, t) (button == CONCAT(BUTTON_, b) && type == CONCAT(PRESS_, t))
 
 void Button_task(void *args);

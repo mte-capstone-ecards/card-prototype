@@ -5,12 +5,15 @@
 
 #if OS_FREERTOS
 # include "cmsis_os.h"
-#include "gui.h"
-#include "st25r.h"
+# include "st25r.h"
 
-#include "data_protocol.h"
-#include "eeprom.h"
-#include "sender.h"
+# include "data_protocol.h"
+# include "eeprom.h"
+# include "sender.h"
+
+# if FTR_GUI
+#  include "gui.h"
+# endif
 #endif
 
 #if OS_BAREMETAL

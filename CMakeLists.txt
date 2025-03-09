@@ -12,6 +12,9 @@
 #############################################################################################################################
 cmake_minimum_required(VERSION 3.20)
 
+############ Include Project Features ####################
+include("features.cmake")
+
 ###################### CONSTANTS ######################################
 set (PROJECT_NAME             "ecards")
 set (PROJECT_TYPE             "exe")
@@ -21,23 +24,24 @@ set (PROJECT_TYPE             "exe")
 set(SELECTED_LIBS
 	DataProtocol
 )
+IF (FTR_GUI)
+	set(SELECTED_LIBS ${SELECTED_LIBS}
+		ugui
+	)
+ENDIF()
 
-# Controller Libraries
-if (${TYPE} MATCHES "CONTROLLER")
+IF (${FTR_NFCREADER})
 	set(SELECTED_LIBS ${SELECTED_LIBS}
 		RFAL
 		ST25R_Common
-		ugui
 	)
-endif()
+ENDIF()
 
-# Card Libraries
-if (${TYPE} MATCHES "CARD")
+IF (${FTR_NFCTAG})
 	set(SELECTED_LIBS ${SELECTED_LIBS}
 		M24LR
 	)
-endif()
-
+ENDIF()
 
 add_subdirectory(Libs)
 
@@ -64,9 +68,9 @@ add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
 )
 
 target_compile_definitions (${PROJECT_NAME} PRIVATE
+	${FEATURE_DEFINES}
 	${BOARD_DEFINES}
 	${COMBINED_LIB_DEFINES}
-	"TYPE_${TYPE}"
 )
 
 target_include_directories (${PROJECT_NAME} PRIVATE
