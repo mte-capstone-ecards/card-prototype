@@ -19,7 +19,26 @@
 #endif
 
 #if OS_BAREMETAL
+static void sdcard_demo()
+{
+	// Code
+	
+	//need to download the https://github.com/stm32duino/FatFs library 
+	/*
+	f_mount
+	f_opendir
+	f_open
+	f_read 
+	f_lseek
 
+	*/
+
+
+
+
+	// Trap
+	while (1);
+}
 #elif OS_FREERTOS
 extern uint32_t period;
 uint32_t period = 20;
