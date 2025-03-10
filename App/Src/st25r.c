@@ -239,11 +239,6 @@ void ST25R_task(void *arg)
 {
     (void) arg;
 
-    while(1)
-    {
-        osDelay(1000);
-    }
-
     rfalAnalogConfigInitialize();                                                     /* Initialize RFAL's Analog Configs */
     rfalInitialize();
 
@@ -338,15 +333,14 @@ bool ST25R_connected()
 }
 
 // INTR Callback function
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+void ST25R_EXTICallback(uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == ST25R_INT_PIN)
     {
-
 #if defined(ST25R3911)
         st25r3911Isr();
 #elif defined(ST25R3916B)
-        st25r3916Isr();
+        // st25r3916Isr();
 #endif
     }
 }

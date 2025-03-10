@@ -109,7 +109,7 @@ void Button_task(void *args)
     }
 }
 
-void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+void Button_EXTIRisingCallback(uint16_t GPIO_Pin)
 {
     for (uint8_t i = 0; i < BUTTON_COUNT; i++)
     {
@@ -122,7 +122,7 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
     }
 }
 
-void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
+void Button_EXTIFallingCallback(uint16_t GPIO_Pin)
 {
     for (uint8_t i = 0; i < BUTTON_COUNT; i++)
     {

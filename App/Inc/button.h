@@ -38,4 +38,7 @@ typedef struct
 
 void Button_task(void *args);
 
+void Button_EXTIRisingCallback(uint16_t GPIO_Pin);
+void Button_EXTIFallingCallback(uint16_t GPIO_Pin);
+
 #endif

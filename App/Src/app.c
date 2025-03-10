@@ -70,3 +70,23 @@ void Controller_hearbeatTask(void *args)
 	}
 }
 #endif
+
+#if BOARD(CONTROLLER, 0)
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	ST25R_EXTICallback(GPIO_Pin);
+}
+#endif
+
+#if BOARD(CONTROLLER, 1)
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+	Button_EXTIRisingCallback(GPIO_Pin);
+	ST25R_EXTICallback(GPIO_Pin);
+}
+
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
+{
+	Button_EXTIRisingCallback(GPIO_Pin);
+}
+#endif
