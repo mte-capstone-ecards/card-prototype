@@ -26,11 +26,16 @@ static void inline clearCmd(ST25R_command *cmd)
     memset(cmd, 0U, sizeof(ST25R_command));
 }
 # endif
+#endif
 
 # if FTR_DATARECEIVER
-#  include "m24lr_driver.h"
+# include "board.h"
+#  if BOARD(CARD, 1)
+#   include "m24lr_driver.h"
+#  elif BOARD(CARD, 2)
+#   include "m24lr.h"
+#  endif
 # endif
-#endif
 
 static bool Eeprom_writeBlock(uint16_t addr, eepromWord data)
 {
@@ -52,7 +57,7 @@ static bool Eeprom_writeBlock(uint16_t addr, eepromWord data)
     FLIP_ACTIVE();
     return true;
 # elif FTR_DATARECEIVER
-    return M24lr_i2c_Drv.WriteData((uint8_t *) &data, addr * 4, 4) == M24LR_OK;
+    return M24LR_i2c_WriteData((uint8_t *) &data, addr * 4, 4) == M24LR_OK;
 # endif
     return false;
 #endif
@@ -77,7 +82,7 @@ static bool Eeprom_readBlock(uint16_t addr, volatile uint32_t *readLoc)
     FLIP_ACTIVE();
     return true;
 # elif FTR_DATARECEIVER
-    return M24lr_i2c_Drv.ReadData((uint8_t *) readLoc, addr * 4, 4) == M24LR_OK;
+    return M24LR_i2c_ReadData((uint8_t *) readLoc, addr * 4, 4) == M24LR_OK;
 # endif
     return false;
 #endif
@@ -103,7 +108,7 @@ static bool Eeprom_readBlocks(uint16_t addr, uint8_t len, volatile uint32_t *rea
     FLIP_ACTIVE();
     return true;
 # elif FTR_DATARECEIVER
-    return M24lr_i2c_Drv.ReadData((uint8_t *) readLoc, addr * 4, 4 * len) == M24LR_OK;
+    return M24LR_i2c_ReadData((uint8_t *) readLoc, addr * 4, 4 * len) == M24LR_OK;
 # endif
     return false;
 #endif

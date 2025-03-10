@@ -33,7 +33,6 @@ PARENT_SCOPE)
 set (BOARD_SOURCES
 	${L0x1_DIR}/Core/Startup/startup_stm32l071k8ux.s
 	${L0x1_DIR}/Core/Src/main.c
-	${L0x1_DIR}/Core/Src/adc.c
 	${L0x1_DIR}/Core/Src/gpio.c
 	${L0x1_DIR}/Core/Src/spi.c
 	${L0x1_DIR}/Core/Src/i2c.c
@@ -43,8 +42,6 @@ set (BOARD_SOURCES
 	${L0x1_DIR}/Core/Src/sysmem.c
 	${L0x1_DIR}/Core/Src/system_stm32l0xx.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal.c
-	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_adc.c
-	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_adc_ex.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_cortex.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_dma.c
 	${L0x1_DIR}/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_exti.c

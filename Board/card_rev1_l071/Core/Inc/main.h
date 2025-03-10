@@ -57,10 +57,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define HARVEST_ADC_Pin GPIO_PIN_0
-#define HARVEST_ADC_GPIO_Port GPIOA
-#define VDD_ADC_Pin GPIO_PIN_1
-#define VDD_ADC_GPIO_Port GPIOA
 #define EINK_DC_Pin GPIO_PIN_4
 #define EINK_DC_GPIO_Port GPIOA
 #define EINK_SPI_SCL_Pin GPIO_PIN_5
@@ -69,6 +65,8 @@ void Error_Handler(void);
 #define EINK_SPI_CS_GPIO_Port GPIOA
 #define EINK_SPI_MOSI_Pin GPIO_PIN_7
 #define EINK_SPI_MOSI_GPIO_Port GPIOA
+#define M24LR_POWER_Pin GPIO_PIN_0
+#define M24LR_POWER_GPIO_Port GPIOB
 #define EINK_BUSY_Pin GPIO_PIN_8
 #define EINK_BUSY_GPIO_Port GPIOA
 #define EINK_RESET_Pin GPIO_PIN_9

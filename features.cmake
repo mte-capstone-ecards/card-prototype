@@ -153,7 +153,7 @@ set(FEATURE_DEFINES ${FEATURE_DEFINES}
 
 ########## GUI ###############
 # Feature for enabling GUI library
-IF (${TYPE} STREQUAL "CONTROLLER" AND ${REV} EQUAL 1)
+IF ((${TYPE} STREQUAL "CONTROLLER" AND ${REV} EQUAL 1) OR ((${TYPE} STREQUAL "CARD" AND ${REV} EQUAL 2)))
     set(FTR_GUI 1)
 ELSE()
     set(FTR_GUI 0)

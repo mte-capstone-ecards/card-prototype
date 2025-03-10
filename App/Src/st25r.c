@@ -62,7 +62,10 @@ static struct {
     uint8_t retries;
 
     uint8_t rxBuf[RX_BUF_SIZE];
-} st25r;
+
+    bool setup;
+    bool irq;
+} st25r = { 0U };
 
 /*****************************************/
 /*        Public Data Definitions        */
@@ -242,6 +245,8 @@ void ST25R_task(void *arg)
     rfalAnalogConfigInitialize();                                                     /* Initialize RFAL's Analog Configs */
     rfalInitialize();
 
+    st25r.setup = true;
+
     for (;;)
     {
         rfalWorker();
@@ -325,6 +330,24 @@ void ST25R_task(void *arg)
     }
 }
 
+void ST25R_irqTask(void *arg)
+{
+    while(!st25r.setup)
+    {
+        osDelay(100);
+    }
+
+    for (;;)
+    {
+        if (st25r.irq)
+        {
+            st25r3916Isr();
+            st25r.irq = false;
+        }
+        osDelay(100);
+    }
+}
+
 bool ST25R_connected()
 {
     return (
@@ -341,6 +364,7 @@ void ST25R_EXTICallback(uint16_t GPIO_Pin)
         st25r3911Isr();
 #elif defined(ST25R3916B)
         // st25r3916Isr();
+        st25r.irq = true;
 #endif
     }
 }

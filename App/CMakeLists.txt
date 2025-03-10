@@ -37,11 +37,17 @@ IF (FTR_EINK)
 ENDIF()
 
 IF (FTR_GUI)
-	set (APP_SOURCES ${APP_SOURCES}
-		${APP_DIR}/Src/gui.c
-		${APP_DIR}/Src/Games/games.c
-		${APP_DIR}/Src/Games/Hanabi.c
-	)
+	IF (TYPE STREQUAL "CONTROLLER")
+		set (APP_SOURCES ${APP_SOURCES}
+			${APP_DIR}/Src/gui.c
+			${APP_DIR}/Src/Games/games.c
+			${APP_DIR}/Src/Games/Hanabi.c
+		)
+	ELSEIF (TYPE STREQUAL "CARD")
+		set (APP_SOURCES ${APP_SOURCES}
+
+		)
+	ENDIF()
 ENDIF()
 
 IF (FTR_NFCREADER)

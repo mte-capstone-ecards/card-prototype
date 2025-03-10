@@ -11,6 +11,7 @@
 # include "eeprom.h"
 # include "sender.h"
 
+# include "button.h"
 # include "led.h"
 
 # if FTR_GUI
@@ -71,6 +72,10 @@ void Controller_hearbeatTask(void *args)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d3db5cd (Working on reducing card flash usage)
 #if BOARD(CONTROLLER, 0)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
