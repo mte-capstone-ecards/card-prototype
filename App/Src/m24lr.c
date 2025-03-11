@@ -23,7 +23,7 @@ M24LR_StatusTypeDef M24lr_IO_MemWrite( const uint8_t * const pData, const uint8_
 	uint8_t retries = M24LR_MAX_RETRIES;
 	uint8_t *pbuffer = (uint8_t *)pData;
 
-	HAL_StatusTypeDef status;
+	HAL_StatusTypeDef status = HAL_TIMEOUT;
 	while (retries > 0)
 	{
 		status = HAL_I2C_Mem_Write( &M24LR_I2C, DevAddr, TarAddr, I2C_MEMADD_SIZE_16BIT, pbuffer, Size, M24LR_I2C_TIMEOUT );
@@ -53,7 +53,7 @@ M24LR_StatusTypeDef M24lr_IO_MemRead( uint8_t * const pData, const uint8_t DevAd
 	uint8_t retries = M24LR_MAX_RETRIES;
 	uint8_t *pbuffer = (uint8_t *)pData;
 
-	HAL_StatusTypeDef status;
+	HAL_StatusTypeDef status = HAL_TIMEOUT;
 	while (retries > 0)
 	{
 		status = HAL_I2C_Mem_Read( &M24LR_I2C, DevAddr, TarAddr, I2C_MEMADD_SIZE_16BIT, pbuffer, Size, M24LR_I2C_TIMEOUT );

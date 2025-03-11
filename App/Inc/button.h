@@ -26,6 +26,7 @@ typedef enum
     PRESS_LONG,
     PRESS_DOUBLE,
 } PressType;
+#define BUTTON_NOT_PRESSED  0x0
 
 typedef struct
 {
@@ -33,6 +34,17 @@ typedef struct
 
     PressType type;
 } Button_event;
+
+typedef struct
+{
+    GPIO_TypeDef *port;
+    uint16_t pin;
+
+    uint32_t pressed;
+    bool held;
+} Button;
+
+extern Button buttons[BUTTON_COUNT];
 
 #define BUTTON(b, t) (button == CONCAT(BUTTON_, b) && type == CONCAT(PRESS_, t))
 

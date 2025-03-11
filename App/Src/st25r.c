@@ -16,6 +16,10 @@
 # include "st25r3916_irq.h"
 #endif
 
+#if FTR_LED
+# include "led.h"
+#endif
+
 #if OS_FREERTOS
 # include "cmsis_os.h"
 #endif
@@ -136,7 +140,7 @@ static bool ST25R_Activation( uint8_t devIt )
 static ReturnCode ST25R_Connected( void )
 {
     extern osMessageQueueId_t nfcCommandQueueHandle;
-    ReturnCode ret;
+    ReturnCode ret = RFAL_ERR_NONE;
 
     // Check if we have a command, if not, send a empty command to check if its still here
     // Include a delay to ensure that while we don't have a pending command, we allow the I2C operation to run
@@ -223,7 +227,6 @@ static ReturnCode ST25R_Connected( void )
         else
             st25r.retries--;
 
-        // Blocking wait between retries.
         HAL_Delay(10);
     }
 
@@ -246,6 +249,7 @@ void ST25R_task(void *arg)
     rfalInitialize();
 
     st25r.setup = true;
+    LED_enableSolid(LED_NFC_WORKING);
 
     for (;;)
     {
@@ -291,6 +295,10 @@ void ST25R_task(void *arg)
                     break;
                 }
 
+#if FTR_LED
+                LED_enableHz(LED_NFC_WORKING, 3);
+#endif
+
                 st25r.state = ST25R_STATE_CONNECTED; /* Device has been properly activated, we are now connected */
                 break;
 
@@ -313,6 +321,10 @@ void ST25R_task(void *arg)
 
                 ST25R_Deactivate();                                        /* If a card has been activated, properly deactivate the device */
 
+#if FTR_LED
+                LED_enableSolid(LED_NFC_WORKING);
+#endif
+
                 rfalFieldOff();                                                       /* Turn the Field Off powering down any device nearby */
                 platformDelay( 500 );                                                 /* Remain a certain period with field off */
 
@@ -323,13 +335,14 @@ void ST25R_task(void *arg)
                 break;
         }
 
-        if (st25r.state == ST25R_STATE_INIT)
+        // if (st25r.state == ST25R_STATE_INIT)
         {
-            platformDelay(5);
+            platformDelay(10);
         }
     }
 }
 
+#if defined(ST25R3916B)
 void ST25R_irqTask(void *arg)
 {
     while(!st25r.setup)
@@ -347,6 +360,7 @@ void ST25R_irqTask(void *arg)
         osDelay(100);
     }
 }
+#endif
 
 bool ST25R_connected()
 {

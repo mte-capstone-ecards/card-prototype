@@ -16,7 +16,10 @@ void ST25R_task(void *);
 bool ST25R_connected(void);
 void ST25R_EXTICallback(uint16_t GPIO_Pin);
 
+#if defined(ST25R3916B)
 void ST25R_irqTask(void *);
+#endif
+
 void ST25R_EXTICallback(uint16_t GPIO_Pin);
 
 #if defined(ST25R3916B)

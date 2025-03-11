@@ -1,5 +1,6 @@
 #include "Games/Hanabi.h"
 
+#include "games.h"
 #include "gui.h"
 #include "ugui.h"
 #include "ugui_fonts.h"
@@ -72,7 +73,7 @@ typedef enum
     SHAPE_AT,
 
     SHAPE_COUNT,
-} Shapes;
+} Hanabi_ShapesDef;
 
 char *Hanabi_shapes[SHAPE_COUNT] = {
     [SHAPE_STAR]    = "*",
@@ -88,17 +89,35 @@ char *Hanabi_nums[1 + HANABI_MAX_NUM] = {
     "0", "1", "2", "3", "4", "5", "6", "7", "8"
 };
 
-char *Hanabi_turnMsg[4] = {
+enum
+{
+    HANABI_PLAYER_1,
+    HANABI_PLAYER_2,
+    HANABI_PLAYER_3,
+    HANABI_PLAYER_4,
+
+    HANABI_MAX_PLAYERS,
+};
+
+char *Hanabi_turnMsg[HANABI_MAX_PLAYERS] = {
     "PLAYER 1 TURN",
     "PLAYER 2 TURN",
     "PLAYER 3 TURN",
     "PLAYER 4 TURN",
 };
 
+typedef struct
+{
+    uint32_t UUID;
+
+    uint8_t num;
+    Hanabi_ShapesDef shape;
+} Hanabi_card;
+
 struct {
     uint8_t lives;
     uint8_t clues;
-    uint8_t table[SHAPE_COUNT];
+    uint8_t table[SHAPE_COUNT]; // Placed cards
 
     CardMode cardMode;
 
@@ -106,22 +125,43 @@ struct {
     uint8_t numPlayers;
 
     uint8_t selectedButton;
+
+    DealData dealData;
+    uint8_t numPlayerCards;
+    Hanabi_card playerCards[HANABI_MAX_PLAYERS][5];
 } Hanabi_game;
 
 /***************************************
             Game Logic
 ****************************************/
 
-static void Hanabi_gameInit()
+static void Hanabi_gameInit(uint8_t numPlayers)
 {
     memset(&Hanabi_game, 0U, sizeof(Hanabi_game));
 
     Hanabi_game.lives = 3;
     Hanabi_game.clues = 8;
 
-    Hanabi_game.numPlayers = 4; // TODO: Pass this in
+    Hanabi_game.numPlayers = numPlayers;
+    Hanabi_game.numPlayerCards = numPlayers >= 4 ? 4 : 5;
 
     Hanabi_game.selectedButton = 2; // Start with selecting the give clue button
+
+    // Deal data
+    Hanabi_game.dealData.numCards = Hanabi_game.numPlayers * Hanabi_game.numPlayerCards;
+    Hanabi_game.dealData.cardsLoaded = 0;
+    Hanabi_game.dealData.currCard = 1;
+    Hanabi_game.dealData.currPlayer = 1;
+}
+
+static Hanabi_card Hanabi_dealCard(void)
+{
+    Hanabi_card card = {
+        .num = 3,
+        .shape = SHAPE_PLUS,
+    };
+
+    return card;
 }
 
 static void Hanabi_endTurn()
@@ -129,6 +169,81 @@ static void Hanabi_endTurn()
     Hanabi_game.turn++;
     if (Hanabi_game.turn == Hanabi_game.numPlayers)
         Hanabi_game.turn = 0;
+}
+
+DealData Hanabi_getDealData(void)
+{
+    return Hanabi_game.dealData;
+}
+
+void Hanabi_registerCard(uint32_t UUID)
+{
+    Hanabi_game.playerCards[Hanabi_game.dealData.currPlayer - 1][Hanabi_game.dealData.currCard - 1] = Hanabi_dealCard();
+    Hanabi_game.playerCards[Hanabi_game.dealData.currPlayer - 1][Hanabi_game.dealData.currCard - 1].UUID = UUID;
+    Hanabi_game.dealData.cardsLoaded++;
+
+    Hanabi_game.dealData.currCard++;
+
+    // Roll over to the next player
+    if (Hanabi_game.dealData.currCard > Hanabi_game.numPlayerCards)
+    {
+        Hanabi_game.dealData.currPlayer++;
+        Hanabi_game.dealData.currCard = 1;
+    }
+}
+
+static void Hanabi_privatePlayCard(uint8_t player, uint8_t card)
+{
+    static uint8_t shape = 0;
+    static uint8_t num = 0;
+
+    shape++;
+    num += 2;
+
+    if (shape > 4)
+        shape = shape % 5;
+    if (num > 5)
+        num = num % 6;
+
+    Hanabi_game.playerCards[player][card].shape = shape;
+    Hanabi_game.playerCards[player][card].num = num;
+}
+
+void Hanabi_playCard(uint32_t UUID)
+{
+    for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
+    {
+        for (uint8_t card = 0; card < Hanabi_game.numPlayerCards; card++)
+        {
+            if (Hanabi_game.playerCards[player][card].UUID == UUID)
+            {
+                Hanabi_privatePlayCard(player, card);
+                return;
+            }
+        }
+    }
+}
+
+SenderDataSpec Hanabi_sendCard(uint32_t UUID)
+{
+    SenderDataSpec data = {
+        .shape = 0,
+        .num = 0,
+    };
+
+    for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
+    {
+        for (uint8_t card = 0; card < Hanabi_game.numPlayerCards; card++)
+        {
+            if (Hanabi_game.playerCards[player][card].UUID == UUID)
+            {
+                data.shape = Hanabi_game.playerCards[player][card].shape;
+                data.num = Hanabi_game.playerCards[player][card].num;
+            }
+        }
+    }
+
+    return data;
 }
 
 /***************************************
@@ -209,10 +324,10 @@ void Hanabi_constructMenu(void)
 
 }
 
-void Hanabi_setMenu(void)
+void Hanabi_setMenu(uint8_t numPlayers)
 {
     // Game Init
-    Hanabi_gameInit();
+    Hanabi_gameInit(numPlayers);
 }
 
 void Hanabi_updateMenu(void)

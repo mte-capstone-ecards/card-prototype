@@ -88,7 +88,7 @@ set(FEATURE_DEFINES ${FEATURE_DEFINES}
 
 ############ LED ##############
 # Feature for RTOS task controlling LED blinking
-IF (${TYPE} MATCHES "CONTROLLER" AND ${REV} EQUAL 1)
+IF (${TYPE} MATCHES "CONTROLLER")
     set(FTR_LED 1)
 ELSE()
     set(FTR_LED 0)

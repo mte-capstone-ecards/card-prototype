@@ -24,14 +24,14 @@ void Game_constructMenu(void)
     }
 }
 
-void Game_setMenu(uint8_t selectedGame)
+void Game_setMenu(uint8_t selectedGame, uint8_t numPlayers)
 {
     Game_selectedGame = selectedGame;
 
     switch (Game_selectedGame)
     {
         case GAME_HANABI:
-            Hanabi_setMenu();
+            Hanabi_setMenu(numPlayers);
         default:
             break;
     }
@@ -56,5 +56,61 @@ void Game_buttonCallback(ButtonHandle button, PressType type)
         default:
             break;
     }
+}
+
+DealData Game_getDealData(void)
+{
+    DealData dealData;
+
+    switch (Game_selectedGame)
+    {
+        case GAME_HANABI:
+            dealData = Hanabi_getDealData();
+            break;
+        default:
+            break;
+    }
+
+    return dealData;
+}
+
+void Game_registerCard(uint32_t UUID)
+{
+    switch (Game_selectedGame)
+    {
+        case GAME_HANABI:
+            Hanabi_registerCard(UUID);
+            break;
+        default:
+            break;
+    }
+}
+
+void Game_playCard(uint32_t UUID)
+{
+    switch (Game_selectedGame)
+    {
+        case GAME_HANABI:
+            Hanabi_playCard(UUID);
+            break;
+        default:
+            break;
+    }
+}
+
+SenderDataSpec Game_sendCard(uint32_t UUID)
+{
+    SenderDataSpec senderData = { 0U };
+
+    switch (Game_selectedGame)
+    {
+        case GAME_HANABI:
+            senderData = Hanabi_sendCard(UUID);
+            break;
+        default:
+            break;
+    }
+
+    return senderData;
 }
 

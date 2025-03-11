@@ -14,9 +14,6 @@
 # include "button.h"
 # include "led.h"
 
-# if FTR_GUI
-#  include "gui.h"
-# endif
 #endif
 
 #if OS_BAREMETAL
@@ -30,52 +27,13 @@ uint32_t words[NUM_WORDS];
 
 void Controller_hearbeatTask(void *args)
 {
-#if FTR_GUI
-	GUI_init();
-#endif
-
-#if FTR_LED
-	LED_enableHz(LED_DEBUG_B, 1);
-#endif
-
 	while(1)
 	{
 		osDelay(500);
 	}
-
-#if FTR_DATASENDER
-	SenderDataSpec senderData;
-
-
-	senderData.startBit = 0;
-	senderData.data = words;
-	senderData.numWords = NUM_WORDS;
-
-	for (uint32_t i = 0; i < NUM_WORDS; i++)
-	{
-		words[i] = i;
-	}
-
-#endif
-
-	static uint32_t counter = 0;
-
-	for (;;)
-	{
-#if FTR_DATASENDER
-		extern osMessageQueueId_t dataSenderQueueHandle;
-		osMessageQueuePut(dataSenderQueueHandle, &senderData, 0, 10);
-#endif
-
-		osDelay(period);
-	}
 }
 #endif
 
-<<<<<<< HEAD
-=======
-
->>>>>>> d3db5cd (Working on reducing card flash usage)
 #if BOARD(CONTROLLER, 0)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -92,6 +50,6 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
 
 void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
 {
-	Button_EXTIRisingCallback(GPIO_Pin);
+	Button_EXTIFallingCallback(GPIO_Pin);
 }
 #endif

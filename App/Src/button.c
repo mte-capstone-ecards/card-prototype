@@ -10,17 +10,7 @@
 // Button Queue, when a button that is not currently in the queue is pressed, add it to the queue
 extern osMessageQueueId_t buttonEventQueueHandle;
 
-#define BUTTON_NOT_PRESSED  0x0
 #define BUTTON_HOLD_TIME    2000    // ms
-
-typedef struct
-{
-    GPIO_TypeDef *port;
-    uint16_t pin;
-
-    uint32_t pressed;
-    bool held;
-} Button;
 
 Button buttons[BUTTON_COUNT] = {
 #if BOARD(CONTROLLER, 1)
@@ -117,7 +107,7 @@ void Button_EXTIRisingCallback(uint16_t GPIO_Pin)
         {
             buttons[i].held = false;
             buttons[i].pressed = HAL_GetTick();
-            Button_press(i);
+            // Button_press(i);
         }
     }
 }
@@ -129,7 +119,7 @@ void Button_EXTIFallingCallback(uint16_t GPIO_Pin)
         if (buttons[i].pin == GPIO_Pin)
         {
             buttons[i].pressed = BUTTON_NOT_PRESSED;
-            Button_release(i);
+            // Button_release(i);
         }
     }
 }

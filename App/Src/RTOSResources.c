@@ -10,6 +10,8 @@
 #include "button.h"
 #include "sender.h"
 
+#include "gui.h"
+
 // RTOS Mutexes
 
 // RTOS Semaphores
@@ -43,18 +45,30 @@ const osMessageQueueAttr_t buttonEventQueue_attributes = {
 osThreadId_t heartbeatTaskHandle;
 const osThreadAttr_t heartbeatTask_attributes = {
   .name = "heartbeatTask",
-  .stack_size = 128 * 2,
-  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = 128,
+  .priority = (osPriority_t) osPriorityLow,
 };
+
+#if FTR_GUI
+osThreadId_t guiTaskHandle;
+const osThreadAttr_t guiTask_attributes = {
+  .name = "guiTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal,
+};
+#endif
 
 #if FTR_NFCREADER
 osThreadId_t st25rTaskHandle;
 const osThreadAttr_t st25rTask_attributes = {
   .name = "st25rTask",
-  .stack_size = 256 * 5,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityHigh,
 };
 
+#endif
+
+#if defined(ST25R3916B)
 osThreadId_t st25rIRQTaskHandle;
 const osThreadAttr_t st25rIRQTask_attributes = {
   .name = "st25rIRQTask",
@@ -76,7 +90,7 @@ const osThreadAttr_t senderTask_attributes = {
 osThreadId_t ledTaskHandle;
 const osThreadAttr_t ledTask_attributes = {
   .name = "ledTask",
-  .stack_size = 256,
+  .stack_size = 256 * 2,
   .priority = (osPriority_t) osPriorityLow,
 };
 #endif
@@ -85,7 +99,7 @@ const osThreadAttr_t ledTask_attributes = {
 osThreadId_t buttonTaskHandle;
 const osThreadAttr_t buttonTask_attributes = {
   .name = "buttonTask",
-  .stack_size = 256,
+  .stack_size = 256 * 2,
   .priority = (osPriority_t) osPriorityNormal,
 };
 #endif
@@ -121,8 +135,13 @@ void MX_FREERTOS_Init(void) {
 
     // RTOS Threads
     heartbeatTaskHandle = osThreadNew(Controller_hearbeatTask, NULL, &heartbeatTask_attributes);
+#if FTR_GUI
+    guiTaskHandle = osThreadNew(GUI_task, NULL, &guiTask_attributes);
+#endif
 #if FTR_NFCREADER
     st25rTaskHandle     = osThreadNew(ST25R_task, NULL, &st25rTask_attributes);
+#endif
+#if defined(ST25R3916B)
     st25rIRQTaskHandle     = osThreadNew(ST25R_irqTask, NULL, &st25rIRQTask_attributes);
 #endif
 #if FTR_DATASENDER

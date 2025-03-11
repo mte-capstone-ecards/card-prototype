@@ -7,7 +7,7 @@
 #include <gpio.h>
 #include <stdbool.h>
 
-#define LED_TASK_FREQ 100 // [Hz]
+#define LED_TASK_FREQ 50 // [Hz]
 
 #define HZ_TO_TICK(hz)  ((uint32_t) (1000 / (hz)))
 #define HZ_TO_FREQ(hz)  (LED_TASK_FREQ / (hz))
@@ -27,33 +27,48 @@ LED leds[LED_HANDLE_COUNT] = {
         .port   = LED_DISPLAY_R_GPIO_Port,
         .pin    = LED_DISPLAY_R_Pin,
 
-        .enabled = false,
+        .clk        = 0,
+        .enabled    = false,
     },
     [LED_DISPLAY_B] = { // R10
         .port   = LED_DISPLAY_B_GPIO_Port,
         .pin    = LED_DISPLAY_B_Pin,
 
-        .enabled = false,
+        .clk        = 0,
+        .enabled    = false,
     },
-
-    [LED_NFC_WORKING] = { // R8
+    [LED_DEBUG_B] = { // TEMP
+    // [LED_NFC_WORKING] = { // R8
         .port   = LED_DEBUG_R_GPIO_Port,
         .pin    = LED_DEBUG_R_Pin,
 
-        .enabled = false,
+        .clk        = 0,
+        .enabled    = false,
     },
     [LED_NFC_DONE] = { // R9
         .port   = LED_DEBUG_G_GPIO_Port,
         .pin    = LED_DEBUG_G_Pin,
 
-        .enabled = false,
+        .clk        = 0,
+        .enabled    = false,
     },
-    [LED_DEBUG_B] = { // R7
+    // [LED_DEBUG_B] = { // R7
+    [LED_NFC_WORKING] = { // TEMP
         .port   = LED_DEBUG_B_GPIO_Port,
         .pin    = LED_DEBUG_B_Pin,
 
-        .enabled = false,
+        .clk        = 0,
+        .enabled    = false,
     },
+#endif
+#if BOARD(CONTROLLER, 0)
+    [LED_NFC_WORKING] = {
+        .port   = USER_LED_GPIO_Port,
+        .pin    = USER_LED_Pin,
+
+        .clk        = 0,
+        .enabled    = false,
+    }
 #endif
 };
 
@@ -67,10 +82,14 @@ void LED_enableSolid(LEDHandle handle)
 
 void LED_enableHz(LEDHandle handle, uint16_t hz)
 {
-    leds[handle].enabled = false;
-    leds[handle].freq = HZ_TO_FREQ(hz);
-    leds[handle].clk = 0;
-    leds[handle].enabled = true;
+    uint16_t newFreq = HZ_TO_FREQ(hz);
+    if (leds[handle].freq != newFreq)
+    {
+        leds[handle].enabled = false;
+        leds[handle].freq = newFreq;
+        leds[handle].clk = 0;
+        leds[handle].enabled = true;
+    }
 }
 
 void LED_disable(LEDHandle handle)
@@ -82,11 +101,6 @@ void LED_disable(LEDHandle handle)
 void LED_task(void *args)
 {
     (void) args;
-
-    for (LEDHandle handle = LED_HANDLE_INITIAL; handle < LED_HANDLE_COUNT; handle++)
-    {
-        LED_disable(handle);
-    }
 
     for (;;)
     {

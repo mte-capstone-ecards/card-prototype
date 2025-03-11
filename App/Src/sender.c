@@ -11,6 +11,8 @@
 
 #include "data_protocol.h"
 
+#include "gui.h"
+
 #define SENDER_STATEMACHINE_PERIOD 5 // ms
 
 typedef enum
@@ -61,6 +63,7 @@ static uint16_t Sender_loadNextPacket(void)
 
 void Sender_task(void *args)
 {
+    osStatus status = osOK;
     (void) args;
 
     // Initialize sender struct
@@ -116,6 +119,8 @@ void Sender_task(void *args)
                 // Check to see if the challenge was responded
                 if (Eeprom_partnerUpdated())
                 {
+                    // We connected! Trigger the card callback
+                    GUI_cardTap(eeprom.UUID);
                     sender.state = SENDER_STATE_IDLE;
                     break;
                 }
@@ -124,8 +129,19 @@ void Sender_task(void *args)
                 break;
 
             case SENDER_STATE_IDLE:
+#if FORCE_HANABI
+                status = osMessageQueueGet(dataSenderQueueHandle, &sender.senderData, NULL, 10);
 
-                osStatus_t status = osMessageQueueGet(dataSenderQueueHandle, &sender.senderData, NULL, 10);
+                if (status == osOK)
+                {
+                    eeprom.senderHeader.shape = 2; // sender.senderData.shape;
+                    eeprom.senderHeader.num = 2; // sender.senderData.num;
+                    Eeprom_writeNextHeader(SENDER_HANABI_INSTR);
+
+                    osDelay(5000);
+                }
+#else
+                status = osMessageQueueGet(dataSenderQueueHandle, &sender.senderData, NULL, 10);
 
                 if (status == osOK)
                 {
@@ -133,7 +149,7 @@ void Sender_task(void *args)
                     sender.state = SENDER_STATE_TRANSMITTING;
                     break;
                 }
-
+#endif
                 break;
 
             case SENDER_STATE_TRANSMITTING:
@@ -234,9 +250,9 @@ void Sender_task(void *args)
             case SENDER_STATE_ERROR:
 
                 // Reset sender
-                // memset(&sender, 0U, sizeof(sender));
-                extern uint32_t period;
-                period = 100;
+                memset(&sender, 0U, sizeof(sender));
+
+                osDelay(100);
 
                 break;
         }

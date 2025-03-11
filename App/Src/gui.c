@@ -6,6 +6,7 @@
 #include "button.h"
 #include "games.h"
 #include <string.h>
+#include <cmsis_os.h>
 
 EPDBuf buf;
 
@@ -131,6 +132,37 @@ UG_BUTTON CardLoad_back;
 
 #define CardLoad_objectCount 8
 UG_OBJECT CardLoad_objs[CardLoad_objectCount];
+
+char *CardLoad_strings[4][5] = {
+    {
+        "Player 1 - Tap Card 1",
+        "Player 1 - Tap Card 2",
+        "Player 1 - Tap Card 3",
+        "Player 1 - Tap Card 4",
+        "Player 1 - Tap Card 5",
+    },
+    {
+        "Player 2 - Tap Card 1",
+        "Player 2 - Tap Card 2",
+        "Player 2 - Tap Card 3",
+        "Player 2 - Tap Card 4",
+        "Player 2 - Tap Card 5",
+    },
+    {
+        "Player 3 - Tap Card 1",
+        "Player 3 - Tap Card 2",
+        "Player 3 - Tap Card 3",
+        "Player 3 - Tap Card 4",
+        "Player 3 - Tap Card 5",
+    },
+    {
+        "Player 4 - Tap Card 1",
+        "Player 4 - Tap Card 2",
+        "Player 4 - Tap Card 3",
+        "Player 4 - Tap Card 4",
+        "Player 4 - Tap Card 5",
+    },
+};
 
 /*
     About Objects
@@ -332,10 +364,10 @@ static void GUI_constructMenus()
 
                 UG_TextboxCreate(&CardLoad_window, &CardLoad_instruction, OBJ_ID_2, UGUI_POS(40, 110, 335, 25));
                 UG_TextboxSetFont(&CardLoad_window, OBJ_ID_2, FONT_20);
-                UG_TextboxSetText(&CardLoad_window, OBJ_ID_2, "PLAYER 2 - TAP CARD 3");
+                UG_TextboxSetText(&CardLoad_window, OBJ_ID_2, "");
 
                 UG_ProgressCreate(&CardLoad_window, &CardLoad_progress, OBJ_ID_3, UGUI_POS(135, 160, 145, 15));
-                UG_ProgressSetProgress(&CardLoad_window, OBJ_ID_3, 30);
+                UG_ProgressSetProgress(&CardLoad_window, OBJ_ID_3, 0);
 
                 UG_ButtonCreate(&CardLoad_window, &CardLoad_back, OBJ_ID_4, UGUI_POS(10, 200, 120, 16));
                 UG_ButtonSetFont(&CardLoad_window, OBJ_ID_4, FONT_12);
@@ -357,6 +389,8 @@ static void GUI_constructMenus()
 
 void GUI_updateCurrentMenu()
 {
+    DealData dealData;
+
     switch(GUI_currentMenu)
     {
         case MENU_MAIN:
@@ -370,7 +404,13 @@ void GUI_updateCurrentMenu()
             UG_WindowShow(&PlayerSelect_window);
             break;
         case MENU_CARD_LOAD:
+            dealData = Game_getDealData();
+
+            UG_TextboxSetText(&CardLoad_window, OBJ_ID_2, CardLoad_strings[dealData.currPlayer - 1][dealData.currCard - 1]);
+            UG_ProgressSetProgress(&CardLoad_window, OBJ_ID_3, (100 * dealData.cardsLoaded) / dealData.numCards);
+
             UG_WindowShow(&CardLoad_window);
+            break;
         case MENU_GAME:
             Game_updateMenu();
             break;
@@ -411,12 +451,17 @@ void GUI_setMenu(MenuScreen menu)
             break;
 
         case MENU_CARD_LOAD:
+            // We've selected the game, lets set it up
+            Game_setMenu(GUI_selectedGame, PlayerSelect_players);
+
             UG_TextboxSetText(&CardLoad_window, OBJ_ID_0, Games_names[GUI_selectedGame]);
 
             GUI_unhighlightButton(&CardLoad_window, OBJ_ID_4);
+            break;
 
         case MENU_GAME:
-            Game_setMenu(GUI_selectedGame);
+            // Game set menu is done above
+            // TODO: Seperate Game_setMenu and Game_init
             break;
         default:
             break;
@@ -424,6 +469,25 @@ void GUI_setMenu(MenuScreen menu)
 
     GUI_currentMenu = menu;
     GUI_updateCurrentMenu();
+}
+
+void GUI_cardTap(uint32_t UUID)
+{
+    switch (GUI_currentMenu)
+    {
+        case MENU_CARD_LOAD:
+            Game_registerCard(UUID);
+            break;
+        case MENU_GAME:
+            Game_playCard(UUID);
+            break;
+        default:
+            break;
+    }
+
+    SenderDataSpec cardReturn = Game_sendCard(UUID);
+    extern osMessageQueueId_t dataSenderQueueHandle;
+    osMessageQueuePut(dataSenderQueueHandle, &cardReturn, 0, 10);
 }
 
 void GUI_buttonCallback(ButtonHandle button, PressType type)
@@ -460,8 +524,8 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
                     break;
                 }
             }
-
             break;
+
         case MENU_GAME_SELECT:
 
             if (BUTTON(UP, SINGLE) && GUI_selectedButton == 1)
@@ -550,7 +614,29 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
                 break;
             }
 
-            // if (BUTTON(A, SINGLE))
+            if (BUTTON(A, SINGLE))
+            {
+                if (GUI_selectedButton < 3)
+                {
+                    // Player number selected
+                    GUI_setMenu(MENU_CARD_LOAD);
+                    break;
+                }
+                else
+                {
+                    // Return back
+                    break;
+                }
+            }
+
+            break;
+
+        case MENU_CARD_LOAD:
+
+            if (BUTTON(A, SINGLE))
+            {
+                Gui_setMenu(MENU_GAME);
+            }
 
             break;
 
@@ -562,14 +648,31 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
     }
 }
 
-void GUI_init()
+static void GUI_init()
 {
     UG_Init(&gui, &device);
 
     GUI_constructMenus();
-
-    GUI_selectedGame = GAME_HANABI;
-    GUI_setMenu(MENU_GAME);
+    GUI_setMenu(MENU_MAIN);
 
     return;
+}
+
+void GUI_task(void *args)
+{
+    (void) args;
+
+    GUI_init();
+
+    for (;;)
+    {
+        for (ButtonHandle handle = 0; handle < BUTTON_COUNT; handle++)
+        {
+            if (buttons[handle].pressed != BUTTON_NOT_PRESSED)
+            {
+                buttons[handle].pressed = BUTTON_NOT_PRESSED;
+                GUI_buttonCallback(handle, PRESS_SINGLE);
+            }
+        }
+    }
 }
