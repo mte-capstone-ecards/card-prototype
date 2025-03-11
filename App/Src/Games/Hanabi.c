@@ -226,24 +226,26 @@ void Hanabi_playCard(uint32_t UUID)
 
 SenderDataSpec Hanabi_sendCard(uint32_t UUID)
 {
-    SenderDataSpec data = {
-        .shape = 0,
-        .num = 0,
+    static SenderDataSpec data = {
+        .shape = SHAPE_PLUS,
+        .num = 3,
     };
-
-    for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
-    {
-        for (uint8_t card = 0; card < Hanabi_game.numPlayerCards; card++)
-        {
-            if (Hanabi_game.playerCards[player][card].UUID == UUID)
-            {
-                data.shape = Hanabi_game.playerCards[player][card].shape;
-                data.num = Hanabi_game.playerCards[player][card].num;
-            }
-        }
-    }
-
+    data.num = (data.num + 1) % 4;
     return data;
+
+    // for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
+    // {
+    //     for (uint8_t card = 0; card < Hanabi_game.numPlayerCards; card++)
+    //     {
+    //         if (Hanabi_game.playerCards[player][card].UUID == UUID)
+    //         {
+    //             data.shape = Hanabi_game.playerCards[player][card].shape;
+    //             data.num = Hanabi_game.playerCards[player][card].num;
+    //         }
+    //     }
+    // }
+
+    // return data;
 }
 
 /***************************************

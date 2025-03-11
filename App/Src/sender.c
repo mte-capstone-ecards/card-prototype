@@ -10,7 +10,7 @@
 #include "st25r.h"
 
 #include "data_protocol.h"
-
+#include "games.h"
 #include "gui.h"
 
 #define SENDER_STATEMACHINE_PERIOD 5 // ms
@@ -125,17 +125,19 @@ void Sender_task(void *args)
                     break;
                 }
 
+                Eeprom_writeNextHeader(SENDER_CHALLENGE_INSTR);
                 osDelay(25);
                 break;
 
             case SENDER_STATE_IDLE:
 #if FORCE_HANABI
-                status = osMessageQueueGet(dataSenderQueueHandle, &sender.senderData, NULL, 10);
+                // status = osMessageQueueGet(dataSenderQueueHandle, &sender.senderData, NULL, 10);
+                sender.senderData = Game_sendCard(eeprom.UUID);
 
                 if (status == osOK)
                 {
-                    eeprom.senderHeader.shape = 2; // sender.senderData.shape;
-                    eeprom.senderHeader.num = 2; // sender.senderData.num;
+                    eeprom.senderHeader.shape = sender.senderData.shape;
+                    eeprom.senderHeader.num = sender.senderData.num;
                     Eeprom_writeNextHeader(SENDER_HANABI_INSTR);
 
                     osDelay(5000);

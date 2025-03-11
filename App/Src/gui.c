@@ -21,10 +21,10 @@ static void GUI_pset(UG_S16 x, UG_S16 y, UG_COLOR color)
         return;
 
     // Reflect vertically
-    x = EINK_SCREEN_SIZE_V - (x + 1);
+    // x = EINK_SCREEN_SIZE_V - (x + 1);
 
     // Reflect horizontally
-    // y = EINK_SCREEN_SIZE_H - (y + 1);
+    y = EINK_SCREEN_SIZE_H - (y + 1);
 
     if (color == C_BLACK)
         buf[x][y / 8] |= 1U << (7 - (y % 8));
@@ -635,7 +635,7 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
 
             if (BUTTON(A, SINGLE))
             {
-                Gui_setMenu(MENU_GAME);
+                GUI_setMenu(MENU_GAME);
             }
 
             break;
