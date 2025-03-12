@@ -162,3 +162,16 @@ ENDIF()
 set(FEATURE_DEFINES ${FEATURE_DEFINES}
     FTR_GUI=${FTR_GUI}
 )
+
+
+########## Watchdog ###############
+# Feature for enabling  watchdog supervisor for RTOS
+IF (${TYPE} STREQUAL "CONTROLLER")
+    set(FTR_WATCHDOG 1)
+ELSE()
+    set(FTR_WATCHDOG 0)
+ENDIF()
+
+set(FEATURE_DEFINES ${FEATURE_DEFINES}
+    FTR_WATCHDOG=${FTR_WATCHDOG}
+)

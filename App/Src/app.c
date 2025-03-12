@@ -14,6 +14,8 @@
 # include "button.h"
 # include "led.h"
 
+#include "buzzer.h"
+
 #endif
 
 #if OS_BAREMETAL
@@ -27,6 +29,8 @@ uint32_t words[NUM_WORDS];
 
 void Controller_hearbeatTask(void *args)
 {
+	Buzzer_playBad();
+
 	while(1)
 	{
 		osDelay(500);

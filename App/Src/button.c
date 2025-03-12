@@ -69,7 +69,7 @@ static void inline Button_press(ButtonHandle handle)
 
 static void inline Button_release(ButtonHandle handle)
 {
-    LED_disable(LED_DEBUG_B);
+
 }
 
 static void inline Button_hold(ButtonHandle handle)
@@ -95,7 +95,8 @@ void Button_task(void *args)
             }
         }
 
-        osDelay(10);
+        Watchdog_tickle(THREAD_BUTTON);
+        osDelay(THREAD_BUTTON_PERIOD);
     }
 }
 

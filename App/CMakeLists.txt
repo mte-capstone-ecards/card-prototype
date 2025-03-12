@@ -42,6 +42,7 @@ IF (FTR_GUI)
 			${APP_DIR}/Src/gui.c
 			${APP_DIR}/Src/Games/games.c
 			${APP_DIR}/Src/Games/Hanabi.c
+			${APP_DIR}/Src/buzzer.c
 		)
 	ELSEIF (TYPE STREQUAL "CARD")
 		set (APP_SOURCES ${APP_SOURCES}
@@ -73,6 +74,14 @@ IF (FTR_DATARECEIVER)
 		${APP_DIR}/Src/card.c
 	)
 ENDIF()
+
+IF (FTR_WATCHDOG)
+	set (APP_SOURCES ${APP_SOURCES}
+		${APP_DIR}/Src/watchdog.c
+	)
+ENDIF()
+
+
 
 set (APP_SOURCES ${APP_SOURCES} PARENT_SCOPE)
 

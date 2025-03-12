@@ -664,6 +664,8 @@ void GUI_task(void *args)
 
     GUI_init();
 
+    volatile uint8_t x = 0;
+
     for (;;)
     {
         for (ButtonHandle handle = 0; handle < BUTTON_COUNT; handle++)
@@ -674,5 +676,9 @@ void GUI_task(void *args)
                 GUI_buttonCallback(handle, PRESS_SINGLE);
             }
         }
+
+        if (!x)
+            Watchdog_tickle(THREAD_GUI);
+        osDelay(THREAD_GUI_PERIOD);
     }
 }

@@ -27,6 +27,7 @@ typedef enum
     SENDER_STATE_CHECKING,
     SENDER_STATE_UPDATING,
     SENDER_STATE_ERROR,
+    SENDER_STATE_COOLDOWN,
 } SenderState;
 
 static struct {
@@ -86,7 +87,6 @@ void Sender_task(void *args)
                     break;
                 }
 
-                osDelay(10);
                 break;
 
             case SENDER_STATE_INIT:
@@ -126,7 +126,6 @@ void Sender_task(void *args)
                 }
 
                 Eeprom_writeNextHeader(SENDER_CHALLENGE_INSTR);
-                osDelay(25);
                 break;
 
             case SENDER_STATE_IDLE:
@@ -140,7 +139,9 @@ void Sender_task(void *args)
                     eeprom.senderHeader.num = sender.senderData.num;
                     Eeprom_writeNextHeader(SENDER_HANABI_INSTR);
 
-                    osDelay(5000);
+                    sender.initIndex = 0;
+                    sender.state = SENDER_STATE_COOLDOWN;
+                    break;
                 }
 #else
                 status = osMessageQueueGet(dataSenderQueueHandle, &sender.senderData, NULL, 10);
@@ -207,7 +208,6 @@ void Sender_task(void *args)
                     break;
                 }
 
-                osDelay(40);
                 break;
 
             case SENDER_STATE_RETRANSMITTING:
@@ -226,7 +226,6 @@ void Sender_task(void *args)
                 // Send a command requesting the device to update the display
                 if (!Eeprom_writeNextHeader(SENDER_UPDATE_INSTR))
                 {
-                    osDelay(25);
                     break;
                 }
 
@@ -234,7 +233,6 @@ void Sender_task(void *args)
                 while(eeprom.receiverHeader.instruction != RECEIVER_UPDATED)
                 {
                     Eeprom_readReceiverHeader();
-                    osDelay(25);
                 }
 
                 // It updated! We can send next ID and go back to idle.
@@ -257,7 +255,20 @@ void Sender_task(void *args)
                 osDelay(100);
 
                 break;
+
+            case SENDER_STATE_COOLDOWN:
+                sender.initIndex++;
+                if (sender.initIndex >= 32)
+                {
+                    memset(&sender, 0U, sizeof(sender));
+                    break;
+                }
+
+                break;
         }
+
+        Watchdog_tickle(THREAD_SENDER);
+        osDelay(THREAD_SENDER_PERIOD);
     }
 }
 

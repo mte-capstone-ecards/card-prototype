@@ -28,7 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -210,8 +210,10 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
-    HAL_GPIO_TogglePin(LED_DEBUG_B_GPIO_Port, LED_DEBUG_B_Pin);
     for(uint32_t x = 0; x < 64e6/50; x++);
+    LED_enableSolid(LED_NFC_WORKING);
+    for(uint32_t x = 0; x < 64e6/50; x++);
+    LED_disable(LED_NFC_WORKING);
   }
   /* USER CODE END Error_Handler_Debug */
 }

@@ -7,10 +7,8 @@
 #include <gpio.h>
 #include <stdbool.h>
 
-#define LED_TASK_FREQ 50 // [Hz]
-
 #define HZ_TO_TICK(hz)  ((uint32_t) (1000 / (hz)))
-#define HZ_TO_FREQ(hz)  (LED_TASK_FREQ / (hz))
+#define HZ_TO_FREQ(hz)  ((1000 / hz) / THREAD_LED_PERIOD)
 
 typedef struct {
     GPIO_TypeDef *port;
@@ -23,37 +21,22 @@ typedef struct {
 
 LED leds[LED_HANDLE_COUNT] = {
 #if BOARD(CONTROLLER, 1)
-    [LED_DISPLAY_R] = { // R11
-        .port   = LED_DISPLAY_R_GPIO_Port,
-        .pin    = LED_DISPLAY_R_Pin,
 
-        .clk        = 0,
-        .enabled    = false,
-    },
-    [LED_DISPLAY_B] = { // R10
+    [LED_DISPLAY_R] = { // R10
         .port   = LED_DISPLAY_B_GPIO_Port,
         .pin    = LED_DISPLAY_B_Pin,
 
         .clk        = 0,
         .enabled    = false,
     },
-    [LED_DEBUG_B] = { // TEMP
-    // [LED_NFC_WORKING] = { // R8
-        .port   = LED_DEBUG_R_GPIO_Port,
-        .pin    = LED_DEBUG_R_Pin,
+    [LED_DISPLAY_G] = { // R11
+        .port   = LED_DISPLAY_R_GPIO_Port,
+        .pin    = LED_DISPLAY_R_Pin,
 
         .clk        = 0,
         .enabled    = false,
     },
-    [LED_NFC_DONE] = { // R9
-        .port   = LED_DEBUG_G_GPIO_Port,
-        .pin    = LED_DEBUG_G_Pin,
-
-        .clk        = 0,
-        .enabled    = false,
-    },
-    // [LED_DEBUG_B] = { // R7
-    [LED_NFC_WORKING] = { // TEMP
+    [LED_DISPLAY_B] = { // TEMP
         .port   = LED_DEBUG_B_GPIO_Port,
         .pin    = LED_DEBUG_B_Pin,
 
@@ -78,6 +61,8 @@ void LED_enableSolid(LEDHandle handle)
     leds[handle].freq = 0;
     leds[handle].clk = 0;
     leds[handle].enabled = true;
+
+    HAL_GPIO_WritePin(leds[handle].port, leds[handle].pin, GPIO_PIN_SET);
 }
 
 void LED_enableHz(LEDHandle handle, uint16_t hz)
@@ -96,6 +81,8 @@ void LED_disable(LEDHandle handle)
 {
     leds[handle].enabled = false;
     leds[handle].freq = 0;
+
+    HAL_GPIO_WritePin(leds[handle].port, leds[handle].pin, GPIO_PIN_RESET);
 }
 
 void LED_task(void *args)
@@ -129,7 +116,8 @@ void LED_task(void *args)
             }
         }
 
-        osDelay(HZ_TO_TICK(LED_TASK_FREQ));
+        Watchdog_tickle(THREAD_LED);
+        osDelay(THREAD_LED_PERIOD);
     }
 }
 

@@ -326,7 +326,7 @@ void ST25R_task(void *arg)
 #endif
 
                 rfalFieldOff();                                                       /* Turn the Field Off powering down any device nearby */
-                platformDelay( 500 );                                                 /* Remain a certain period with field off */
+                platformDelay( 200 );                                                 /* Remain a certain period with field off */
 
                 st25r.state = ST25R_STATE_INIT;                              /* Restart the loop */
                 break;
@@ -335,10 +335,8 @@ void ST25R_task(void *arg)
                 break;
         }
 
-        // if (st25r.state == ST25R_STATE_INIT)
-        {
-            platformDelay(10);
-        }
+        Watchdog_tickle(THREAD_ST25R);
+        osDelay(THREAD_ST25R_PERIOD);
     }
 }
 
@@ -357,7 +355,8 @@ void ST25R_irqTask(void *arg)
             st25r3916Isr();
             st25r.irq = false;
         }
-        osDelay(100);
+        Watchdog_tickle(THREAD_ST25R_IRQ);
+        osDelay(THREAD_ST25R_IRQ_PERIOD);
     }
 }
 #endif

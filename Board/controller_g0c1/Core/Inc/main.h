@@ -92,8 +92,6 @@ void Error_Handler(void);
 #define LCD_CS_GPIO_Port GPIOC
 #define LCD_DC_Pin GPIO_PIN_5
 #define LCD_DC_GPIO_Port GPIOC
-#define BUZZER_OUT_Pin GPIO_PIN_0
-#define BUZZER_OUT_GPIO_Port GPIOB
 #define LCD_BRIGHTNESS_Pin GPIO_PIN_1
 #define LCD_BRIGHTNESS_GPIO_Port GPIOB
 #define USB_RX_Pin GPIO_PIN_10

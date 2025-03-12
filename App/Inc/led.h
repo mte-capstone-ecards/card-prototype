@@ -8,13 +8,14 @@ typedef enum {
     LED_HANDLE_INITIAL  = 0,
 
     LED_DISPLAY_R       = LED_HANDLE_INITIAL,
+    LED_DISPLAY_G,
     LED_DISPLAY_B,
 
-    LED_DEBUG_B,
-    LED_NFC_WORKING,
-    LED_NFC_DONE,
-
     LED_HANDLE_COUNT,
+
+    // Custom handles
+    LED_NFC_WORKING = LED_DISPLAY_R,
+    LED_WATCHDOG = LED_DISPLAY_G,
 } LEDHandle;
 
 void LED_enableSolid(LEDHandle handle);
