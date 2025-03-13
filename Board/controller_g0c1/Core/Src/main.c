@@ -22,6 +22,7 @@
 #include "adc.h"
 #include "i2c.h"
 #include "usart.h"
+#include "rng.h"
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
@@ -102,6 +103,7 @@ int main(void)
   MX_SPI3_Init();
   MX_TIM3_Init();
   MX_TIM14_Init();
+  MX_RNG_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

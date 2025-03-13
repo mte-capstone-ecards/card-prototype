@@ -6,6 +6,17 @@ set (APP_SOURCES ${APP_SOURCES}
 	${APP_DIR}/Src/app.c
 )
 
+IF (FTR_BIST)
+	IF (TYPE STREQUAL "CONTROLLER")
+		set (APP_SOURCES ${APP_SOURCES}
+		)
+	ELSEIF (TYPE STREQUAL "CARD")
+		set (APP_SOURCES ${APP_SOURCES}
+			${APP_DIR}/Src/card_bist.c
+		)
+	ENDIF()
+ENDIF()
+
 IF (FTR_LED)
 	set (APP_SOURCES ${APP_SOURCES}
 		${APP_DIR}/Src/led.c

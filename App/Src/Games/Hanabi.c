@@ -6,6 +6,7 @@
 #include "ugui_fonts.h"
 
 #include <string.h>
+#include <rng.h>
 
 #define FONT_12 FONT_7X12
 #define FONT_20 FONT_12X20
@@ -114,6 +115,9 @@ typedef struct
     Hanabi_ShapesDef shape;
 } Hanabi_card;
 
+#define HANABI_NUM_SHAPE_CARDS  (2 + 2 + 2 + 2+ 1)
+#define HANABI_DECK_SIZE        (SHAPE_COUNT * HANABI_NUM_SHAPE_CARDS)
+
 struct {
     uint8_t lives;
     uint8_t clues;
@@ -129,18 +133,74 @@ struct {
     DealData dealData;
     uint8_t numPlayerCards;
     Hanabi_card playerCards[HANABI_MAX_PLAYERS][5];
+
+    uint8_t topDeck;
+    Hanabi_card deck[HANABI_DECK_SIZE];
 } Hanabi_game;
+
+#define HANABI_MAX_CLUES    8
 
 /***************************************
             Game Logic
 ****************************************/
+
+static uint32_t Hanabi_proceduralRandomness(uint32_t num)
+{ // https://gist.github.com/badboy/6267743, Robert Jenkins' 32 bit integer hash function
+    num = (num + 0x7ed55d16) + (num << 12);
+    num = (num ^ 0xc761c23c) ^ (num >> 19);
+    num = (num + 0x165667b1) + (num << 5);
+    num = (num + 0xd3a2646c) ^ (num << 9);
+    num = (num + 0xfd7046c5) + (num << 3);
+    num = (num ^ 0xb55a4f09) ^ (num >> 16);
+    return num;
+}
+
+static void Hanabi_setupDeck(void)
+{
+    // Initialize to no drawn cards
+    Hanabi_game.topDeck = 0;
+
+    uint32_t random = 0;
+    while (HAL_RNG_GenerateRandomNumber(&hrng, &random) != HAL_OK)
+    {
+        osDelay(5);
+    }
+
+    // Initially populate the deck deterministically
+    uint8_t deal = 0;
+    for (Hanabi_ShapesDef shape = 0; shape < SHAPE_COUNT; shape++)
+    {
+        for (uint8_t num = 0; num < HANABI_NUM_SHAPE_CARDS; num++)
+        {
+            Hanabi_game.deck[deal].shape = shape;
+            Hanabi_game.deck[deal].num = num >> 1;
+
+            deal++;
+        }
+    }
+
+    // Now for a certain number of iterations, swap random cards
+    Hanabi_card tmp;
+    uint8_t cardA, cardB;
+    for (uint16_t iters = 0; iters < 500; iters++)
+    {
+        cardA = ((random >> 0) && 0xFF) % HANABI_DECK_SIZE;
+        cardB = ((random >> 8) && 0xFF) % HANABI_DECK_SIZE;
+
+        tmp = Hanabi_game.deck[cardA];
+        Hanabi_game.deck[cardA] = Hanabi_game.deck[cardB];
+        Hanabi_game.deck[cardB] = tmp;
+
+        random = Hanabi_proceduralRandomness(random);
+    }
+}
 
 static void Hanabi_gameInit(uint8_t numPlayers)
 {
     memset(&Hanabi_game, 0U, sizeof(Hanabi_game));
 
     Hanabi_game.lives = 3;
-    Hanabi_game.clues = 8;
+    Hanabi_game.clues = HANABI_MAX_CLUES;
 
     Hanabi_game.numPlayers = numPlayers;
     Hanabi_game.numPlayerCards = numPlayers >= 4 ? 4 : 5;
@@ -152,16 +212,15 @@ static void Hanabi_gameInit(uint8_t numPlayers)
     Hanabi_game.dealData.cardsLoaded = 0;
     Hanabi_game.dealData.currCard = 1;
     Hanabi_game.dealData.currPlayer = 1;
+
+    // Create deck
+    Hanabi_setupDeck();
 }
 
 static Hanabi_card Hanabi_dealCard(void)
 {
-    Hanabi_card card = {
-        .num = 3,
-        .shape = SHAPE_PLUS,
-    };
-
-    return card;
+    // TODO: Deal with empty deck
+    return Hanabi_game.deck[Hanabi_game.topDeck++];
 }
 
 static void Hanabi_endTurn()
@@ -194,19 +253,39 @@ void Hanabi_registerCard(uint32_t UUID)
 
 static void Hanabi_privatePlayCard(uint8_t player, uint8_t card)
 {
-    static uint8_t shape = 0;
-    static uint8_t num = 0;
+    if (player != Hanabi_game.turn)
+    {
+        return;
+    }
 
-    shape++;
-    num += 2;
+    Hanabi_card playCard = Hanabi_game.playerCards[player][card];
 
-    if (shape > 4)
-        shape = shape % 5;
-    if (num > 5)
-        num = num % 6;
+    if (Hanabi_game.cardMode == CARD_DISCARD)
+    {
+        if (Hanabi_game.clues == HANABI_MAX_CLUES)
+            return; // Can't discard when at max clues
 
-    Hanabi_game.playerCards[player][card].shape = shape;
-    Hanabi_game.playerCards[player][card].num = num;
+        Hanabi_game.clues++;
+    }
+    else if (Hanabi_game.cardMode == CARD_PLAY)
+    {
+        if (playCard.num == (Hanabi_game.table[playCard.shape] + 1))
+        {
+            // Succesful play!
+            Hanabi_game.table[playCard.shape]++;
+        }
+        else
+        {
+            // Unsucessful play!
+            Hanabi_game.lives--;
+
+            // TODO: Deal with no lives left
+        }
+    }
+
+    // TODO: Deal with situation of last card in the deck
+    Hanabi_game.playerCards[player][card] = Hanabi_dealCard();
+    Hanabi_endTurn();
 }
 
 void Hanabi_playCard(uint32_t UUID)
@@ -226,26 +305,21 @@ void Hanabi_playCard(uint32_t UUID)
 
 SenderDataSpec Hanabi_sendCard(uint32_t UUID)
 {
-    static SenderDataSpec data = {
-        .shape = SHAPE_PLUS,
-        .num = 3,
-    };
-    data.num = (data.num + 1) % 4;
+    static SenderDataSpec data = { 0U };
+
+    for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
+    {
+        for (uint8_t card = 0; card < Hanabi_game.numPlayerCards; card++)
+        {
+            if (Hanabi_game.playerCards[player][card].UUID == UUID)
+            {
+                data.shape = Hanabi_game.playerCards[player][card].shape;
+                data.num = Hanabi_game.playerCards[player][card].num;
+            }
+        }
+    }
+
     return data;
-
-    // for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
-    // {
-    //     for (uint8_t card = 0; card < Hanabi_game.numPlayerCards; card++)
-    //     {
-    //         if (Hanabi_game.playerCards[player][card].UUID == UUID)
-    //         {
-    //             data.shape = Hanabi_game.playerCards[player][card].shape;
-    //             data.num = Hanabi_game.playerCards[player][card].num;
-    //         }
-    //     }
-    // }
-
-    // return data;
 }
 
 /***************************************

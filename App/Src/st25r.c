@@ -227,7 +227,7 @@ static ReturnCode ST25R_Connected( void )
         else
             st25r.retries--;
 
-        HAL_Delay(10);
+        osDelay(10);
     }
 
     return ret;

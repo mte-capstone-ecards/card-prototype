@@ -11,6 +11,9 @@
             "displayName": "Default Config",
             "description": "Default build using Ninja generator",
             "generator": "Ninja",
+            "cacheVariables": {
+                "TEST": false
+            },
             "hidden": true
         },
         {
@@ -234,6 +237,19 @@
             ],
             "binaryDir": "${sourceDir}/Release/card/2",
             "description": "Release build for card rev 2 (L071)"
+        },
+        {
+            "name": "card2_bist",
+            "displayName": "Card Rev 2 BIST",
+            "inherits": [
+                "card2",
+                "debug"
+            ],
+            "cacheVariables": {
+                "TEST": true
+            },
+            "binaryDir": "${sourceDir}/Test/card/2",
+            "description": "Built in self test for card rev 2 (L071)"
         }
     ],
     "buildPresets": [

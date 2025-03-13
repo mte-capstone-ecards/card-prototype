@@ -175,3 +175,16 @@ ENDIF()
 set(FEATURE_DEFINES ${FEATURE_DEFINES}
     FTR_WATCHDOG=${FTR_WATCHDOG}
 )
+
+
+########## Watchdog ###############
+# Feature for enabling  watchdog supervisor for RTOS
+IF (${TEST})
+    set(FTR_BIST 1)
+ELSE()
+    set(FTR_BIST 0)
+ENDIF()
+
+set(FEATURE_DEFINES ${FEATURE_DEFINES}
+    FTR_BIST=${FTR_BIST}
+)

@@ -653,7 +653,9 @@ static void GUI_init()
     UG_Init(&gui, &device);
 
     GUI_constructMenus();
-    GUI_setMenu(MENU_MAIN);
+
+    Game_setMenu(GAME_HANABI, 3);
+    GUI_setMenu(MENU_GAME);
 
     return;
 }
@@ -663,8 +665,6 @@ void GUI_task(void *args)
     (void) args;
 
     GUI_init();
-
-    volatile uint8_t x = 0;
 
     for (;;)
     {
@@ -677,8 +677,7 @@ void GUI_task(void *args)
             }
         }
 
-        if (!x)
-            Watchdog_tickle(THREAD_GUI);
+        Watchdog_tickle(THREAD_GUI);
         osDelay(THREAD_GUI_PERIOD);
     }
 }

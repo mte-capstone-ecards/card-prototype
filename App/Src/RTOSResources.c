@@ -60,6 +60,7 @@ ThreadConfig threads[THREAD_COUNT] = {
     .name       = "watchdogTask",
     .stack_size = 128,
     .priority   = osPriorityHigh2,
+    .period     = THREAD_WATCHDOG_PERIOD
   },
 #endif
 #if FTR_LED

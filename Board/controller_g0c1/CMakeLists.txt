@@ -36,6 +36,7 @@ set (BOARD_SOURCES
     ${G0C1_DIR}/Core/Src/gpio.c
     ${G0C1_DIR}/Core/Src/i2c.c
     ${G0C1_DIR}/Core/Src/main.c
+    ${G0C1_DIR}/Core/Src/rng.c
     ${G0C1_DIR}/Core/Src/spi.c
     ${G0C1_DIR}/Core/Src/stm32g0xx_hal_msp.c
     ${G0C1_DIR}/Core/Src/stm32g0xx_hal_timebase_tim.c
@@ -62,6 +63,7 @@ set (BOARD_SOURCES
     ${G0C1_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr_ex.c
     ${G0C1_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc.c
     ${G0C1_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc_ex.c
+    ${G0C1_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rng.c
     ${G0C1_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_spi.c
     ${G0C1_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_spi_ex.c
     ${G0C1_DIR}/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_tim.c
