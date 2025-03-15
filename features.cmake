@@ -188,3 +188,16 @@ ENDIF()
 set(FEATURE_DEFINES ${FEATURE_DEFINES}
     FTR_BIST=${FTR_BIST}
 )
+
+
+########## Sim ###############
+# Feature indicating we are in sim mode
+IF (${SIM})
+    set(FTR_SIM 1)
+ELSE()
+    set(FTR_SIM 0)
+ENDIF()
+
+set(FEATURE_DEFINES ${FEATURE_DEFINES}
+    FTR_SIM=${FTR_SIM}
+)

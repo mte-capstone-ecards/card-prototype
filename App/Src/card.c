@@ -244,14 +244,8 @@ void Card_busyCallback(void)
     card.updated = true;
 }
 
-#if FTR_BIST
-void card_bist(void);
-#endif
 void card_main(void)
 {
-#if FTR_BIST
-    card_bist();
-#endif
     Card_initialize();
 
     for (;;)

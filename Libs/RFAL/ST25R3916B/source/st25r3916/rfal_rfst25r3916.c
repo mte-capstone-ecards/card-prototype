@@ -1539,7 +1539,6 @@ ReturnCode rfalTransceiveBlockingRx( void )
     do{
         rfalWorker();
         ret = rfalGetTransceiveStatus();
-        osDelay(
     }
     while( (rfalIsTransceiveInRx()) || (ret == RFAL_ERR_BUSY) );
 

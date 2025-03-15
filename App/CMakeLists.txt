@@ -15,6 +15,15 @@ IF (FTR_BIST)
 			${APP_DIR}/Src/card_bist.c
 		)
 	ENDIF()
+ELSE()
+	IF (TYPE STREQUAL "CONTROLLER")
+		set (APP_SOURCES ${APP_SOURCES}
+		)
+	ELSEIF (TYPE STREQUAL "CARD")
+		set (APP_SOURCES ${APP_SOURCES}
+		${APP_DIR}/Src/card.c
+		)
+	ENDIF()
 ENDIF()
 
 IF (FTR_LED)
@@ -77,12 +86,6 @@ ENDIF()
 IF (FTR_DATASENDER)
 	set (APP_SOURCES ${APP_SOURCES}
 		${APP_DIR}/Src/sender.c
-	)
-ENDIF()
-
-IF (FTR_DATARECEIVER)
-	set (APP_SOURCES ${APP_SOURCES}
-		${APP_DIR}/Src/card.c
 	)
 ENDIF()
 

@@ -9,7 +9,8 @@
 RemoteSystemsTempFiles/
 .settings/
 Debug/
-Release
+Release/
+Test/
 *.launch
 
 # STM32 git ignore

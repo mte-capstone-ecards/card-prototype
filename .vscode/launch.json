@@ -5,26 +5,24 @@
             "name": "STLink Debug",
             "type": "cortex-debug",
             "request": "launch",
-            // Resolved by CMake Tools:
             "executable": "${command:cmake.launchTargetPath}",
             "svdFile": "${command:cmake.getLaunchTargetDirectory}/device.svd",
-            "servertype": "stlink",
+            "servertype": "stlink"
         },
         {
-            "name": "Picoprobe Debug",
-            "type": "cortex-debug",
+            "name": "Sim Debug",
+            "type": "cppdbg",
             "request": "launch",
-            "servertype": "openocd",
-            "gdbTarget": "localhost:3333",
-            "configFiles": [
-                "interface/cmsis-dap.cfg",
-                "target/stm32l0.cfg"
-            ],
-            "showDevDebugOutput": "raw",
-
-            // Resolved by CMake Tools:
-            "executable": "${command:cmake.launchTargetPath}",
-            "svdFile": "${command:cmake.getLaunchTargetDirectory}/device.svd",
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/Strawberry/c/bin/gdb.exe",
+            "program": "${command:cmake.launchTargetPath}",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+            ]
         },
-    ]
 }

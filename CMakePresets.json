@@ -10,9 +10,11 @@
             "name": "default",
             "displayName": "Default Config",
             "description": "Default build using Ninja generator",
+            "toolchainFile": "${sourceDir}/gcc.cmake",
             "generator": "Ninja",
             "cacheVariables": {
-                "TEST": false
+                "TEST": false,
+                "SIM": false
             },
             "hidden": true
         },
@@ -250,6 +252,22 @@
             },
             "binaryDir": "${sourceDir}/Test/card/2",
             "description": "Built in self test for card rev 2 (L071)"
+        },
+
+        {
+            "name": "controller_sim",
+            "displayName": "Controller Sim",
+            "inherits": [
+                "default",
+                "debug",
+                "controller"
+            ],
+            "cacheVariables": {
+                "SIM": true,
+                "REV": "2"
+            },
+            "binaryDir": "${sourceDir}/Debug/sim",
+            "description": "Simulation build for testing game logic"
         }
     ],
     "buildPresets": [
@@ -302,6 +320,11 @@
             "name": "card2_release",
             "displayName": "Card Rev 2 Release",
             "configurePreset": "card2_release"
+        },
+        {
+            "name": "controller_sim",
+            "displayName": "Controller Sim",
+            "configurePreset": "controller_sim"
         }
     ]
 }

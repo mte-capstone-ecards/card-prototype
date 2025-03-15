@@ -94,6 +94,7 @@ bool Eeprom_waiting(void);
 bool Eeprom_writeNextHeader(Instruction instruction);
 bool Eeprom_readSenderHeader(void);
 bool Eeprom_readReceiverHeader(void);
+bool Eeprom_readUUID(void);
 bool Eeprom_partnerUpdated(void);
 bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len);
 

@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <rng.h>
+#include <cmsis_os.h>
 
 #define FONT_12 FONT_7X12
 #define FONT_20 FONT_12X20
@@ -165,6 +166,7 @@ static void Hanabi_setupDeck(void)
     {
         osDelay(5);
     }
+    random = Hanabi_proceduralRandomness(random);
 
     // Initially populate the deck deterministically
     uint8_t deal = 0;
@@ -173,19 +175,18 @@ static void Hanabi_setupDeck(void)
         for (uint8_t num = 0; num < HANABI_NUM_SHAPE_CARDS; num++)
         {
             Hanabi_game.deck[deal].shape = shape;
-            Hanabi_game.deck[deal].num = num >> 1;
+            Hanabi_game.deck[deal].num = 1 + (num >> 1);
 
             deal++;
         }
     }
 
-    // Now for a certain number of iterations, swap random cards
+    // Perform a Fisher-Yates shuffle
     Hanabi_card tmp;
     uint8_t cardA, cardB;
-    for (uint16_t iters = 0; iters < 500; iters++)
+    for (uint16_t cardA = HANABI_DECK_SIZE - 1; cardA > 0; cardA--)
     {
-        cardA = ((random >> 0) && 0xFF) % HANABI_DECK_SIZE;
-        cardB = ((random >> 8) && 0xFF) % HANABI_DECK_SIZE;
+        cardB = random % (cardA + 1);
 
         tmp = Hanabi_game.deck[cardA];
         Hanabi_game.deck[cardA] = Hanabi_game.deck[cardB];
@@ -233,6 +234,11 @@ static void Hanabi_endTurn()
 DealData Hanabi_getDealData(void)
 {
     return Hanabi_game.dealData;
+}
+
+uint8_t *Hanabi_getTable(void)
+{
+    return Hanabi_game.table;
 }
 
 void Hanabi_registerCard(uint32_t UUID)
@@ -284,7 +290,9 @@ static void Hanabi_privatePlayCard(uint8_t player, uint8_t card)
     }
 
     // TODO: Deal with situation of last card in the deck
-    Hanabi_game.playerCards[player][card] = Hanabi_dealCard();
+    Hanabi_card newCard = Hanabi_dealCard();
+    Hanabi_game.playerCards[player][card].shape = newCard.shape;
+    Hanabi_game.playerCards[player][card].num = newCard.num;
     Hanabi_endTurn();
 }
 
@@ -305,7 +313,7 @@ void Hanabi_playCard(uint32_t UUID)
 
 SenderDataSpec Hanabi_sendCard(uint32_t UUID)
 {
-    static SenderDataSpec data = { 0U };
+    SenderDataSpec data = { 0U };
 
     for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
     {

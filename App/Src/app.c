@@ -20,6 +20,15 @@
 
 #if OS_BAREMETAL
 
+void app_main(void)
+{
+#if FTR_BIST
+	card_bist();
+#else
+	card_main();
+#endif
+}
+
 #elif OS_FREERTOS
 extern uint32_t period;
 uint32_t period = 20;

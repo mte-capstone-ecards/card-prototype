@@ -162,6 +162,11 @@ bool Eeprom_readReceiverHeader()
     return Eeprom_readBlock(1, (uint32_t *) &eeprom.receiverHeader);
 }
 
+bool Eeprom_readUUID()
+{
+    return Eeprom_readBlock(2, (uint32_t *) &eeprom.UUID);
+}
+
 bool Eeprom_partnerUpdated()
 {
 #if FTR_DATASENDER

@@ -9,5 +9,7 @@
 
 void Controller_hearbeatTask(void *);
 #else
+void app_main(void);
 void card_main(void);
+void card_bist(void);
 #endif

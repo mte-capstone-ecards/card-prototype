@@ -14,6 +14,7 @@ void Hanabi_updateMenu(void);
 void Hanabi_buttonCallback(ButtonHandle button, PressType type);
 
 DealData Hanabi_getDealData(void);
+uint8_t *Hanabi_getTable(void);
 void Hanabi_registerCard(uint32_t UUID);
 void Hanabi_playCard(uint32_t UUID);
 SenderDataSpec Hanabi_sendCard(uint32_t UUID);
