@@ -78,7 +78,7 @@ target_include_directories (${PROJECT_NAME} PRIVATE
 
 IF (NOT FTR_SIM)
 	set (CMAKE_EXECUTABLE_SUFFIX ".elf")
-	set (CMAKE_C_FLAGS "${MCPU} ${MFPU} ${MFLOAT_ABI} ${RUNTIME_LIBRARY} -mthumb")
+	set (CMAKE_C_FLAGS "${MCPU} ${MFPU} ${MFLOAT_ABI} ${RUNTIME_LIBRARY} -mthumb ")
 	set (CMAKE_EXE_LINKER_FLAGS "-T\"${LINKER_SCRIPT}\" ${RUNTIME_LIBRARY_SYSCALLS} -Wl,--gc-sections -static -Wl,--start-group -lc -lm -Wl,--end-group -Wl,-Map=${CMAKE_PROJECT_NAME}.map")
 	set (CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
 ELSE()
@@ -88,7 +88,7 @@ ELSE()
 	set (CMAKE_ASM_FLAGS "")
 ENDIF()
 
-set (CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-std=gnu11 -Wall -Wno-unused -Werror -fmax-errors=5")
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -Wall -Wno-unused -Werror -fmax-errors=5")
 
 set(DEBUG_OPTIONS "-Og")
 set(RELEASE_OPTIONS "-O3")

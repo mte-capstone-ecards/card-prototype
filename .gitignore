@@ -3,6 +3,7 @@
 # Ignore vscode settings except the launch files
 .vscode/*
 !.vscode/launch.json
+!.vscode/settings.json
 
 # eclipse specific git ignore
 .metadata/
