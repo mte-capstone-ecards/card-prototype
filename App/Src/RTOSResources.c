@@ -58,7 +58,7 @@ ThreadConfig threads[THREAD_COUNT] = {
   [THREAD_WATCHDOG] = {
     .task       = Watchdog_task,
     .name       = "watchdogTask",
-    .stack_size = 128,
+    .stack_size = 128 * 2,
     .priority   = osPriorityHigh2,
     .period     = THREAD_WATCHDOG_PERIOD
   },

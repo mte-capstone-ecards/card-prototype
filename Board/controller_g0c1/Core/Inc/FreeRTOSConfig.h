@@ -147,6 +147,8 @@ standard names. */
 #undef configTOTAL_HEAP_SIZE
 #define configTOTAL_HEAP_SIZE ((size_t)3072*2)
 
+#define configRECORD_STACK_HIGH_ADDRESS 1U
+
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */
