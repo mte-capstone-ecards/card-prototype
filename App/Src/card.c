@@ -68,6 +68,7 @@ static void GUI_flush(void)
 }
 
 #define FONT_12 FONT_7X12
+#define FONT_16 FONT_10X16
 #define FONT_20 FONT_12X20
 
 UG_GUI gui;
@@ -80,11 +81,13 @@ UG_DEVICE device = {
 
 UG_WINDOW Card_window;
 
-#define CARD_NUM_OBJECTS 6
+#define CARD_NUM_OBJECTS 11
 UG_OBJECT Card_objects[CARD_NUM_OBJECTS];
 
 UG_TEXTBOX Card_shape[5];
 UG_TEXTBOX Card_num;
+
+UG_TEXTBOX Card_strings[5];
 
 char *Card_shapeLabelMajor[] = {
     "*******",
@@ -130,6 +133,12 @@ static void Card_loadCard()
     UG_TextboxSetText(&Card_window, OBJ_ID_4, Card_shapeLabelMajor[cardData.shape]);
     UG_TextboxSetText(&Card_window, OBJ_ID_5, Card_nums[cardData.num]);
 
+    UG_TextboxSetText(&Card_window, OBJ_ID_6, "");
+    UG_TextboxSetText(&Card_window, OBJ_ID_7, "");
+    UG_TextboxSetText(&Card_window, OBJ_ID_8, "");
+    UG_TextboxSetText(&Card_window, OBJ_ID_9, "");
+    UG_TextboxSetText(&Card_window, OBJ_ID_9, "");
+
     UG_WindowShow(&Card_window);
     UG_Update();
 }
@@ -138,14 +147,28 @@ static void Card_loadString()
 {
     static char cardData[255];
 
-    Eeprom_readData(0, eeprom.senderHeader.datalen, (uint32_t *) cardData);
+    struct {
+        uint8_t index0;
+        uint8_t index1;
+        uint8_t index2;
+        uint8_t index3;
+    } indices;
 
-    UG_TextboxSetText(&Card_window, OBJ_ID_0, cardData);
+    Eeprom_readData(0, 1, (uint32_t *) &indices);
+    Eeprom_readData(1, eeprom.senderHeader.datalen, (uint32_t *) cardData);
+
+    UG_TextboxSetText(&Card_window, OBJ_ID_0, "");
     UG_TextboxSetText(&Card_window, OBJ_ID_1, "");
     UG_TextboxSetText(&Card_window, OBJ_ID_2, "");
     UG_TextboxSetText(&Card_window, OBJ_ID_3, "");
     UG_TextboxSetText(&Card_window, OBJ_ID_4, "");
     UG_TextboxSetText(&Card_window, OBJ_ID_5, "");
+
+    UG_TextboxSetText(&Card_window, OBJ_ID_6, &cardData[indices.index0]);
+    UG_TextboxSetText(&Card_window, OBJ_ID_7, &cardData[indices.index1]);
+    UG_TextboxSetText(&Card_window, OBJ_ID_8, &cardData[indices.index2]);
+    UG_TextboxSetText(&Card_window, OBJ_ID_9, &cardData[indices.index3]);
+    UG_TextboxSetText(&Card_window, OBJ_ID_10, "");
 
     UG_WindowShow(&Card_window);
     UG_Update();
@@ -189,9 +212,40 @@ static void Card_constructHanabi(void)
     UG_TextboxSetText(&Card_window, OBJ_ID_5, "");
     UG_TextboxSetBackColor(&Card_window, OBJ_ID_5, C_NONE);
 
+    UG_TextboxCreate(&Card_window, &Card_strings[0], OBJ_ID_6 + 0, UGUI_POS(15, 10 + (18 + 2) * 0, 215, 18));
+    UG_TextboxSetFont(&Card_window, OBJ_ID_6 + 0, FONT_16);
+    UG_TextboxSetText(&Card_window, OBJ_ID_6 + 0, "");
+    UG_TextboxSetBackColor(&Card_window, OBJ_ID_6 + 0, C_NONE);
+    UG_TextboxSetAlignment(&Card_window, OBJ_ID_6 + 0, ALIGN_CENTER_LEFT);
+
+    UG_TextboxCreate(&Card_window, &Card_strings[1], OBJ_ID_6 + 1, UGUI_POS(15, 10 + (18 + 2) * 1, 215, 18));
+    UG_TextboxSetFont(&Card_window, OBJ_ID_6 + 1, FONT_16);
+    UG_TextboxSetText(&Card_window, OBJ_ID_6 + 1, "");
+    UG_TextboxSetBackColor(&Card_window, OBJ_ID_6 + 1, C_NONE);
+    UG_TextboxSetAlignment(&Card_window, OBJ_ID_6 + 1, ALIGN_CENTER_LEFT);
+
+    UG_TextboxCreate(&Card_window, &Card_strings[2], OBJ_ID_6 + 2, UGUI_POS(15, 10 + (18 + 2) * 2, 215, 18));
+    UG_TextboxSetFont(&Card_window, OBJ_ID_6 + 2, FONT_16);
+    UG_TextboxSetText(&Card_window, OBJ_ID_6 + 2, "");
+    UG_TextboxSetBackColor(&Card_window, OBJ_ID_6 + 2, C_NONE);
+    UG_TextboxSetAlignment(&Card_window, OBJ_ID_6 + 2, ALIGN_CENTER_LEFT);
+
+    UG_TextboxCreate(&Card_window, &Card_strings[3], OBJ_ID_6 + 3, UGUI_POS(15, 10 + (18 + 2) * 3, 215, 18));
+    UG_TextboxSetFont(&Card_window, OBJ_ID_6 + 3, FONT_16);
+    UG_TextboxSetText(&Card_window, OBJ_ID_6 + 3, "");
+    UG_TextboxSetBackColor(&Card_window, OBJ_ID_6 + 3, C_NONE);
+    UG_TextboxSetAlignment(&Card_window, OBJ_ID_6 + 3, ALIGN_CENTER_LEFT);
+
+    UG_TextboxCreate(&Card_window, &Card_strings[4], OBJ_ID_6 + 4, UGUI_POS(15, 10 + (18 + 2) * 4, 215, 18));
+    UG_TextboxSetFont(&Card_window, OBJ_ID_6 + 4, FONT_16);
+    UG_TextboxSetText(&Card_window, OBJ_ID_6 + 4, "");
+    UG_TextboxSetBackColor(&Card_window, OBJ_ID_6 + 4, C_NONE);
+    UG_TextboxSetAlignment(&Card_window, OBJ_ID_6 + 4, ALIGN_CENTER_LEFT);
+
     // Enable if we want power on update
-    memset(card.buf, 0x00, sizeof(EPDBuf));
-    GUI_flush();
+    // memset(card.buf, 0x00, sizeof(EPDBuf));
+    // UG_WindowShow(&Card_window);
+    // UG_Update();
 }
 #endif
 

@@ -5,6 +5,7 @@
 #include "ugui_fonts.h"
 
 #define FONT_12 FONT_7X12
+#define FONT_16 FONT_10X16
 #define FONT_20 FONT_12X20
 
 void GUI_task(void*);
