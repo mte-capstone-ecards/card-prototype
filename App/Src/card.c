@@ -103,23 +103,49 @@ char *Card_shapeLabelMinor[] = {
 };
 
 char *Card_nums[] = {
-    "0", "1", "2", "3", "4", "5"
+    "A", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", " ", "X", "O"
 };
 
 void Card_shapeDraw(UG_MESSAGE *msg)
 {
+    // Border
     UG_DrawFrame(UGUI_POS(2, 2, EINK_SCREEN_SIZE_H - 4, EINK_SCREEN_SIZE_V - 4), C_BLACK);
     UG_DrawFrame(UGUI_POS(8, 8, EINK_SCREEN_SIZE_H - 16, EINK_SCREEN_SIZE_V - 16), C_BLACK);
 }
 
-static void Card_pickCard(uint8_t shape, uint8_t num)
+static void Card_loadCard()
 {
-    UG_TextboxSetText(&Card_window, OBJ_ID_0, Card_shapeLabelMajor[shape]);
-    UG_TextboxSetText(&Card_window, OBJ_ID_1, Card_shapeLabelMinor[shape]);
-    UG_TextboxSetText(&Card_window, OBJ_ID_2, Card_shapeLabelMinor[shape]);
-    UG_TextboxSetText(&Card_window, OBJ_ID_3, Card_shapeLabelMinor[shape]);
-    UG_TextboxSetText(&Card_window, OBJ_ID_4, Card_shapeLabelMajor[shape]);
-    UG_TextboxSetText(&Card_window, OBJ_ID_5, Card_nums[num]);
+    struct {
+        uint8_t shape;
+        uint8_t num;
+        uint8_t dummy[2];
+    } cardData;
+
+    Eeprom_readData(0, 1, (uint32_t *) &cardData);
+
+    UG_TextboxSetText(&Card_window, OBJ_ID_0, Card_shapeLabelMajor[cardData.shape]);
+    UG_TextboxSetText(&Card_window, OBJ_ID_1, Card_shapeLabelMinor[cardData.shape]);
+    UG_TextboxSetText(&Card_window, OBJ_ID_2, Card_shapeLabelMinor[cardData.shape]);
+    UG_TextboxSetText(&Card_window, OBJ_ID_3, Card_shapeLabelMinor[cardData.shape]);
+    UG_TextboxSetText(&Card_window, OBJ_ID_4, Card_shapeLabelMajor[cardData.shape]);
+    UG_TextboxSetText(&Card_window, OBJ_ID_5, Card_nums[cardData.num]);
+
+    UG_WindowShow(&Card_window);
+    UG_Update();
+}
+
+static void Card_loadString()
+{
+    static char cardData[255];
+
+    Eeprom_readData(0, eeprom.senderHeader.datalen, (uint32_t *) cardData);
+
+    UG_TextboxSetText(&Card_window, OBJ_ID_0, cardData);
+    UG_TextboxSetText(&Card_window, OBJ_ID_1, "");
+    UG_TextboxSetText(&Card_window, OBJ_ID_2, "");
+    UG_TextboxSetText(&Card_window, OBJ_ID_3, "");
+    UG_TextboxSetText(&Card_window, OBJ_ID_4, "");
+    UG_TextboxSetText(&Card_window, OBJ_ID_5, "");
 
     UG_WindowShow(&Card_window);
     UG_Update();
@@ -164,6 +190,7 @@ static void Card_constructHanabi(void)
     UG_TextboxSetBackColor(&Card_window, OBJ_ID_5, C_NONE);
 
     // Enable if we want power on update
+    memset(card.buf, 0x00, sizeof(EPDBuf));
     GUI_flush();
 }
 #endif
@@ -298,7 +325,13 @@ void card_main(void)
                         case SENDER_HANABI_INSTR:
                             // Handle a hanabi specific instruction
                             // Update card for Hanabi
-                            Card_pickCard(eeprom.senderHeader.shape, eeprom.senderHeader.num);
+                            Card_loadCard();
+                            Card_transmitHeader(RECEIVER_NULL);
+
+                            break;
+
+                        case SENDER_STRING_INSTR:
+                            Card_loadString();
                             Card_transmitHeader(RECEIVER_NULL);
 
                             break;

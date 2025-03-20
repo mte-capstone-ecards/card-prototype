@@ -1,5 +1,5 @@
 {
-    "cortex-debug.variableUseNaturalFormat": true,
+    "cortex-debug.variableUseNaturalFormat": false,
     "cmake.options.statusBarVisibility": "hidden",
     "cmake.options.advanced":{
         "configurePreset": {

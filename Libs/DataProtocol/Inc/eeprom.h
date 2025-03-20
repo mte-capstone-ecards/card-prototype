@@ -14,6 +14,8 @@ typedef enum __attribute__ ((__packed__)) {
     SENDER_DATA_INSTR,
     SENDER_UPDATE_INSTR,
     SENDER_HANABI_INSTR,
+    SENDER_CARD_INSTR,
+    SENDER_STRING_INSTR,
 } SenderInstruction;
 
 typedef enum __attribute__ ((__packed__)) {
@@ -41,13 +43,9 @@ typedef struct {
     uint8_t seqNum;
     SenderInstruction instruction;
 
-#if FORCE_HANABI
-    uint8_t shape;
-    uint8_t num;
-#else
-    uint8_t dummy[2];
-#endif
+    uint8_t datalen;
 
+    uint8_t dummy[1];
 } SenderHeader;
 
 typedef struct {
@@ -97,5 +95,6 @@ bool Eeprom_readReceiverHeader(void);
 bool Eeprom_readUUID(void);
 bool Eeprom_partnerUpdated(void);
 bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len);
+bool Eeprom_readData(uint8_t dataAddr, uint16_t len, uint32_t *readLoc);
 
 #endif

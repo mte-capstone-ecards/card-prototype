@@ -3,14 +3,10 @@
 #include "games.h"
 #include "gui.h"
 #include "ugui.h"
-#include "ugui_fonts.h"
 
 #include <string.h>
 #include <rng.h>
 #include <cmsis_os.h>
-
-#define FONT_12 FONT_7X12
-#define FONT_20 FONT_12X20
 
 UG_WINDOW Hanabi_window;
 

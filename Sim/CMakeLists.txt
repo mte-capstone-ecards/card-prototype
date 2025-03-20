@@ -5,6 +5,7 @@ set(APP_DIR ${CMAKE_SOURCE_DIR}/App)
 set (SIM_SOURCES ${SIM_SOURCES}
     ${SIM_DIR}/Src/sim.c
     ${APP_DIR}/Src/Games/Hanabi.c
+    ${APP_DIR}/Src/Games/CardDeck.c
 PARENT_SCOPE)
 
 set (SIM_INCLUDES

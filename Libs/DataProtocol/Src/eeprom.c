@@ -180,10 +180,15 @@ bool Eeprom_writeData(uint8_t dataAddr, uint32_t *data, uint16_t len)
 {
     for (uint16_t i = 0; i < len; i++)
     {
-        if (!Eeprom_writeBlock(2 + dataAddr + i, data[i]))
+        if (!Eeprom_writeBlock(3 + dataAddr + i, data[i]))
             return false;
     }
     return true;
+}
+
+bool Eeprom_readData(uint8_t dataAddr, uint16_t len, uint32_t *readLoc)
+{
+    return Eeprom_readBlocks(3 + dataAddr, len, readLoc);
 }
 
 #endif

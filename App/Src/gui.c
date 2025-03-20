@@ -1,3 +1,4 @@
+#include "gui.h"
 
 #include "app.h"
 #include "ugui.h"
@@ -46,10 +47,6 @@ static void GUI_flush(void)
 /***************************************
             UGui
 ****************************************/
-// TODO: Trim fonts to only have upper case letters
-#define FONT_12 FONT_7X12
-#define FONT_20 FONT_12X20
-
 UG_GUI gui;
 UG_DEVICE device = {
     .x_dim = EINK_SCREEN_SIZE_V,
