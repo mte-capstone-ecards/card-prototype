@@ -228,6 +228,7 @@ static ReturnCode ST25R_Connected( void )
             st25r.retries--;
 
         osDelay(10);
+        Watchdog_tickle(THREAD_ST25R);
     }
 
     return ret;
@@ -326,7 +327,14 @@ void ST25R_task(void *arg)
 #endif
 
                 rfalFieldOff();                                                       /* Turn the Field Off powering down any device nearby */
-                platformDelay( 200 );                                                 /* Remain a certain period with field off */
+                // platformDelay( 200 );                                                 /* Remain a certain period with field off */
+                st25r.retries = 10;
+                while(st25r.retries > 0)
+                {
+                    Watchdog_tickle(THREAD_ST25R);
+                    platformDelay(20);
+                    st25r.retries--;
+                }
 
                 st25r.state = ST25R_STATE_INIT;                              /* Restart the loop */
                 break;
