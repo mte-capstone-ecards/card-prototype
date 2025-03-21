@@ -660,7 +660,7 @@ static void GUI_init()
     GUI_constructMenus();
 
     // Game_setMenu(GAME_HANABI, 2);
-    // GUI_selectedGame = GAME_HANABI;
+    // GUI_selectedGame = GAME_CARDSVSHUMANITY;
     // PlayerSelect_players = 2;
 
     // GUI_setMenu(MENU_CARD_LOAD);

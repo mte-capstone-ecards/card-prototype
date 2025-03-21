@@ -17,8 +17,8 @@ typedef struct
 
         struct {
             uint8_t indices[4];
-            uint8_t len;
             char str[255];
+            uint8_t len;
         } string;
     };
 } SenderDataSpec;

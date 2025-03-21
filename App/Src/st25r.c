@@ -267,39 +267,89 @@ static ReturnCode ST25R_code( void )
             SenderHeader header;
         } senderHeader;
 
-        struct {
-            uint8_t shape;
-            uint8_t num;
-            uint8_t dummy[2];
-        } cardData = {
-            .shape = spec.card.suit,
-            .num = spec.card.num,
-        };
-
-
-        uint32_t msg = *(uint32_t *) &cardData;
-
-        senderHeader.header.instruction = SENDER_HANABI_INSTR;
-        senderHeader.header.seqNum = readerData.header.seqNum + 1;
-
-        st25r.nextCommand.cmd = NFC_COMMAND_WRITE_SINGLE_BLOCK;
-        st25r.nextCommand.writeSingleCmd.addr = 3;
-        st25r.nextCommand.writeSingleCmd.data = msg;
-
-        ret = ST25R_dispatchCommand();
-        if (ret != RFAL_ERR_NONE)
+        if (spec.instr == SENDER_HANABI_INSTR)
         {
-            return ret;
+            struct {
+                uint8_t shape;
+                uint8_t num;
+                uint8_t dummy[2];
+            } cardData = {
+                .shape = spec.card.suit,
+                .num = spec.card.num,
+            };
+
+
+            uint32_t msg = *(uint32_t *) &cardData;
+
+            senderHeader.header.instruction = SENDER_HANABI_INSTR;
+            senderHeader.header.seqNum = readerData.header.seqNum + 1;
+
+            st25r.nextCommand.cmd = NFC_COMMAND_WRITE_SINGLE_BLOCK;
+            st25r.nextCommand.writeSingleCmd.addr = 3;
+            st25r.nextCommand.writeSingleCmd.data = msg;
+
+            ret = ST25R_dispatchCommand();
+            if (ret != RFAL_ERR_NONE)
+            {
+                return ret;
+            }
+
+            st25r.nextCommand.cmd = NFC_COMMAND_WRITE_SINGLE_BLOCK;
+            st25r.nextCommand.writeSingleCmd.addr = 0;
+            st25r.nextCommand.writeSingleCmd.data = senderHeader.raw;
+
+            ret = ST25R_dispatchCommand();
+            if (ret != RFAL_ERR_NONE)
+            {
+                return ret;
+            }
         }
-
-        st25r.nextCommand.cmd = NFC_COMMAND_WRITE_SINGLE_BLOCK;
-        st25r.nextCommand.writeSingleCmd.addr = 0;
-        st25r.nextCommand.writeSingleCmd.data = senderHeader.raw;
-
-        ret = ST25R_dispatchCommand();
-        if (ret != RFAL_ERR_NONE)
+        else if (spec.instr == SENDER_STRING_INSTR)
         {
-            return ret;
+            uint32_t msg = *(uint32_t *) spec.string.indices;
+
+            senderHeader.header.instruction = SENDER_STRING_INSTR;
+            senderHeader.header.seqNum = readerData.header.seqNum + 1;
+            senderHeader.header.datalen = spec.string.len;
+
+            st25r.nextCommand.cmd = NFC_COMMAND_WRITE_SINGLE_BLOCK;
+            st25r.nextCommand.writeSingleCmd.addr = 3;
+            st25r.nextCommand.writeSingleCmd.data = msg;
+
+            ret = ST25R_dispatchCommand();
+            if (ret != RFAL_ERR_NONE)
+            {
+                return ret;
+            }
+
+            for (uint8_t i = 0; i < spec.string.len; i++)
+            {
+                st25r.nextCommand.cmd = NFC_COMMAND_WRITE_SINGLE_BLOCK;
+                st25r.nextCommand.writeSingleCmd.addr = 4 + i;
+                st25r.nextCommand.writeSingleCmd.data = (
+                    (spec.string.str[4 * i + 0] << 0U) |
+                    (spec.string.str[4 * i + 1] << 8U) |
+                    (spec.string.str[4 * i + 2] << 16U) |
+                    (spec.string.str[4 * i + 3] << 24U)
+                );
+
+                ret = ST25R_dispatchCommand();
+                if (ret != RFAL_ERR_NONE)
+                {
+                    return ret;
+                }
+            }
+
+            st25r.nextCommand.cmd = NFC_COMMAND_WRITE_SINGLE_BLOCK;
+            st25r.nextCommand.writeSingleCmd.addr = 0;
+            st25r.nextCommand.writeSingleCmd.data = senderHeader.raw;
+
+            ret = ST25R_dispatchCommand();
+            if (ret != RFAL_ERR_NONE)
+            {
+                return ret;
+            }
+
         }
 
         extern bool guiNeedsUpdated;

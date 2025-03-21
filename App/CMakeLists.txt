@@ -63,6 +63,8 @@ IF (FTR_GUI)
 			${APP_DIR}/Src/Games/games.c
 			${APP_DIR}/Src/Games/Hanabi.c
 			${APP_DIR}/Src/Games/CardDeck.c
+			${APP_DIR}/Src/Games/Humanity.c
+			${APP_DIR}/Src/Games/HumanityQuotes.c
 			${APP_DIR}/Src/buzzer.c
 		)
 	ELSEIF (TYPE STREQUAL "CARD")
