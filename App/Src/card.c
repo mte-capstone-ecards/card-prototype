@@ -347,7 +347,10 @@ void card_main(void)
             case CARD_STATE_IDLE:
                 // Wait until we receive a message
                 if (!card.updated)
+                {
+                    HAL_Delay(50);
                     break;
+                }
 
                 card.updated = false;
                 Eeprom_readSenderHeader();

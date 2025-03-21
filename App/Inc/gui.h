@@ -16,4 +16,4 @@ void GUI_unhighlightButton(UG_WINDOW *wnd, UG_U8 id);
 void GUI_buttonCallback(ButtonHandle button, PressType type);
 void GUI_updateCurrentMenu(void);
 
-void GUI_cardTap(uint32_t UUID);
+bool GUI_cardTap(uint32_t UUID);

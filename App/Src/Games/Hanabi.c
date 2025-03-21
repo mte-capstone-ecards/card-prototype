@@ -309,7 +309,15 @@ void Hanabi_playCard(uint32_t UUID)
 
 SenderDataSpec Hanabi_sendCard(uint32_t UUID)
 {
-    SenderDataSpec data = { 0U };
+    // Default to a clear command
+    SenderDataSpec data = {
+        .instr = SENDER_STRING_INSTR,
+        .string = {
+            .indices = { 0U },
+            .len = 1,
+            .str = { 0U },
+        },
+    };
 
     for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
     {
@@ -317,8 +325,9 @@ SenderDataSpec Hanabi_sendCard(uint32_t UUID)
         {
             if (Hanabi_game.playerCards[player][card].UUID == UUID)
             {
-                data.shape = Hanabi_game.playerCards[player][card].shape;
-                data.num = Hanabi_game.playerCards[player][card].num;
+                data.instr = SENDER_HANABI_INSTR;
+                data.card.suit = Hanabi_game.playerCards[player][card].shape;
+                data.card.num = Hanabi_game.playerCards[player][card].num;
             }
         }
     }
@@ -408,6 +417,24 @@ void Hanabi_setMenu(uint8_t numPlayers)
 {
     // Game Init
     Hanabi_gameInit(numPlayers);
+
+    // // TODO DEMO CODE
+    // Hanabi_game.playerCards[0][0].UUID = 0x0A000000;
+    // Hanabi_game.playerCards[0][0].num = 1;
+    // Hanabi_game.playerCards[0][0].shape = 1;
+
+    // Hanabi_game.playerCards[0][1].UUID = 0x0D000000;
+    // Hanabi_game.playerCards[0][1].num = 1;
+    // Hanabi_game.playerCards[0][1].shape = 3;
+
+    // Hanabi_game.playerCards[0][2].UUID = 0x14000000;
+    // Hanabi_game.playerCards[0][2].num = 1;
+    // Hanabi_game.playerCards[0][2].shape = 0;
+
+    // Hanabi_game.playerCards[1][1].UUID = 0x13000000;
+    // Hanabi_game.playerCards[1][1].num = 2;
+    // Hanabi_game.playerCards[1][1].shape = 1;
+
 }
 
 void Hanabi_updateMenu(void)

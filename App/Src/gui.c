@@ -468,23 +468,25 @@ void GUI_setMenu(MenuScreen menu)
     GUI_updateCurrentMenu();
 }
 
-void GUI_cardTap(uint32_t UUID)
+bool GUI_cardTap(uint32_t UUID)
 {
+    bool ret = false;
+
     switch (GUI_currentMenu)
     {
         case MENU_CARD_LOAD:
             Game_registerCard(UUID);
+            ret = true;
             break;
         case MENU_GAME:
             Game_playCard(UUID);
+            ret = true;
             break;
         default:
             break;
     }
 
-    SenderDataSpec cardReturn = Game_sendCard(UUID);
-    extern osMessageQueueId_t dataSenderQueueHandle;
-    osMessageQueuePut(dataSenderQueueHandle, &cardReturn, 0, 10);
+    return ret;
 }
 
 void GUI_buttonCallback(ButtonHandle button, PressType type)
@@ -651,8 +653,13 @@ static void GUI_init()
 
     GUI_constructMenus();
 
-    Game_setMenu(GAME_HANABI, 3);
-    GUI_setMenu(MENU_GAME);
+    // Game_setMenu(GAME_HANABI, 2);
+    GUI_selectedGame = GAME_HANABI;
+    PlayerSelect_players = 2;
+
+    GUI_setMenu(MENU_CARD_LOAD);
+
+    // GUI_setMenu(MENU_MAIN);
 
     return;
 }

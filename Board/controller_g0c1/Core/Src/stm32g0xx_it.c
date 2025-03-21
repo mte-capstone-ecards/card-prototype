@@ -22,6 +22,7 @@
 #include "stm32g0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,6 +93,10 @@ void HardFault_Handler(void)
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
+        for(uint32_t x = 0; x < 64e6/50; x++);
+        LED_enableSolid(LED_NFC_WORKING);
+        for(uint32_t x = 0; x < 64e6/50; x++);
+        LED_disable(LED_NFC_WORKING);
     /* USER CODE END W1_HardFault_IRQn 0 */
   }
 }

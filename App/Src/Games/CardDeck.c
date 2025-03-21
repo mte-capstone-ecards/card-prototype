@@ -5,6 +5,8 @@
 #include "ugui.h"
 
 #include <rng.h>
+#include <string.h>
+#include <cmsis_os.h>
 
 UG_WINDOW CardDeck_window;
 
@@ -147,6 +149,9 @@ void CardDeck_playCard(uint32_t UUID)
 SenderDataSpec CardDeck_sendCard(uint32_t UUID)
 {
     // Find the card and send a Suit Card command
+    SenderDataSpec spec = { 0U };
+
+    return spec;
 }
 
 /***************************************

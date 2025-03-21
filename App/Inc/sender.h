@@ -3,16 +3,24 @@
 #include "app.h"
 
 #if FTR_DATASENDER
+#include "eeprom.h"
 
 typedef struct
 {
-#if FORCE_HANABI
-    uint8_t shape;
-    uint8_t num;
-#endif
-    uint32_t *data;
-    uint32_t  startBit;
-    uint32_t  numWords;
+    SenderInstruction instr;
+
+    union {
+        struct {
+            uint8_t suit;
+            uint8_t num;
+        } card;
+
+        struct {
+            uint8_t indices[4];
+            uint8_t len;
+            char str[255];
+        } string;
+    };
 } SenderDataSpec;
 
 void Sender_task(void *args);

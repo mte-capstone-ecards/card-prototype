@@ -42,24 +42,54 @@ static struct {
 
 extern osMessageQueueId_t dataSenderQueueHandle;
 
-static uint16_t Sender_loadNextPacket(void)
+// static uint16_t Sender_loadNextPacket(void)
+// {
+//     if (sender.senderData.numWords == 0)
+//         return false;
+
+//     // Clear existing packet data
+//     memset(&sender.packet, 0U, sizeof(DataPacket));
+
+//     // Determine transmission length
+//     uint16_t len = sender.senderData.numWords < DATA_PAYLOAD_SIZE ? sender.senderData.numWords : DATA_PAYLOAD_SIZE;
+//     sender.packet.header.dataLen = len;
+
+//     // Copy this amount of data into the payload
+//     memcpy(sender.packet.payload, sender.senderData.data + sender.senderData.startBit, 4 * len);
+
+//     // TODO: Add the CRC
+
+//     return len;
+// }
+
+void Sender_writeData(void)
 {
-    if (sender.senderData.numWords == 0)
-        return false;
+    uint32_t msg;
 
-    // Clear existing packet data
-    memset(&sender.packet, 0U, sizeof(DataPacket));
+    switch (sender.senderData.instr)
+    {
+        case SENDER_HANABI_INSTR:
+        case SENDER_CARD_INSTR:
+            msg = ((sender.senderData.card.suit << 0U) | (sender.senderData.card.num << 8U)) & 0x0000FFFF;
+            Eeprom_writeData(0, &msg, 1);
 
-    // Determine transmission length
-    uint16_t len = sender.senderData.numWords < DATA_PAYLOAD_SIZE ? sender.senderData.numWords : DATA_PAYLOAD_SIZE;
-    sender.packet.header.dataLen = len;
+            break;
+        case SENDER_STRING_INSTR:
+            msg = (
+                ((0xFF & sender.senderData.string.indices[0]) << 0U) |
+                ((0xFF & sender.senderData.string.indices[1]) << 8U) |
+                ((0xFF & sender.senderData.string.indices[2]) << 16U)  |
+                ((0xFF & sender.senderData.string.indices[3]) << 24U)
+            );
 
-    // Copy this amount of data into the payload
-    memcpy(sender.packet.payload, sender.senderData.data + sender.senderData.startBit, 4 * len);
+            Eeprom_writeData(0, &msg, 1);
+            Eeprom_writeData(1, (uint32_t *) sender.senderData.string.str, sender.senderData.string.len);
 
-    // TODO: Add the CRC
+            break;
 
-    return len;
+        default:
+            break;
+    }
 }
 
 void Sender_task(void *args)
@@ -120,29 +150,28 @@ void Sender_task(void *args)
                 if (Eeprom_partnerUpdated())
                 {
                     // We connected! Trigger the card callback
-                    GUI_cardTap(eeprom.UUID);
-                    sender.state = SENDER_STATE_IDLE;
+                    if (GUI_cardTap(eeprom.UUID))
+                    {
+                        sender.state = SENDER_STATE_IDLE;
+                    }
                     break;
                 }
-
+                Eeprom_writeNextHeader(SENDER_NULL_INSTR);
                 Eeprom_writeNextHeader(SENDER_CHALLENGE_INSTR);
                 break;
 
             case SENDER_STATE_IDLE:
-#if FORCE_HANABI
+#if 1
                 // status = osMessageQueueGet(dataSenderQueueHandle, &sender.senderData, NULL, 10);
                 sender.senderData = Game_sendCard(eeprom.UUID);
 
-                if (status == osOK)
-                {
-                    eeprom.senderHeader.shape = sender.senderData.shape;
-                    eeprom.senderHeader.num = sender.senderData.num;
-                    Eeprom_writeNextHeader(SENDER_HANABI_INSTR);
+                Sender_writeData();
+                Eeprom_writeNextHeader(SENDER_HANABI_INSTR);
 
-                    sender.initIndex = 0;
-                    sender.state = SENDER_STATE_COOLDOWN;
-                    break;
-                }
+                sender.initIndex = 0;
+                GUI_updateCurrentMenu();
+                sender.state = SENDER_STATE_WAITING;
+                break;
 #else
                 status = osMessageQueueGet(dataSenderQueueHandle, &sender.senderData, NULL, 10);
 
@@ -155,99 +184,102 @@ void Sender_task(void *args)
 #endif
                 break;
 
-            case SENDER_STATE_TRANSMITTING:
-                if (Sender_loadNextPacket())
-                {
-                    if (Eeprom_writeData(0, (uint32_t *) &sender.packet, DATA_HEADER_SIZE + sender.packet.header.dataLen))
-                    {
-                    }
-                    else
-                    {
-                        // No room in queue, try again
-                        break;
-                    }
+            // case SENDER_STATE_TRANSMITTING:
+            //     if (Sender_loadNextPacket())
+            //     {
+            //         if (Eeprom_writeData(0, (uint32_t *) &sender.packet, DATA_HEADER_SIZE + sender.packet.header.dataLen))
+            //         {
+            //         }
+            //         else
+            //         {
+            //             // No room in queue, try again
+            //             break;
+            //         }
 
-                    while (!Eeprom_writeNextHeader(SENDER_DATA_INSTR))
-                        osThreadYield();
+            //         while (!Eeprom_writeNextHeader(SENDER_DATA_INSTR))
+            //             osThreadYield();
 
-                    sender.state = SENDER_STATE_WAITING; // Wait for the response
-                    break;
-                }
-                else
-                {
-                    sender.state = SENDER_STATE_CHECKING; // No data to transmit, check the transmission is correct
-                    break;
-                }
+            //         sender.state = SENDER_STATE_WAITING; // Wait for the response
+            //         break;
+            //     }
+            //     else
+            //     {
+            //         sender.state = SENDER_STATE_CHECKING; // No data to transmit, check the transmission is correct
+            //         break;
+            //     }
 
-                break;
+            //     break;
 
             case SENDER_STATE_WAITING:
-
-                // Read the receiver's header
-                Eeprom_readReceiverHeader();
-
-                if (Eeprom_partnerUpdated())
-                {
-                    // Read the receivers header, when we get a new receiver message
-                    // Check if its ACK -> go to sender state transmitting
-                    // If its a NACK -> go to sender re-transmitting
-
-                    if (eeprom.receiverHeader.instruction == RECEIVER_ACK)
-                    {
-                        // Advance the start bit and subtract the length
-                        sender.senderData.startBit += sender.packet.header.dataLen;
-                        sender.senderData.numWords -= sender.packet.header.dataLen;
-
-                        sender.state = SENDER_STATE_TRANSMITTING;
-                    }
-                    else
-                    {
-                        sender.state = SENDER_STATE_RETRANSMITTING;
-                    }
-
-                    break;
-                }
-
+                osDelay(50);
                 break;
 
-            case SENDER_STATE_RETRANSMITTING:
+            //     // Read the receiver's header
+            //     Eeprom_readReceiverHeader();
 
-                break;
+            //     if (Eeprom_partnerUpdated())
+            //     {
+            //         // Read the receivers header, when we get a new receiver message
+            //         // Check if its ACK -> go to sender state transmitting
+            //         // If its a NACK -> go to sender re-transmitting
 
-            case SENDER_STATE_CHECKING:
+            //         if (eeprom.receiverHeader.instruction == RECEIVER_ACK)
+            //         {
+            //             // Advance the start bit and subtract the length
+            //             sender.senderData.startBit += sender.packet.header.dataLen;
+            //             sender.senderData.numWords -= sender.packet.header.dataLen;
 
-                // Not implemented, go straight to updating
-                sender.state = SENDER_STATE_UPDATING;
+            //             sender.state = SENDER_STATE_TRANSMITTING;
+            //         }
+            //         else
+            //         {
+            //             sender.state = SENDER_STATE_RETRANSMITTING;
+            //         }
 
-                break;
+            //         break;
+            //     }
 
-            case SENDER_STATE_UPDATING:
+            //     break;
 
-                // Send a command requesting the device to update the display
-                if (!Eeprom_writeNextHeader(SENDER_UPDATE_INSTR))
-                {
-                    break;
-                }
+            // case SENDER_STATE_RETRANSMITTING:
 
-                // Read the receiver's header
-                while(eeprom.receiverHeader.instruction != RECEIVER_UPDATED)
-                {
-                    Eeprom_readReceiverHeader();
-                }
+            //     break;
 
-                // It updated! We can send next ID and go back to idle.
-                if (!Eeprom_writeNextHeader(SENDER_NULL_INSTR))
-                {
-                    sender.state = SENDER_STATE_ERROR;
-                    break;
-                }
+            // case SENDER_STATE_CHECKING:
 
-                sender.state = SENDER_STATE_IDLE;
-                break;
+            //     // Not implemented, go straight to updating
+            //     sender.state = SENDER_STATE_UPDATING;
 
-                break;
+            //     break;
+
+            // case SENDER_STATE_UPDATING:
+
+            //     // Send a command requesting the device to update the display
+            //     if (!Eeprom_writeNextHeader(SENDER_UPDATE_INSTR))
+            //     {
+            //         break;
+            //     }
+
+            //     // Read the receiver's header
+            //     while(eeprom.receiverHeader.instruction != RECEIVER_UPDATED)
+            //     {
+            //         Eeprom_readReceiverHeader();
+            //     }
+
+            //     // It updated! We can send next ID and go back to idle.
+            //     if (!Eeprom_writeNextHeader(SENDER_NULL_INSTR))
+            //     {
+            //         sender.state = SENDER_STATE_ERROR;
+            //         break;
+            //     }
+
+            //     sender.state = SENDER_STATE_IDLE;
+            //     break;
+
+            //     break;
 
             case SENDER_STATE_ERROR:
+            default:
 
                 // Reset sender
                 memset(&sender, 0U, sizeof(sender));

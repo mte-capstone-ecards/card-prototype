@@ -100,7 +100,15 @@ void Game_playCard(uint32_t UUID)
 
 SenderDataSpec Game_sendCard(uint32_t UUID)
 {
-    SenderDataSpec senderData = { 0U };
+    // Default to a clear command
+    SenderDataSpec senderData = {
+        .instr = SENDER_STRING_INSTR,
+        .string = {
+            .indices = { 0U },
+            .len = 1,
+            .str = { 0U },
+        },
+     };
 
     switch (Game_selectedGame)
     {

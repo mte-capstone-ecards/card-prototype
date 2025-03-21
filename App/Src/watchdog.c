@@ -42,20 +42,20 @@ static void Watchdog_kill(volatile Thread thread)
 
 void Watchdog_register(Thread thread, uint32_t period)
 {
-    if (thread >= THREAD_COUNT)
-        return; // Can't tickle non-existent task
-    reqTickles[thread] = THREAD_WATCHDOG_PERIOD / period;
-    tickles[thread] = 0;
+    // if (thread >= THREAD_COUNT)
+    //     return; // Can't tickle non-existent task
+    // reqTickles[thread] = THREAD_WATCHDOG_PERIOD / period;
+    // tickles[thread] = 0;
 }
 
 void Watchdog_tickle(Thread thread)
 {
-    if (thread >= THREAD_COUNT)
-        return; // Can't tickle non-existent task
-    if (reqTickles[thread] == WATCHDOG_DISABLED)
-        return; // Can't tickle disabled task
+    // if (thread >= THREAD_COUNT)
+    //     return; // Can't tickle non-existent task
+    // if (reqTickles[thread] == WATCHDOG_DISABLED)
+    //     return; // Can't tickle disabled task
 
-    tickles[thread]++;
+    // tickles[thread]++;
 }
 
 // Highest priority task - important we dont spend too much time in here
@@ -72,14 +72,14 @@ void Watchdog_task(void *args)
     {
         osDelay(THREAD_WATCHDOG_PERIOD);
 
-        for (Thread thread = 0; thread < THREAD_COUNT; thread++)
-        {
-            if (reqTickles[thread] != WATCHDOG_DISABLED && tickles[thread] == 0)
-            {
-                Watchdog_kill(thread);
-            }
-        }
+        // for (Thread thread = 0; thread < THREAD_COUNT; thread++)
+        // {
+        //     if (reqTickles[thread] != WATCHDOG_DISABLED && tickles[thread] == 0)
+        //     {
+        //         Watchdog_kill(thread);
+        //     }
+        // }
 
-        Watchdog_clear();
+        // Watchdog_clear();
     }
 }
