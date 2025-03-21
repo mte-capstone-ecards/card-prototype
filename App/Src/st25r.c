@@ -24,6 +24,11 @@
 # include "cmsis_os.h"
 #endif
 
+#include "eeprom.h"
+#include "sender.h"
+#include "games.h"
+#include "gui.h"
+
 
 /*****************************************/
 /*           Defines & Typedefs          */
@@ -137,17 +142,9 @@ static bool ST25R_Activation( uint8_t devIt )
     return true;
 }
 
-static ReturnCode ST25R_Connected( void )
+static ReturnCode ST25R_dispatchCommand()
 {
-    extern osMessageQueueId_t nfcCommandQueueHandle;
     ReturnCode ret = RFAL_ERR_NONE;
-
-    // Check if we have a command, if not, send a empty command to check if its still here
-    // Include a delay to ensure that while we don't have a pending command, we allow the I2C operation to run
-    if (osMessageQueueGet(nfcCommandQueueHandle, &st25r.nextCommand, NULL, 200) != osOK)
-    {
-        memcpy(&st25r.nextCommand, &defaultCommand, sizeof(defaultCommand));
-    }
 
     // We received a new command, reset our retries
     st25r.retries = ST25R_MAX_RETRIES;
@@ -234,6 +231,92 @@ static ReturnCode ST25R_Connected( void )
     return ret;
 }
 
+static ReturnCode ST25R_code( void )
+{
+    ReturnCode ret;
+
+    // Read the header, read the UUID
+    struct {
+        ReceiverHeader header;
+        uint32_t UUID;
+    } readerData;
+
+    st25r.nextCommand.cmd = NFC_COMMAND_READ_MULTIPLE_BLOCK;
+    st25r.nextCommand.readMultipleCmd.addr = 1;
+    st25r.nextCommand.readMultipleCmd.len = 2;
+    st25r.nextCommand.readMultipleCmd.rxLoc = (uint8_t *) &readerData;
+
+    ret = ST25R_dispatchCommand();
+    if (ret != RFAL_ERR_NONE)
+    {
+        return ret;
+    }
+
+    // "Tap" the card
+    bool updated = GUI_cardTap(readerData.UUID);
+
+    if (updated)
+    {
+        // Get the sender data
+        SenderDataSpec spec;
+        spec = Game_sendCard(readerData.UUID);
+
+        // Write all the required data
+        union {
+            uint32_t raw;
+            SenderHeader header;
+        } senderHeader;
+
+        struct {
+            uint8_t shape;
+            uint8_t num;
+            uint8_t dummy[2];
+        } cardData = {
+            .shape = spec.card.suit,
+            .num = spec.card.num,
+        };
+
+
+        uint32_t msg = *(uint32_t *) &cardData;
+
+        senderHeader.header.instruction = SENDER_HANABI_INSTR;
+        senderHeader.header.seqNum = readerData.header.seqNum + 1;
+
+        st25r.nextCommand.cmd = NFC_COMMAND_WRITE_SINGLE_BLOCK;
+        st25r.nextCommand.writeSingleCmd.addr = 3;
+        st25r.nextCommand.writeSingleCmd.data = msg;
+
+        ret = ST25R_dispatchCommand();
+        if (ret != RFAL_ERR_NONE)
+        {
+            return ret;
+        }
+
+        st25r.nextCommand.cmd = NFC_COMMAND_WRITE_SINGLE_BLOCK;
+        st25r.nextCommand.writeSingleCmd.addr = 0;
+        st25r.nextCommand.writeSingleCmd.data = senderHeader.raw;
+
+        return ret = ST25R_dispatchCommand();
+    }
+
+    if (ret != RFAL_ERR_NONE)
+    {
+        extern bool guiNeedsUpdated;
+        guiNeedsUpdated = true;
+    }
+
+    // NFC cooldown
+    osDelay(5000);
+
+    return ret;
+}
+
+static ReturnCode ST25R_Connected( void )
+{
+    memcpy(&st25r.nextCommand, &defaultCommand, sizeof(defaultCommand));
+    return ST25R_dispatchCommand();
+}
+
 static bool ST25R_Deactivate( void )
 {
     return true;
@@ -305,6 +388,14 @@ void ST25R_task(void *arg)
                 LED_enableHz(LED_NFC_WORKING, 3);
 #endif
                 st25r.state = ST25R_STATE_CONNECTED; /* Device has been properly activated, we are now connected */
+
+
+                if (ST25R_code() != RFAL_ERR_NONE)
+                {
+                    st25r.state = ST25R_STATE_DEACTIVATION;
+                }
+
+
                 break;
 
             case ST25R_STATE_CONNECTED:

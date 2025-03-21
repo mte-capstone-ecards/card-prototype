@@ -89,6 +89,8 @@ void LED_task(void *args)
 {
     (void) args;
 
+    LED_enableHz(LED_WATCHDOG, 2);
+
     for (;;)
     {
         for (LEDHandle handle = LED_HANDLE_INITIAL; handle < LED_HANDLE_COUNT; handle++)

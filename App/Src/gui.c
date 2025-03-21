@@ -664,6 +664,9 @@ static void GUI_init()
     return;
 }
 
+extern bool guiNeedsUpdated;
+bool guiNeedsUpdated = false;
+
 void GUI_task(void *args)
 {
     (void) args;
@@ -679,6 +682,11 @@ void GUI_task(void *args)
                 buttons[handle].pressed = BUTTON_NOT_PRESSED;
                 GUI_buttonCallback(handle, PRESS_SINGLE);
             }
+        }
+
+        if (guiNeedsUpdated)
+        {
+            GUI_updateCurrentMenu();
         }
 
         Watchdog_tickle(THREAD_GUI);

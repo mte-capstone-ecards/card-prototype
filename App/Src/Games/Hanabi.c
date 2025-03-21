@@ -239,6 +239,18 @@ uint8_t *Hanabi_getTable(void)
 
 void Hanabi_registerCard(uint32_t UUID)
 {
+    // Check this UUID is not already registered
+    for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
+    {
+        for (uint8_t card = 0; card < Hanabi_game.numPlayerCards; card++)
+        {
+            if (Hanabi_game.playerCards[player][card].UUID == UUID)
+            {
+                return;
+            }
+        }
+    }
+
     Hanabi_game.playerCards[Hanabi_game.dealData.currPlayer - 1][Hanabi_game.dealData.currCard - 1] = Hanabi_dealCard();
     Hanabi_game.playerCards[Hanabi_game.dealData.currPlayer - 1][Hanabi_game.dealData.currCard - 1].UUID = UUID;
     Hanabi_game.dealData.cardsLoaded++;

@@ -54,20 +54,20 @@ typedef struct
 } ThreadConfig;
 
 ThreadConfig threads[THREAD_COUNT] = {
-#if FTR_WATCHDOG
-  [THREAD_WATCHDOG] = {
-    .task       = Watchdog_task,
-    .name       = "watchdogTask",
-    .stack_size = 128 * 2,
-    .priority   = osPriorityHigh2,
-    .period     = THREAD_WATCHDOG_PERIOD
-  },
-#endif
+// #if FTR_WATCHDOG
+//   [THREAD_WATCHDOG] = {
+//     .task       = Watchdog_task,
+//     .name       = "watchdogTask",
+//     .stack_size = 128 * 2,
+//     .priority   = osPriorityHigh2,
+//     .period     = THREAD_WATCHDOG_PERIOD
+//   },
+// #endif
 #if FTR_LED
   [THREAD_LED] = {
     .task       = LED_task,
     .name       = "ledTask",
-    .stack_size = 128 * 2,
+    .stack_size = 2 * 128 * 2,
     .priority   = osPriorityLow,
     .period     = THREAD_LED_PERIOD,
   },
@@ -76,7 +76,7 @@ ThreadConfig threads[THREAD_COUNT] = {
   [THREAD_GUI] = {
     .task       = GUI_task,
     .name       = "guiTask",
-    .stack_size = 128 * 4,
+    .stack_size = 2 * 128 * 4,
     .priority   = osPriorityNormal,
     .period     = THREAD_GUI_PERIOD,
   },
@@ -85,7 +85,7 @@ ThreadConfig threads[THREAD_COUNT] = {
   [THREAD_ST25R] = {
     .task       = ST25R_task,
     .name       = "st25rTask",
-    .stack_size = 128 * 8,
+    .stack_size = 2 * 128 * 8,
     .priority   = osPriorityHigh,
     .period     = THREAD_ST25R_PERIOD,
   },
@@ -94,29 +94,29 @@ ThreadConfig threads[THREAD_COUNT] = {
   [THREAD_ST25R_IRQ] = {
     .task       = ST25R_irqTask,
     .name       = "st25rIrqTask",
-    .stack_size = 128 * 2,
+    .stack_size = 2 * 128 * 2,
     .priority   = osPriorityHigh1,
     .period     = THREAD_ST25R_IRQ_PERIOD,
   },
 #endif
-#if FTR_DATASENDER
-  [THREAD_SENDER] = {
-    .task       = Sender_task,
-    .name       = "senderTask",
-    .stack_size = 128 * 8,
-    .priority   = osPriorityNormal1,
-    .period     = THREAD_SENDER_PERIOD,
-  },
-#endif
-#if FTR_BUTTON
-  [THREAD_BUTTON] = {
-    .task       = Button_task,
-    .name       = "buttonTask",
-    .stack_size = 128 * 2,
-    .priority   = osPriorityLow1,
-    .period     = THREAD_BUTTON_PERIOD,
-  },
-#endif
+// #if FTR_DATASENDER
+//   [THREAD_SENDER] = {
+//     .task       = Sender_task,
+//     .name       = "senderTask",
+//     .stack_size = 128 * 8,
+//     .priority   = osPriorityNormal1,
+//     .period     = THREAD_SENDER_PERIOD,
+//   },
+// #endif
+// #if FTR_BUTTON
+//   [THREAD_BUTTON] = {
+//     .task       = Button_task,
+//     .name       = "buttonTask",
+//     .stack_size = 128 * 2,
+//     .priority   = osPriorityLow1,
+//     .period     = THREAD_BUTTON_PERIOD,
+//   },
+// #endif
 };
 
 // RTOS Events
