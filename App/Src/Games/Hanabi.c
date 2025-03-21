@@ -237,7 +237,7 @@ uint8_t *Hanabi_getTable(void)
     return Hanabi_game.table;
 }
 
-void Hanabi_registerCard(uint32_t UUID)
+bool Hanabi_registerCard(uint32_t UUID)
 {
     // Check this UUID is not already registered
     for (uint8_t player = 0; player < Hanabi_game.numPlayers; player++)
@@ -246,7 +246,7 @@ void Hanabi_registerCard(uint32_t UUID)
         {
             if (Hanabi_game.playerCards[player][card].UUID == UUID)
             {
-                return;
+                return false;
             }
         }
     }
@@ -263,6 +263,8 @@ void Hanabi_registerCard(uint32_t UUID)
         Hanabi_game.dealData.currPlayer++;
         Hanabi_game.dealData.currCard = 1;
     }
+
+    return true;
 }
 
 static void Hanabi_privatePlayCard(uint8_t player, uint8_t card)

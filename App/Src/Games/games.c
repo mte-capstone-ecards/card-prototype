@@ -74,16 +74,20 @@ DealData Game_getDealData(void)
     return dealData;
 }
 
-void Game_registerCard(uint32_t UUID)
+bool Game_registerCard(uint32_t UUID)
 {
+    bool ret = false;
+
     switch (Game_selectedGame)
     {
         case GAME_HANABI:
-            Hanabi_registerCard(UUID);
+            ret = Hanabi_registerCard(UUID);
             break;
         default:
             break;
     }
+
+    return ret;
 }
 
 void Game_playCard(uint32_t UUID)

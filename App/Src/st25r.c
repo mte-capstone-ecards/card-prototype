@@ -296,13 +296,15 @@ static ReturnCode ST25R_code( void )
         st25r.nextCommand.writeSingleCmd.addr = 0;
         st25r.nextCommand.writeSingleCmd.data = senderHeader.raw;
 
-        return ret = ST25R_dispatchCommand();
-    }
+        ret = ST25R_dispatchCommand();
+        if (ret != RFAL_ERR_NONE)
+        {
+            return ret;
+        }
 
-    if (ret != RFAL_ERR_NONE)
-    {
         extern bool guiNeedsUpdated;
         guiNeedsUpdated = true;
+        return ret;
     }
 
     // NFC cooldown

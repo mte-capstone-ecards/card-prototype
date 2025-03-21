@@ -39,7 +39,7 @@ extern char Games_names[GAME_COUNT][20];
  *          - Called on button press with the pressed button and the type of press *
  *      DealData Game_getDealData(void)
  *          - Called after every card tap during card load to determine load progress
- *      void Game_registerCard(uint32_t UUID)
+ *      bool Game_registerCard(uint32_t UUID)
  *          - Called at every card tap during card load to register a tapped card to the game
  *      void Game_playCard(uint32_t UUID)
  *          - Called at every card tap during gameplay to register a game event
@@ -53,6 +53,6 @@ void Game_updateMenu(void);
 void Game_buttonCallback(ButtonHandle button, PressType type);
 
 DealData Game_getDealData(void);
-void Game_registerCard(uint32_t UUID);
+bool Game_registerCard(uint32_t UUID);
 void Game_playCard(uint32_t UUID);
 SenderDataSpec Game_sendCard(uint32_t UUID);

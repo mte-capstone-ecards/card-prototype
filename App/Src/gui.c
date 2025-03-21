@@ -384,6 +384,7 @@ static void GUI_constructMenus()
     }
 }
 
+void GUI_setMenu(MenuScreen menu);
 void GUI_updateCurrentMenu()
 {
     DealData dealData;
@@ -402,6 +403,12 @@ void GUI_updateCurrentMenu()
             break;
         case MENU_CARD_LOAD:
             dealData = Game_getDealData();
+
+            if (dealData.cardsLoaded >= dealData.numCards)
+            {
+                GUI_setMenu(MENU_GAME);
+                return;
+            }
 
             UG_TextboxSetText(&CardLoad_window, OBJ_ID_2, CardLoad_strings[dealData.currPlayer - 1][dealData.currCard - 1]);
             UG_ProgressSetProgress(&CardLoad_window, OBJ_ID_3, (100 * dealData.cardsLoaded) / dealData.numCards);
@@ -475,8 +482,7 @@ bool GUI_cardTap(uint32_t UUID)
     switch (GUI_currentMenu)
     {
         case MENU_CARD_LOAD:
-            Game_registerCard(UUID);
-            ret = true;
+            ret = Game_registerCard(UUID);
             break;
         case MENU_GAME:
             Game_playCard(UUID);
@@ -632,10 +638,10 @@ void GUI_buttonCallback(ButtonHandle button, PressType type)
 
         case MENU_CARD_LOAD:
 
-            if (BUTTON(A, SINGLE))
-            {
-                GUI_setMenu(MENU_GAME);
-            }
+            // if (BUTTON(A, SINGLE))
+            // {
+            //     GUI_setMenu(MENU_GAME);
+            // }
 
             break;
 
@@ -654,12 +660,12 @@ static void GUI_init()
     GUI_constructMenus();
 
     // Game_setMenu(GAME_HANABI, 2);
-    GUI_selectedGame = GAME_HANABI;
-    PlayerSelect_players = 2;
+    // GUI_selectedGame = GAME_HANABI;
+    // PlayerSelect_players = 2;
 
-    GUI_setMenu(MENU_CARD_LOAD);
+    // GUI_setMenu(MENU_CARD_LOAD);
 
-    // GUI_setMenu(MENU_MAIN);
+    GUI_setMenu(MENU_MAIN);
 
     return;
 }
@@ -687,6 +693,7 @@ void GUI_task(void *args)
         if (guiNeedsUpdated)
         {
             GUI_updateCurrentMenu();
+            guiNeedsUpdated = false;
         }
 
         Watchdog_tickle(THREAD_GUI);
