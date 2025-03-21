@@ -273,7 +273,6 @@ void ST25R_task(void *arg)
                     st25r.state = ST25R_STATE_DEACTIVATION;                  /* If no device was found, restart loop */
                     break;
                 }
-
                 st25r.state = ST25R_STATE_COLAVOIDANCE;                      /* One or more devices found, go to Collision Avoidance */
                 break;
 
@@ -297,9 +296,14 @@ void ST25R_task(void *arg)
                 }
 
 #if FTR_LED
-                LED_enableHz(LED_NFC_WORKING, 3);
+                LED_enableHz(LED_NFC_WORKING, 6);
 #endif
 
+                osDelay(3000);
+
+#if FTR_LED
+                LED_enableHz(LED_NFC_WORKING, 3);
+#endif
                 st25r.state = ST25R_STATE_CONNECTED; /* Device has been properly activated, we are now connected */
                 break;
 
