@@ -1,0 +1,347 @@
+[33mcommit 6e39f59664652814ca4b2462d8765e6c40de0000[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: es-jung <es.jung149@gmail.com>
+Date:   Thu Mar 20 00:27:28 2025 -0400
+
+    fatfs library added
+
+[33mcommit 5fa69d296da879f30d3394e51f436a114d62646e[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Mar 9 20:12:33 2025 -0400
+
+    Seperated ST25R3911 and 3916B
+
+[33mcommit d59141592a04e212bb3b90655de5f3f28e4fe5b2[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Mar 9 17:13:43 2025 -0400
+
+    Hanabi screen completed
+
+[33mcommit 7a987e67a225d06ce50bada025097a86065afaaa[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Mar 9 15:06:32 2025 -0400
+
+    CMake and features rework
+
+[33mcommit df217bc447dceedd00f12a81d2a833b0d9824f35[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sat Mar 8 13:27:17 2025 -0500
+
+    Hanabi screen mostly built
+
+[33mcommit a407afedaf7e2407469c72fffa6bf6e180f90855[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Fri Mar 7 18:00:12 2025 -0500
+
+    Added card load screen
+
+[33mcommit d8d7d8ad16c0b580f0b1a4cf8f66ec975a255422[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Fri Mar 7 17:13:20 2025 -0500
+
+    Working buttons
+
+[33mcommit c175065b403e2929028d5261dbf22d90a838efd3[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Fri Mar 7 16:19:41 2025 -0500
+
+    Working construction of screens
+
+[33mcommit 67a3c4def969867e2734d37b137590cb6d9d049f[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Fri Feb 28 17:29:40 2025 -0500
+
+    Testing old board, out of memory
+
+[33mcommit 4a351a6edd6377d9cc9a4323d69c1ce40ca3a4d7[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Thu Feb 27 18:07:25 2025 -0500
+
+    Try to switch back to standard i2c implementation
+
+[33mcommit 73d0fde0f2be8430107bd89f1bf0f9e204f7e7ec[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Tue Feb 25 15:24:08 2025 -0500
+
+    Buttons, LEDs and more gui work
+
+[33mcommit 7f5c71e632522e9f1abf48c931a754cf5ebe91da[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Tue Feb 25 10:33:41 2025 -0500
+
+    I2C bring up for controller, arlo error
+
+[33mcommit 06e953a5809957430e8c5dfbdf8c75ed710e196c[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Feb 24 17:20:39 2025 -0500
+
+    Testing out window styling for the gui
+
+[33mcommit 37ace098a4277fc93164bdc56d92c897f4491655[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Feb 24 17:07:15 2025 -0500
+
+    Switched to ugui fork
+
+[33mcommit dd818ba0c810bea0dd00e6c2a72927fb4c595c23[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Feb 24 17:02:05 2025 -0500
+
+    Working ugui code - in the middle of removing submodule
+
+[33mcommit c672f1f3d39f231c91d6f5e9b21ea14ec03730b3[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Feb 24 15:23:43 2025 -0500
+
+    Working eink update on g0
+
+[33mcommit 9a359a80cd5ebb81199cf894e83f60edd8b7d958[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Feb 24 12:29:05 2025 -0500
+
+    Working communication between the boards - wireless update works slowly and unreliably
+
+[33mcommit 41368071392c3b85e02d2bbe462de65f65d06296[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Tue Feb 11 01:13:15 2025 -0500
+
+    Pre controller rev code
+
+[33mcommit c1172c8b261634d437c6e4ecc8a110d304e5627f[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Thu Feb 6 13:15:31 2025 -0500
+
+    Updated protocol implemented, testing phase 1 - issue withs ACKs
+
+[33mcommit 2e54317eb770f5528132d228707249048a496f6a[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Feb 3 14:24:10 2025 -0500
+
+    Added compatability for spaces in the dir
+
+[33mcommit 0a0362df943b64504739f970d1b700fe4fbca6b4[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Feb 3 14:17:54 2025 -0500
+
+    Completed proto of transfer code
+
+[33mcommit db6a654295644416852ef24d8d99055b60db7730[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Feb 2 18:22:02 2025 -0500
+
+    Working challenge - card/controller get to idle
+
+[33mcommit 80849fc91618533d8d02a105376f672b0c214b23[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Jan 27 13:02:35 2025 -0500
+
+    Card + eeprom
+
+[33mcommit 8aed9f5ebac9f686c295ae8e2075dacf84c45da2[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Jan 26 18:42:49 2025 -0500
+
+    Controller transmitting blocks! Start work on card
+
+[33mcommit eb898ce79d87cfb98f08c9202f45f8ccee2cc286[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Jan 26 17:58:07 2025 -0500
+
+    Data challenge working on controller
+
+[33mcommit 78d58c11f9f47a886fa9972063c8d6f33729d593[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Jan 26 14:22:38 2025 -0500
+
+    Fix compile
+
+[33mcommit bd548005d608ded6033a38fb9d24780aa4a370f8[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Jan 26 14:10:34 2025 -0500
+
+    Read working
+
+[33mcommit c1da42048b9c12a441a2eff819e59ad4846cc5f8[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sat Jan 25 22:27:40 2025 -0500
+
+    Partial progress on sender state machine
+
+[33mcommit 5d0acd00d6b38ea51e72bce5f49adc8c5a4a999a[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Thu Jan 23 13:47:08 2025 -0500
+
+    Added led template file
+
+[33mcommit df18bc15ceb2dfc2a002ebc0aca98d42d40fadfa[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Thu Jan 23 13:12:23 2025 -0500
+
+    First build of g0c1 working
+
+[33mcommit a47c3f8d9b7d94049ac6d223efc41e0c3a615a53[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Thu Jan 16 16:51:13 2025 -0500
+
+    sd card demo set up
+
+[33mcommit 0d209c8e029dccd7b0cb42342710fde70e791b2a[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Thu Jan 16 15:55:00 2025 -0500
+
+    M24 on l0
+
+[33mcommit c0ec97c9dd04730e6fbd07e52ff797dc1a81d448[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Wed Jan 15 17:05:16 2025 -0500
+
+    Temp in between for moving between libs
+
+[33mcommit 97cf0329ee1dee0838467289f0098fe01d0b70a1[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Wed Jan 15 14:58:08 2025 -0500
+
+    Brought G4 back
+
+[33mcommit c5c297ee4b1c795c0ddff8feb0c9f0d51477018b[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Wed Jan 15 02:26:19 2025 -0500
+
+    Working RTOS w/ nfc over message queue
+
+[33mcommit b303f33b75c63eb0c130aca70d38670b63e03982[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Tue Jan 14 23:42:31 2025 -0500
+
+    Deleted unused files
+
+[33mcommit 2a754563544507f3fc626f4aa2d36bda631f314e[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Tue Jan 14 23:32:16 2025 -0500
+
+    RFAL working - Sucesfully get system info, read block and write block
+
+[33mcommit 8a651f5d90d7675ab20487ef52b4e18ca58addda[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Jan 13 20:53:46 2025 -0500
+
+    Last commit before converting st25r.c to RFAL
+
+[33mcommit 16af0bce611d68e80063f9a2b9de8d99f11a897a[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Jan 13 14:54:58 2025 -0500
+
+    Imported RFAL library, almost compiling
+
+[33mcommit c084041b5fa7d85c887ffcade235009268f769b9[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Jan 13 13:11:48 2025 -0500
+
+    Working communication with st25r!
+
+[33mcommit d1312961c010b8972cfeeccf575bbd12ce8b3ac1[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Jan 12 14:44:51 2025 -0500
+
+    new line
+
+[33mcommit e1139ea81785e9b6d764f3df5a55ad3c8f2c6c23[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Tue Jan 7 14:51:28 2025 -0500
+
+    Working on f446 devboard
+
+[33mcommit dc28a0353033bd866cd670df8824a4451fdceb15[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Jan 6 21:01:42 2025 -0500
+
+    VSCode build works for all three boards
+
+[33mcommit 673a2bc3b980e51d12137a3581ceef8ce8d7ef36[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Jan 6 20:41:20 2025 -0500
+
+    Working eink update on L0!
+
+[33mcommit 2b046718c47ee4137eb8c933f80cdf4633ad5b4d[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sun Dec 22 16:12:41 2024 -0500
+
+    Testing image display
+
+[33mcommit 43f8ea528d164b424d3cc38bbc7218dad591900a[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sat Dec 21 19:17:08 2024 -0500
+
+    Working!!! Switching between three patterns, BW only
+
+[33mcommit b4f1f76bb35df61a97376f6be3b47e41ac27caf0[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sat Dec 21 18:02:54 2024 -0500
+
+    Eink demo working on ext3-1 with noise
+
+[33mcommit 66c238fcdf5553baf2e38f1c2e32a39529cb7bc8[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Sat Dec 21 16:42:19 2024 -0500
+
+    WIP: Eink on STM
+
+[33mcommit c3f886aef9a98005f2d9e2626e598fc1ea813a76[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Dec 16 22:06:36 2024 -0500
+
+    Using TIM2 as systick source
+
+[33mcommit 1f7c55ed8a9a9c4e03ed632aacd3580f7299125a[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Dec 16 21:56:55 2024 -0500
+
+    Returned to using MSI RC
+
+[33mcommit 1671f8880c5811e7f43d4c744577ec611de1e110[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Dec 16 21:51:28 2024 -0500
+
+    Use HSI no PLL
+
+[33mcommit efb9e6d75b17ab8662276879ccf75bcb664d0d21[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Dec 16 21:39:52 2024 -0500
+
+    Enable IRQ
+
+[33mcommit dcf5f3d317b60896087acd5aa1e8a0c07aac7bb8[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Dec 16 21:22:31 2024 -0500
+
+    Working on EINK and PLL update for L0
+
+[33mcommit 2ebaa5fd0f64691b5a3a2f18c7e7be362d05a368[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Mon Dec 16 11:11:54 2024 -0500
+
+    Added initial L071 card board revision
+
+[33mcommit 2a441e2d456662700b4b2d63f43840af0e0f969e[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Thu Dec 5 22:19:36 2024 -0500
+
+    Add launch.json - cortex debug working!
+
+[33mcommit eb5d3eb814c8b1ee6ba8f9bcac221e755d443ee8[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Wed Dec 4 13:05:56 2024 -0500
+
+    Added CMakePreset.json file for multi board builds
+
+[33mcommit e0dbbfe22b1153b00dc3e8a73567bd3198f0eee9[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Thu Nov 21 13:50:50 2024 -0500
+
+    Updated build configs - working on F446 nucleo
+
+[33mcommit e90e4398045fcb93da94740478cb53a651c96458[m
+Author: GuyBlumenthal <guy.blumenthal@outlook.com>
+Date:   Tue Nov 19 18:32:55 2024 -0500
+
+    Initial commit!
